@@ -3,3 +3,5 @@ git config --global user.name "Tony"
 git config --global user.email "tony@gmail.com"
 建立仓库：git init
 通过ls -al命令来查看本地所有的Git操作的
+添加所有的文件git add .
+提交：git commit -m "First commit."

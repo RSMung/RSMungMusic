@@ -20,12 +20,12 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal">
+            android:layout_height="wrap_content">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/user"/>
+                android:src="@drawable/user"
+                android:layout_gravity="center_vertical"/>
             <EditText
                 android:id="@+id/edtext_user"
                 android:layout_width="match_parent"
@@ -38,12 +38,12 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal">
+            android:layout_height="wrap_content">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/password"/>
+                android:src="@drawable/password"
+                android:layout_gravity="center_vertical"/>
             <EditText
                 android:id="@+id/edtext_pas"
                 android:layout_width="match_parent"

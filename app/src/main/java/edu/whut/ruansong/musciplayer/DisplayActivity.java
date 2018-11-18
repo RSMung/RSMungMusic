@@ -10,6 +10,8 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -28,7 +30,7 @@ import java.util.List;
  */
 
 public class DisplayActivity extends BaseActivity {
-    private List<Song> songsList = new ArrayList<>();
+    private static List<Song> songsList = new ArrayList<>();
     private HeadsetPlugReceiver headsetReceiver;
     private Intent intent;
     private String userName;
@@ -239,5 +241,41 @@ public class DisplayActivity extends BaseActivity {
         } else {
             player.pause();
         }
+    }
+    //添加 menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    //menu的点击事件
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.pauseplay_item:
+                timePausePlay();
+                break;
+            case R.id.off_item:
+                timeOff();
+                break;
+        }
+        return true;
+    }
+    public void timePausePlay(){//定时停止播放
+
+    }
+    public void timeOff(){//定时关机
+
+    }
+    private void sendBroadcastOnCommand(int command){
+        Intent intent = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
+        intent.putExtra("command",command);
+        //根据不同的命令封装不同的数据
+        switch (command){
+        }
+    }
+    public static List<Song> getSongsList(){
+        return songsList;
     }
 }

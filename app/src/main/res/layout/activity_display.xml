@@ -5,10 +5,37 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="edu.whut.ruansong.musciplayer.DisplayActivity">
+
+    <LinearLayout
+        android:id="@+id/dialog_settime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/input_time"/>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_exit"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="@dimen/dp_5"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_ok"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="@dimen/dp_20"/>
+    </LinearLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
         <TextView
             android:id="@+id/text_welcome"
             android:layout_width="wrap_content"
@@ -30,12 +57,12 @@
             android:textSize="@dimen/sp_15" />
     </RelativeLayout>
 
-    <SeekBar
-        android:id="@+id/music_progress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/lucid_black_color"
-        android:minHeight="@dimen/dp_40"/>
+    <!--<SeekBar-->
+        <!--android:id="@+id/music_progress"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@color/lucid_black_color"-->
+        <!--android:minHeight="@dimen/dp_40"/>-->
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -51,14 +78,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@color/lucid_white_color">
+            android:background="@color/violet_color">
 
             <ImageView
                 android:id="@+id/image_music"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:src="@drawable/music_1" />
+                android:src="@drawable/music1" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

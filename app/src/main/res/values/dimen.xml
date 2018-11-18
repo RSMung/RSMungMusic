@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="dp_5">5dp</dimen>
+    <dimen name="dp_10">10dp</dimen>
     <dimen name="dp_15">15dp</dimen>
     <dimen name="dp_20">20dp</dimen>
+    <dimen name="dp_40">40dp</dimen>
     <dimen name="dp_60">60dp</dimen>
+
+    <dimen name="sp_10">10sp</dimen>
+    <dimen name="sp_15">15sp</dimen>
+    <dimen name="sp_20">20sp</dimen>
+
     <dimen name="px_5">5px</dimen>
 </resources>

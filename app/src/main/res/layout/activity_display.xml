@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="edu.whut.ruansong.musciplayer.DisplayActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/text_welcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="@string/welcome"
+            android:textSize="@dimen/sp_15" />
+
+        <Button
+            android:id="@+id/button_exit_welcome"
+            style="?android:attr/buttonBarButtonStyle"
+            android:background="@drawable/shape"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="@string/button_exit"
+            android:textColor="@color/black_color"
+            android:textSize="@dimen/sp_15" />
+    </RelativeLayout>
+
+    <SeekBar
+        android:id="@+id/music_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/lucid_black_color"
+        android:minHeight="@dimen/dp_40"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ListView
+            android:id="@+id/list_song"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></ListView>
+
+        <RelativeLayout
+            android:id="@+id/play_bar_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/lucid_white_color">
+
+            <ImageView
+                android:id="@+id/image_music"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/music_1" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_toRightOf="@+id/image_music"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/buttom_textview_songname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="测试"
+                    android:textColor="@color/black_color"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/buttom_textview_songauthor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="测试"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:textColor="@color/black_color"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/button_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="10dp"
+                android:layout_toStartOf="@+id/history_menu"
+                android:background="@drawable/play_2" />
+
+            <ImageButton
+                android:id="@+id/history_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dp_5"
+                android:background="@drawable/menu" />
+        </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/history_ln_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="@color/lucid_black_color"
+            android:layout_above="@+id/play_bar_bottom">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/history"
+                android:textColor="@color/white_color"/>
+            <ListView
+                android:id="@+id/list_playhistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></ListView>
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

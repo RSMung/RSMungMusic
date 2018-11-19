@@ -15,7 +15,7 @@ import android.widget.VideoView;
 
 import edu.whut.ruansong.musciplayer.dynamicBackGround.VideoBackground;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 
     private VideoBackground videoBackground;
     private Button b_exit;
@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onRestart();
         initBackground();
     }
-    //防止锁屏或者切出的时候，音乐在播放
+    //防止锁屏或者切出的时候，背景音乐在播放
     @Override
     protected void onStop() {
         super.onStop();

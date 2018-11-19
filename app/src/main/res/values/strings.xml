@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RSMusciPlayer</string>
+    <string name="app_name">RSMusicPlayer</string>
     <string name="username_hint">请输入用户名</string>
     <string name="userpassword_hint">请输入密码(默认为123456)</string>
     <string name="CheckBox_hint">记住用户名</string>

@@ -35,14 +35,12 @@ public class DisplayActivity extends BaseActivity {
     private Intent intent;
     private String userName;
     private IntentFilter intentFilter;
-    private static MediaPlayer player = new MediaPlayer();//媒体播放器
     private int num;//当前播放歌曲
-    private String path;//歌曲path
-    private int time;//歌曲时长
     View history_ln_view;//历史播放记录控件
     private int flag = 0;//用来控制历史播放记录控件是否可见
-    private int status;//播发状态
+    private int status;//播放状态
     private StatusChangedReceiver receiver;
+    ImageButton imgb_play;//底部的图片播放按钮
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +52,18 @@ public class DisplayActivity extends BaseActivity {
         initSongs(); // 初始化歌曲数据
         dealMusicButton();//初始化四个播放相关的按钮点击事件
         initDealPlayBarBottom();//点击底部一栏的事件
-        bindStatusChangedReceiver();//绑定广播接收器，可以接收广播
+        //启动服务
+        Intent intentService = new Intent(DisplayActivity.this, MusicService.class);
+        startService(intentService);
+        bindStatusChangedReceiver();//启动广播接收器
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         sendBroadcastOnCommand(MusicService.COMMAND_CHECK_IS_PLAYING);
     }
+
     //添加 menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -88,16 +90,14 @@ public class DisplayActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(headsetReceiver);
-        if(status==MusicService.STATUS_STOPPED){
-            stopService(new Intent(this,MusicService.class));
+        if (status == MusicService.STATUS_STOPPED) {
+            stopService(new Intent(this, MusicService.class));
         }
-        release();
     }
 
     public void initWelcome() {
         intent = getIntent();
         userName = intent.getStringExtra("userName");
-//        Toast.makeText(SecondActivity.this,userName, Toast.LENGTH_LONG).show();//调试用
         //设置欢迎信息
         if (userName.isEmpty()) {
             Toast.makeText(DisplayActivity.this, getResources().getString(R.string.null_username),
@@ -179,29 +179,14 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-//                Song song = songsList.get(position);
-//                TextView songname = findViewById(R.id.buttom_textview_songname);
-//                songname.setText(song.getSong_name());
-//                TextView songauthor = findViewById(R.id.buttom_textview_songauthor);
-//                songauthor.setText(song.getSong_author());
-//                path = song.getSong_addr();
-//                if (player.isPlaying()) {
-//                    if (position == num)//点击的正在播放的歌曲
-//                    {
-//                        player.pause();
-//                    } else {//点击了新歌曲
-//                        player.stop();
-//                        initMediaPlayer();
-//                        play();
-//                        PlayHistory.addSong(song);//添加进历史记录
-//                    }
-//                } else {
-//                    initMediaPlayer();
-//                    play();
-//                    PlayHistory.addSong(song);//添加进历史记录
-//                }
-//                num = position;
-
+                Song song = songsList.get(position);//获取点击位置
+                //设置底部的一栏的歌曲名和歌手
+                TextView songname = findViewById(R.id.buttom_textview_songname);
+                songname.setText(song.getSong_name());
+                TextView songauthor = findViewById(R.id.buttom_textview_songauthor);
+                songauthor.setText(song.getSong_author());
+                num = position;
+                sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
             }
         });
     }
@@ -212,12 +197,7 @@ public class DisplayActivity extends BaseActivity {
         b_paly.setOnClickListener(new View.OnClickListener() {//播放
             @Override
             public void onClick(View view) {//播放按钮
-//                if(player.isPlaying()){
-//                    player.pause();
-//                }else if(player!=null){
-//                    player.start();
-//                }
-                switch (status){
+                switch (status) {
                     case MusicService.STATUS_PLAYING:
                         sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
                         break;
@@ -233,14 +213,14 @@ public class DisplayActivity extends BaseActivity {
         history_menu.setOnClickListener(new View.OnClickListener() {//历史播放记录
             @Override
             public void onClick(View view) {
-                if(flag==0){
+                if (flag == 0) {
                     SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_item, PlayHistory.songs);
                     ListView list_playhistory = findViewById(R.id.list_playhistory);
                     list_playhistory.setAdapter(adapter_his);
                     history_ln_view = findViewById(R.id.history_ln_view);
                     history_ln_view.setVisibility(View.VISIBLE);
                     flag = 1;
-                }else{
+                } else {
                     history_ln_view = findViewById(R.id.history_ln_view);
                     history_ln_view.setVisibility(View.GONE);
                     flag = 0;
@@ -259,57 +239,39 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-//    public void initMediaPlayer() {
-//        try {
-//            player.reset();
-//            player.setDataSource(path);
-//            player.prepare();
-//            time = player.getDuration();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void play() {
-//        if (!player.isPlaying()) {
-//            player.start();
-//        } else {
-//            player.pause();
-//        }
-//    }
-    public void release(){
-        if(player!=null){
-            player.stop();
-            player.release();
-        }
-    }
-
-    public void timePausePlay(){//定时停止播放
+    public void timePausePlay() {//定时停止播放
 
     }
-    public void timeOff(){//定时关机
+
+    public void timeOff() {//定时关机
 
     }
+
     /*发送命令，控制音乐播放，参数定义在MusicService中*/
-    private void sendBroadcastOnCommand(int command){
+    private void sendBroadcastOnCommand(int command) {
         Intent intent = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
-        intent.putExtra("command",command);
+        intent.putExtra("command", command);
         //根据不同的命令封装不同的数据
-        switch (command){
+        switch (command) {
             case MusicService.COMMAND_PLAY:
-                intent.putExtra("number",num);
+                intent.putExtra("number", num);//封装点击的位置
                 break;
             case MusicService.COMMAND_PREVIOUS:
             case MusicService.COMMAND_NEXT:
             case MusicService.COMMAND_PAUSE:
             case MusicService.COMMAND_STOP:
             case MusicService.COMMAND_RESUME:
-                default:
-                    break;
+                intent.putExtra("number", PlayHistory.songs.size() - 1);
+                //把播放列表的最后一首歌曲位置传出去
+                break;
+            default:
+                break;
         }
         sendBroadcast(intent);
+        Log.w("DisplatActivity", "发送了play广播");
     }
-    public static List<Song> getSongsList(){
+
+    public static List<Song> getSongsList() {
         return songsList;
     }
 
@@ -318,12 +280,23 @@ public class DisplayActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             //获取播放器状态
-            status = intent.getIntExtra("status",-1);
+            status = intent.getIntExtra("status", -1);
             switch (status) {
                 case MusicService.STATUS_PLAYING:
+                    Log.w("DisplayActivity", "播放状态，改变播放图标.");
+                    imgb_play = findViewById(R.id.button_play);
+                    imgb_play.setBackground(getDrawable(R.drawable.pause));//把底部播放按钮的图标改变
+                    break;
                 case MusicService.STATUS_PAUSED:
+                    Log.w("DisplayActivity", "暂停状态");
+                    imgb_play = findViewById(R.id.button_play);
+                    imgb_play.setBackground(getDrawable(R.drawable.play_2));//把底部播放按钮的图标改变
+                    break;
                 case MusicService.STATUS_STOPPED:
+                    Log.w("DisplayActivity", "停止状态");
+                    break;
                 case MusicService.STATUS_COMPLETED:
+                    Log.w("DisplayActivity", "已经播放完毕，播放下一首！");
                     sendBroadcastOnCommand(MusicService.COMMAND_NEXT);
                     break;
                 default:
@@ -331,10 +304,11 @@ public class DisplayActivity extends BaseActivity {
             }
         }
     }
+
     //绑定广播接收器
-    private void bindStatusChangedReceiver(){
+    private void bindStatusChangedReceiver() {
         receiver = new StatusChangedReceiver();
         IntentFilter intentFilter = new IntentFilter(MusicService.BROADCAST_MUSICSERVICE_UPDATE_STATUS);
-        registerReceiver(receiver,intentFilter);
+        registerReceiver(receiver, intentFilter);
     }
 }

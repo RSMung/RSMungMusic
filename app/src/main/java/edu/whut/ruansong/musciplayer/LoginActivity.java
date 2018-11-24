@@ -38,7 +38,7 @@ public class LoginActivity extends BaseActivity {
     public void initBackground() {
         //找VideoView控件
         videoBackground = (VideoBackground) findViewById(R.id.videoview); //加载视频文件
-        videoBackground.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.three_2));
+        videoBackground.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.three_3));
         // 播放
         videoBackground.start();
         //循环播放

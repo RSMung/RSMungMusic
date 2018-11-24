@@ -33,30 +33,6 @@
             android:layout_marginLeft="@dimen/dp_20"/>
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/text_welcome"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:text="@string/welcome"
-            android:textSize="@dimen/sp_15" />
-
-        <Button
-            android:id="@+id/button_exit_welcome"
-            style="?android:attr/buttonBarButtonStyle"
-            android:background="@drawable/shape"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:text="@string/button_exit"
-            android:textColor="@color/black_color"
-            android:textSize="@dimen/sp_15" />
-    </RelativeLayout>
-
     <!--<SeekBar-->
         <!--android:id="@+id/music_progress"-->
         <!--android:layout_width="match_parent"-->
@@ -71,7 +47,8 @@
         <ListView
             android:id="@+id/list_song"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></ListView>
+            android:layout_height="match_parent"
+            android:layout_above="@+id/play_bar_bottom"></ListView>
 
         <RelativeLayout
             android:id="@+id/play_bar_bottom"
@@ -134,15 +111,15 @@
             android:id="@+id/history_ln_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:visibility="gone"
-            android:background="@color/lucid_black_color"
+            android:orientation="vertical"
+            android:background="@color/black_color"
             android:layout_above="@+id/play_bar_bottom">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/history"
-                android:textColor="@color/white_color"/>
+                android:textColor="@color/white_color" />
             <ListView
                 android:id="@+id/list_playhistory"
                 android:layout_width="match_parent"

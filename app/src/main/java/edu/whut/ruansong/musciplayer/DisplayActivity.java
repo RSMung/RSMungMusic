@@ -1,15 +1,16 @@
 package edu.whut.ruansong.musciplayer;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,40 +18,42 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by 阮阮 on 2018/11/17.
- * 显示本地音乐文件目录
+ * 前端处理UI变化
  */
 
 public class DisplayActivity extends BaseActivity {
     private static List<Song> songsList = new ArrayList<>();
     private HeadsetPlugReceiver headsetReceiver;
-    private Intent intent;
-    private String userName;
-    private IntentFilter intentFilter;
     private int num;//当前播放歌曲
     View history_ln_view;//历史播放记录控件
     private int flag = 0;//用来控制历史播放记录控件是否可见
     private int status;//播放状态
-    private StatusChangedReceiver receiver;
     ImageButton imgb_play;//底部的图片播放按钮
+    private int input_time = 0;
+    private Timer sleepTimer;
+    private AlertDialog dialog;
+    private int playMode = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
-        initWelcome();//初始化欢迎信息
+        isEmptyUsername();//判断用户名是否为空
         initHeadset();//初始化耳机监听
-        dealExitButton();//处理退出按钮
+//        dealExitButton();//处理退出按钮
         initSongs(); // 初始化歌曲数据
-        dealMusicButton();//初始化四个播放相关的按钮点击事件
+        dealMusicButton();//初始化播放按钮点击事件
+        dealPlayHistoryButton();//历史播放记录
         initDealPlayBarBottom();//点击底部一栏的事件
         //启动服务
         Intent intentService = new Intent(DisplayActivity.this, MusicService.class);
@@ -58,59 +61,19 @@ public class DisplayActivity extends BaseActivity {
         bindStatusChangedReceiver();//启动广播接收器
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        sendBroadcastOnCommand(MusicService.COMMAND_CHECK_IS_PLAYING);
-    }
-
-    //添加 menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    //menu的点击事件
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.pauseplay_item:
-                timePausePlay();
-                break;
-            case R.id.off_item:
-                timeOff();
-                break;
-        }
-        return true;
-    }
-
-    /*在onDestroy()方法中通过调用unregisterReceiver()方法来取消广播接收器的注册*/
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(headsetReceiver);
-        if (status == MusicService.STATUS_STOPPED) {
-            stopService(new Intent(this, MusicService.class));
-        }
-    }
-
-    public void initWelcome() {
-        intent = getIntent();
-        userName = intent.getStringExtra("userName");
-        //设置欢迎信息
+    public void isEmptyUsername() {//判断用户名是否为空
+        Intent intent = getIntent();
+        String userName = intent.getStringExtra("userName");
+        //判断用户名是否为空
         if (userName.isEmpty()) {
             Toast.makeText(DisplayActivity.this, getResources().getString(R.string.null_username),
                     Toast.LENGTH_SHORT).show();
-        } else {
-            TextView welcome = findViewById(R.id.text_welcome);
-            welcome.setText(getResources().getString(R.string.welcome) + "," + userName + "!");
         }
     }
 
-    public void initHeadset() {
+    public void initHeadset() {//初始化耳机监听
         //给广播绑定响应的过滤器
-        intentFilter = new IntentFilter();
+        IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("android.intent.action.HEADSET_PLUG");
         headsetReceiver = new HeadsetPlugReceiver();
         registerReceiver(headsetReceiver, intentFilter);
@@ -135,18 +98,7 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
-
-    public void dealExitButton() {
-        //退出按钮的点击事件
-        Button exit = findViewById(R.id.button_exit_welcome);
-        exit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ActivityCollector.finishAll();
-            }
-        });
-    }
-
+    /**************初始化歌曲数据************/
     private void initSongs() {
         Cursor cursor = null;
         try {
@@ -159,7 +111,8 @@ public class DisplayActivity extends BaseActivity {
                     String disName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
                     //获取文件路径
                     String url = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                    Song song = new Song(R.drawable.music, disName, artist, url);
+                    Song song = new Song(R.drawable.music_2, disName, artist, url);
+                    //R.drawable.music_2是歌曲列表前面那个图片
                     songsList.add(song);
                 }
             }
@@ -173,27 +126,20 @@ public class DisplayActivity extends BaseActivity {
         SongAdapter adapter = new SongAdapter(DisplayActivity.this, R.layout.song_item, songsList);
         ListView listView = findViewById(R.id.list_song);
         listView.setAdapter(adapter);
-
         //设置歌曲item点击事件
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                Song song = songsList.get(position);//获取点击位置
-                //设置底部的一栏的歌曲名和歌手
-                TextView songname = findViewById(R.id.buttom_textview_songname);
-                songname.setText(song.getSong_name());
-                TextView songauthor = findViewById(R.id.buttom_textview_songauthor);
-                songauthor.setText(song.getSong_author());
                 num = position;
                 sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
             }
         });
     }
 
+    /**************初始化播放按钮点击事件************/
     public void dealMusicButton() {
         ImageButton b_paly = findViewById(R.id.button_play);
-        ImageButton history_menu = findViewById(R.id.history_menu);
         b_paly.setOnClickListener(new View.OnClickListener() {//播放
             @Override
             public void onClick(View view) {//播放按钮
@@ -210,41 +156,6 @@ public class DisplayActivity extends BaseActivity {
                 }
             }
         });
-        history_menu.setOnClickListener(new View.OnClickListener() {//历史播放记录
-            @Override
-            public void onClick(View view) {
-                if (flag == 0) {
-                    SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_item, PlayHistory.songs);
-                    ListView list_playhistory = findViewById(R.id.list_playhistory);
-                    list_playhistory.setAdapter(adapter_his);
-                    history_ln_view = findViewById(R.id.history_ln_view);
-                    history_ln_view.setVisibility(View.VISIBLE);
-                    flag = 1;
-                } else {
-                    history_ln_view = findViewById(R.id.history_ln_view);
-                    history_ln_view.setVisibility(View.GONE);
-                    flag = 0;
-                }
-
-            }
-        });
-    }
-
-    public void initDealPlayBarBottom() {
-        View v = findViewById(R.id.play_bar_bottom);
-        v.setOnClickListener(new View.OnClickListener() {//底部一整栏的点击事件
-            @Override
-            public void onClick(View view) {
-            }
-        });
-    }
-
-    public void timePausePlay() {//定时停止播放
-
-    }
-
-    public void timeOff() {//定时关机
-
     }
 
     /*发送命令，控制音乐播放，参数定义在MusicService中*/
@@ -255,24 +166,33 @@ public class DisplayActivity extends BaseActivity {
         switch (command) {
             case MusicService.COMMAND_PLAY:
                 intent.putExtra("number", num);//封装点击的位置
+//                Log.w("DisplatActivity", "发送了play广播");
                 break;
             case MusicService.COMMAND_PREVIOUS:
+                break;
             case MusicService.COMMAND_NEXT:
+                break;
             case MusicService.COMMAND_PAUSE:
+                break;
             case MusicService.COMMAND_STOP:
+                break;
             case MusicService.COMMAND_RESUME:
-                intent.putExtra("number", PlayHistory.songs.size() - 1);
-                //把播放列表的最后一首歌曲位置传出去
+                int add = 0;
+                //把历史播放列表的最后一首歌曲在主播放列表的位置传出去
+                for (int i = 0; i < songsList.size(); i++) {
+                    String name = PlayHistory.songs.get(PlayHistory.songs.size() - 1).getSong_name();
+                    if (songsList.get(i).getSong_name().equals(name)) {
+                        add = i;
+                        break;
+                    }
+                }
+                intent.putExtra("number", add);
                 break;
             default:
                 break;
         }
         sendBroadcast(intent);
-        Log.w("DisplatActivity", "发送了play广播");
-    }
-
-    public static List<Song> getSongsList() {
-        return songsList;
+        Log.w("DisplatActivity", "发送了命令广播" + command);
     }
 
     /*内部类，接受广播命令并执行操作*/
@@ -286,9 +206,11 @@ public class DisplayActivity extends BaseActivity {
                     Log.w("DisplayActivity", "播放状态，改变播放图标.");
                     imgb_play = findViewById(R.id.button_play);
                     imgb_play.setBackground(getDrawable(R.drawable.pause));//把底部播放按钮的图标改变
+                    initButtomMes(MusicService.getCurrent_number());
+//                    initImagePlay(1,MusicService.getCurrent_number());
                     break;
                 case MusicService.STATUS_PAUSED:
-                    Log.w("DisplayActivity", "暂停状态");
+                    Log.w("DisplayActivity", "暂停状态，将改变播放图标.");
                     imgb_play = findViewById(R.id.button_play);
                     imgb_play.setBackground(getDrawable(R.drawable.play_2));//把底部播放按钮的图标改变
                     break;
@@ -299,16 +221,212 @@ public class DisplayActivity extends BaseActivity {
                     Log.w("DisplayActivity", "已经播放完毕，播放下一首！");
                     sendBroadcastOnCommand(MusicService.COMMAND_NEXT);
                     break;
+                case MusicService.PLAYMODE_LOOP://单曲循环模式
+                    playMode = 1;
+                    break;
+                case MusicService.PLAYMODE_RANDOM://单曲循环模式
+                    playMode = 2;
+                    break;
                 default:
                     break;
             }
         }
     }
 
+    public void initButtomMes(int position) {//设置底部的一栏左侧的歌曲名和歌手
+        Song song = songsList.get(position);//获取点击位置的song对象
+        TextView songname = findViewById(R.id.buttom_textview_songname);
+        songname.setText(song.getSong_name());
+        TextView songauthor = findViewById(R.id.buttom_textview_songauthor);
+        songauthor.setText(song.getSong_author());
+    }
+
+    public void dealPlayHistoryButton() {//历史播放记录按钮点击
+        ImageButton history_menu = findViewById(R.id.history_menu);
+        history_ln_view = findViewById(R.id.history_ln_view);
+        history_menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (flag == 0) {
+                    SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_item, PlayHistory.songs);
+                    ListView list_playhistory = findViewById(R.id.list_playhistory);
+                    list_playhistory.setAdapter(adapter_his);
+                    history_ln_view.setVisibility(View.VISIBLE);
+                    flag = 1;
+                } else {
+                    history_ln_view.setVisibility(View.GONE);
+                    flag = 0;
+                }
+
+            }
+        });
+    }
+
+    public void initDealPlayBarBottom() {//底部一整栏的点击事件
+        View v = findViewById(R.id.play_bar_bottom);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
+    }
+
+    //添加顶部右侧 menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    //menu的点击事件
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.pauseplay_item:
+                timePausePlay();
+                break;
+//            case R.id.off_item:
+//               timeOff();
+//                break;
+            case R.id.mode_play:
+                selectMode();
+                break;
+            case R.id.exit:
+                ActivityCollector.finishAll();
+                sendBroadcastOnCommand(MusicService.COMMAND_STOP);
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    public void timePausePlay() {//定时停止播放
+        final AlertDialog.Builder customizeDialog =
+                new AlertDialog.Builder(DisplayActivity.this);
+        final View dialogView = LayoutInflater.from(DisplayActivity.this)
+                .inflate(R.layout.dialog, null);
+        customizeDialog.setView(dialogView);
+        dialog = customizeDialog.show();
+        Button b_ok = dialogView.findViewById(R.id.b_time_ok);
+        Button b_cancel = dialogView.findViewById(R.id.b_time_cancel);
+        sleepTimer = new Timer();
+        b_ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextView tv = dialogView.findViewById(R.id.input_time);
+                input_time = Integer.parseInt(tv.getText().toString());//获取输入的时间
+                //启动任务
+                Toast.makeText(DisplayActivity.this, "歌曲将在" + input_time + "分钟后停止播放",
+                        Toast.LENGTH_SHORT).show();
+                sleepTimer.schedule(timerTask_PAUSEPLAY, input_time * 60 * 1000);//delay参数的单位是毫秒
+                //关闭对话框
+                dialog.dismiss();
+            }
+        });
+        b_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                timerTask_PAUSEPLAY.cancel();
+                if (sleepTimer != null) {
+                    sleepTimer.cancel();
+                }
+                dialog.dismiss();
+                Toast.makeText(DisplayActivity.this, "任务已经取消",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    //定义定时器任务暂停播放
+    final TimerTask timerTask_PAUSEPLAY = new TimerTask() {
+        @Override
+        public void run() {
+            sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
+        }
+    };
+
+    public void selectMode() {//选择播放模式
+        final AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this);
+        builder.setIcon(R.drawable.play_1);
+        builder.setTitle("播放模式");
+        final String[] mode = {"顺序播放(默认)", "单曲循环", "随机播放"};
+        /*设置一个单项选择框
+         * 第一个参数指定要显示的一组下拉单选框的数据集合
+         * 第二个参数代表索引，指定默认哪一个单选框被勾选上，0表示默认'顺序播放' 会被勾选上
+         * 第三个参数给每一个单选项绑定一个监听器
+         */
+        final Intent intent_mode = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
+        builder.setSingleChoiceItems(mode, playMode, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(DisplayActivity.this,
+                        "播放模式为：" + mode[which], Toast.LENGTH_SHORT).show();
+                if (which == 1) {
+                    intent_mode.putExtra("command", MusicService.PLAYMODE_LOOP);
+                } else if (which == 2) {
+                    intent_mode.putExtra("command", MusicService.PLAYMODE_RANDOM);
+                }
+                sendBroadcast(intent_mode);
+            }
+        });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.show();
+
+    }
+
+
     //绑定广播接收器
     private void bindStatusChangedReceiver() {
-        receiver = new StatusChangedReceiver();
+        StatusChangedReceiver receiver = new StatusChangedReceiver();
         IntentFilter intentFilter = new IntentFilter(MusicService.BROADCAST_MUSICSERVICE_UPDATE_STATUS);
         registerReceiver(receiver, intentFilter);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sendBroadcastOnCommand(MusicService.COMMAND_CHECK_IS_PLAYING);
+    }
+
+
+    /*在onDestroy()方法中通过调用unregisterReceiver()方法来取消耳机广播接收器的注册*/
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(headsetReceiver);
+        unregisterReceiver(StatusChangedReceiver);
+        if (status == MusicService.STATUS_STOPPED) {
+            stopService(new Intent(this, MusicService.class));
+            sleepTimer.cancel();//撤销定时器防止崩溃
+            timerTask_PAUSEPLAY.cancel();
+        }
+    }
+
+    public static List<Song> getSongsList() {
+        return songsList;
+    }
+
+//    public void initImagePlay(int status, int position) {
+//        if (status == 1) {
+//            ListView list_songs = findViewById(R.id.list_song);//再让某个特定位置的image可见
+//            View position_item = list_songs.getChildAt(position);
+//            LinearLayout l = position_item.findViewById(R.id.song_item);
+//            ImageView song_image = l.findViewById(R.id.song_image);
+//            song_image.setVisibility(View.VISIBLE);
+//        } else {
+//
+//        }
+//    }
 }

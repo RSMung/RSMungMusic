@@ -38,7 +38,7 @@ public class LoginActivity extends BaseActivity {
     public void initBackground() {
         //找VideoView控件
         videoBackground = (VideoBackground) findViewById(R.id.videoview); //加载视频文件
-        videoBackground.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.three_3));
+        videoBackground.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.stars));
         // 播放
         videoBackground.start();
         //循环播放
@@ -82,6 +82,9 @@ public class LoginActivity extends BaseActivity {
                     Intent intent = new Intent(LoginActivity.this, DisplayActivity.class);
                     intent.putExtra("userName", userStr);
                     startActivity(intent);
+
+                    ActivityCollector.removeActivity(LoginActivity.this);
+                    finish();
                 } else {//密码不正确，弹窗
                     Toast.makeText(LoginActivity.this, R.string.login_error, Toast.LENGTH_SHORT).show();
                 }

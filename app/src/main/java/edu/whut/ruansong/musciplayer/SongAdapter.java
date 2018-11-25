@@ -47,7 +47,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
             viewHolder = (ViewHolder) view.getTag(); // 重新获取ViewHolder
         }
         //传入具体信息
-        viewHolder.songImage.setImageResource(song.getSong_id());
+        viewHolder.songImage.setImageResource(song.getSong_imageid());
         viewHolder.songName.setText(song.getSong_name());
         viewHolder.songAuthor.setText(song.getSong_author());
 

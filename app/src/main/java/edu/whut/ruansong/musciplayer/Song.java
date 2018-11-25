@@ -5,18 +5,27 @@ package edu.whut.ruansong.musciplayer;
  */
 
 public class Song {
-    private int song_imageid;
+    private int song_id, song_imageid;
     private String song_name, song_author, song_addr;
 
-    public Song(int song_id, String song_name, String song_author, String song_addr) {
-        this.song_imageid = song_id;
+    public Song(int song_id, int song_imageidid, String song_name, String song_author, String song_addr) {
+        this.song_id = song_id;
+        this.song_imageid = song_imageidid;
         this.song_name = song_name;
         this.song_author = song_author;
         this.song_addr = song_addr;
     }
 
+    public int getSong_imageid() {
+        return song_imageid;
+    }
+
+    public void setSong_imageid(int song_imageid) {
+        this.song_imageid = song_imageid;
+    }
+
     public int getSong_id() {
-        return this.song_imageid;
+        return this.song_id;
     }
 
     public String getSong_name() {
@@ -28,7 +37,7 @@ public class Song {
     }
 
     public void setSong_id(int i) {
-        this.song_imageid = i;
+        this.song_id = i;
     }
 
     public void setSong_name(String str) {

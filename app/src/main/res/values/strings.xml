@@ -17,4 +17,6 @@
     <string name="time_select">请输入时间(单位:分钟)</string>
     <string name="task_ok">建立任务</string>
     <string name="task_cancel">取消任务</string>
+    <string name="search_hint">输入歌曲名</string>
+    <string name="search_result">搜索结果</string>
 </resources>

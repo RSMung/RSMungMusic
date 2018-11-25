@@ -65,7 +65,7 @@ public class MusicService extends Service {
         super.onCreate();
         //绑定广播接收器，可以接受广播
         bindCommandReceiver();
-        Log.d("MusicService", "onCreate executed");
+        Log.w("MusicService", "服务启动");
         status = MusicService.STATUS_STOPPED;
         player.setOnCompletionListener(completionListener);//监听播放是否完成
     }
@@ -77,6 +77,8 @@ public class MusicService extends Service {
         if (player != null) {
             player.release();
         }
+        Log.w("MusicService", "命令接收器已经被取消注册，服务被销毁");
+        unregisterReceiver(receiver);
     }
 
 
@@ -118,6 +120,12 @@ public class MusicService extends Service {
                 case COMMAND_CHECK_IS_PLAYING:
                     if (player != null && player.isPlaying())
                         sendBroadcastOnStatusChanged(MusicService.STATUS_PLAYING);
+                    else
+                        sendBroadcastOnStatusChanged(MusicService.STATUS_STOPPED);
+                    break;
+                case PLAYMODE_ORDER://顺序播放
+                    PlayMode = 1;
+                    sendBroadcastOnStatusChanged(MusicService.PLAYMODE_ORDER);
                     break;
                 case PLAYMODE_LOOP://单曲循环
                     PlayMode = 2;
@@ -145,7 +153,7 @@ public class MusicService extends Service {
     private void sendBroadcastOnStatusChanged(int status) {
         Intent intent = new Intent(BROADCAST_MUSICSERVICE_UPDATE_STATUS);
         intent.putExtra("status", status);
-        Log.w("DisplayActivity", "发送状态广播" + status);
+        Log.w("MusicService", "发送状态广播" + status);
         sendBroadcast(intent);
     }
 
@@ -164,11 +172,9 @@ public class MusicService extends Service {
     MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
-//            if (player.isLooping()) {//判断是否正在循环播放
-//                replay();
-//            } else {
             sendBroadcastOnStatusChanged(MusicService.STATUS_COMPLETED);
-//            }
+            Log.w("DisplayActivity", "已经播放完毕，播放下一首！");
+            moveNumberToNext();
         }
     };
 
@@ -176,7 +182,7 @@ public class MusicService extends Service {
         if (player != null && player.isPlaying()) {
             if (next_number == current_number) {//点击的正在播放的歌曲
                 pause();
-                Log.w("MusicService", "点击的正在播放的歌曲");
+                Log.w("MusicService", "点击的正在播放的歌曲，暂停播放");
             } else {//点击了新歌曲
                 Song song = DisplayActivity.getSongsList().get(next_number);
                 path = song.getSong_addr();//获取其地址
@@ -211,6 +217,16 @@ public class MusicService extends Service {
         }
     }
 
+    public void play() {
+        Song song = DisplayActivity.getSongsList().get(next_number);
+        path = song.getSong_addr();//获取其地址
+        PlayHistory.addSong(song);
+        prePlay(path);
+        status = MusicService.STATUS_PLAYING;
+        sendBroadcastOnStatusChanged(MusicService.STATUS_PLAYING);
+        current_number = next_number;
+    }
+
     private void moveNumberToPrevious() {
         //判断是否到达顶端
         if (next_number == 0) {
@@ -232,18 +248,22 @@ public class MusicService extends Service {
                 break;
             case 3://随机播放
                 Random random = new Random();
-                next_number = random.nextInt(DisplayActivity.getSongsList().size());
+                //调试用
+                Log.w("MusicService", "moveNumberToNext() DisplayActivity.getSongsList().size()是"
+                        + DisplayActivity.getSong_number());
+                next_number = random.nextInt(DisplayActivity.getSong_number());
                 break;
             default:
                 break;
         }
-        Log.w("MusicService", "next_number是" + next_number);
+        Log.w("MusicService", "moveNumberToNext() next_number是" + next_number);
         //判断是否到达了底端
         if (next_number == (DisplayActivity.getSongsList().size() - 1)) {
             Toast.makeText(MusicService.this, "已经达到了列表底部!", Toast.LENGTH_SHORT).show();
-        } else {
-            play_pause(next_number);
+            next_number--;
+            play();
         }
+        play();
     }
 
     private void pause() {

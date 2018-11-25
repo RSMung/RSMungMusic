@@ -1,44 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="edu.whut.ruansong.musciplayer.DisplayActivity">
 
-    <LinearLayout
-        android:id="@+id/dialog_settime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/input_time"/>
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_exit"
-            android:layout_gravity="bottom"
-            android:layout_marginLeft="@dimen/dp_5"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_ok"
-            android:layout_gravity="bottom"
-            android:layout_marginLeft="@dimen/dp_20"/>
-    </LinearLayout>
-
-    <!--<SeekBar-->
-        <!--android:id="@+id/music_progress"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:background="@color/lucid_black_color"-->
-        <!--android:minHeight="@dimen/dp_40"/>-->
+    <android.support.v7.widget.SearchView
+        android:id="@+id/searchview"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:textColor="@color/black_color"
+        app:iconifiedByDefault="false"
+        app:queryHint="请输入歌曲名" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -75,7 +52,6 @@
                     android:id="@+id/buttom_textview_songname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="测试"
                     android:textColor="@color/black_color"
                     android:textSize="15sp" />
 
@@ -83,7 +59,6 @@
                     android:id="@+id/buttom_textview_songauthor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="测试"
                     android:layout_marginTop="@dimen/dp_10"
                     android:textColor="@color/black_color"
                     android:textSize="15sp" />
@@ -107,21 +82,64 @@
                 android:layout_marginEnd="@dimen/dp_5"
                 android:background="@drawable/menu" />
         </RelativeLayout>
+
         <LinearLayout
             android:id="@+id/history_ln_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:orientation="vertical"
+            android:layout_above="@+id/play_bar_bottom"
             android:background="@color/black_color"
-            android:layout_above="@+id/play_bar_bottom">
+            android:orientation="vertical"
+            android:visibility="gone">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/history"
                 android:textColor="@color/white_color" />
+
             <ListView
                 android:id="@+id/list_playhistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></ListView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/search_LinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_above="@+id/play_bar_bottom"
+            android:background="@color/black_color"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/name_search_result"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/search_result"
+                    android:textColor="@color/white_color"
+                    android:layout_centerVertical="true"/>
+
+                <ImageView
+                    android:id="@+id/image_close_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="@dimen/dp_20"
+                    android:src="@drawable/close" />
+            </RelativeLayout>
+
+            <ListView
+                android:id="@+id/list_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"></ListView>
         </LinearLayout>

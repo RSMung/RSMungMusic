@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">MusicPlayer</string>
     <string name="username_hint">请输入用户名</string>
-    <string name="userpassword_hint">请输入密码(默认为123456)</string>
-    <string name="CheckBox_hint">记住用户名</string>
+    <string name="userpassword_hint">请输入密码</string>
+    <string name="CheckBox_hint_user">记住用户名</string>
+    <string name="CheckBox_hint_password">记住密码</string>
     <string name="button_exit">退出</string>
     <string name="button_ok">确定</string>
+    <string name="button_login">登录</string>
     <string name="login_error">密码错误，请重试！</string>
     <string name="welcome">欢迎您 </string>
     <string name="null_username">用户名为空！</string>

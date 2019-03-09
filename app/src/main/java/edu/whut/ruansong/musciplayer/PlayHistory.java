@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * Created by 阮阮 on 2018/11/18.
+ * 历史播放记录
  */
 
 public class PlayHistory {

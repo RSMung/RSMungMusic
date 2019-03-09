@@ -1,7 +1,20 @@
-配置身份：
+1.配置身份：
 git config --global user.name "Tony"
 git config --global user.email "tony@gmail.com"
-建立仓库：git init
-通过ls -al命令来查看本地所有的Git操作的
-添加所有的文件git add .
-提交：git commit -m "First commit."
+2.建立仓库：git init
+3.通过ls -al命令来查看本地所有的Git操作的
+4.添加所有的文件git add .
+5.提交：git commit -m "First commit."
+6.查看文件修改情况的方法非常简单，只需要使用status命令就可以了，在项目的根目录下输入如下命令：git status
+7.如何才能看到更改的内容
+git diff
+这样可以查看到所有文件的更改内容，如果只想查看MainActivity.java这个文件的更改内容，可以使用如下命令：
+git diff src/com/example/providertest/MainActivity.java
+8.如果想要撤销这个修改就可以使用checkout命令，用法如下所示：
+git checkout src/com/example/providertest/MainActivity.java
+执行了这个命令之后，我们对MainActivity.java这个文件所做的一切修改就应该都被撤销了。
+9.对于已添加的文件我们应该先对其取消添加，然后才可以撤回提交。取消添加使用的是reset命令，用法如下所示：
+git reset HEAD src/com/example/providertest/MainActivity.java
+10.log命令查看历史提交信息，用法如下所示：
+git log
+

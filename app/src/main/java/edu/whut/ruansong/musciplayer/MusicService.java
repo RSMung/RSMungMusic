@@ -41,9 +41,9 @@ public class MusicService extends Service {
     public static final String BROADCAST_MUSICSERVICE_UPDATE_STATUS = "MusicService.ACTTION_UPDATE";
 
     //歌曲序号，从0开始
-    private static int current_number = 0;//当前歌曲序号
+    private static int current_number = -1;//当前歌曲序号
     private int next_number = 0;//获取的序号
-    private int status;
+    private int status = MusicService.STATUS_STOPPED;
     private int PlayMode = 1;//1顺序 2单曲循环 3随机播放
     private String path;//歌曲path
     //媒体播放器
@@ -65,8 +65,7 @@ public class MusicService extends Service {
         super.onCreate();
         //绑定广播接收器，可以接受广播
         bindCommandReceiver();
-        Log.w("MusicService", "服务启动");
-        status = MusicService.STATUS_STOPPED;
+        Log.w("MusicService", "服务的onCreate被执行了");
         player.setOnCompletionListener(completionListener);//监听播放是否完成
     }
 
@@ -120,8 +119,10 @@ public class MusicService extends Service {
                 case COMMAND_CHECK_IS_PLAYING:
                     if (player != null && player.isPlaying())
                         sendBroadcastOnStatusChanged(MusicService.STATUS_PLAYING);
-                    else
+                    else if(current_number==-1)
                         sendBroadcastOnStatusChanged(MusicService.STATUS_STOPPED);
+                    else
+                        sendBroadcastOnStatusChanged(MusicService.STATUS_PAUSED);
                     break;
                 case PLAYMODE_ORDER://顺序播放
                     PlayMode = 1;

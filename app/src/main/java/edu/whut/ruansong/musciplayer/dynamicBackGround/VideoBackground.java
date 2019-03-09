@@ -23,21 +23,16 @@ public class VideoBackground extends VideoView {
         super(context, attrs, defStyle);
     }
 
+    //重写onMeasure方法，为了更好的自适应全屏幕
+    //作用是返回一个默认的值，如果MeasureSpec没有强制限制的话则使用提供的大小.
+    // 否则在允许范围内可任意指定大小
+    //第一个参数size为提供的默认大小，第二个参数为测量的大小
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         //我们重新计算高度
         int width = getDefaultSize(0, widthMeasureSpec);
         int height = getDefaultSize(0, heightMeasureSpec);
         setMeasuredDimension(width, height);
-    }
-
-    @Override
-    public void setOnPreparedListener(MediaPlayer.OnPreparedListener l) {
-        super.setOnPreparedListener(l);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return super.onKeyDown(keyCode, event);
     }
 }

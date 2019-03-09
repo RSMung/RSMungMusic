@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="top"
     android:orientation="vertical"
     tools:context="edu.whut.ruansong.musciplayer.LoginActivity">
 
@@ -18,77 +17,81 @@
         android:gravity="center_vertical"
         android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/user_white"
-                android:layout_gravity="center_vertical"/>
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_30"
+            android:layout_marginRight="@dimen/dp_30">
+
             <EditText
                 android:id="@+id/edtext_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_5"
+                android:background="@drawable/bg_edittext"
                 android:hint="@string/username_hint"
+                android:padding="@dimen/dp_10"
                 android:singleLine="true"
-                android:textColorHint="@color/white_color"
-                android:textColor="@color/white_color"/>
-        </LinearLayout>
+                android:textColor="@color/white_color"
+                android:textColorHint="@color/white_color" />
+        </RelativeLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/password_white"
-                android:layout_gravity="center_vertical"/>
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_30"
+            android:layout_marginRight="@dimen/dp_30">
+
             <EditText
                 android:id="@+id/edtext_pas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_5"
+                android:background="@drawable/bg_edittext"
                 android:hint="@string/userpassword_hint"
                 android:inputType="numberPassword"
+                android:padding="@dimen/dp_10"
                 android:singleLine="true"
-                android:textColorHint="@color/white_color"/>
-        </LinearLayout>
+                android:textColorHint="@color/white_color" />
+        </RelativeLayout>
 
-        <CheckBox
-            android:id="@+id/ckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/CheckBox_hint"
-            android:textColor="@color/white_color" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <CheckBox
+                android:id="@+id/ckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_30"
+                android:checked="true"
+                android:text="@string/CheckBox_hint_user"
+                android:textColor="@color/white_color" />
+
+            <CheckBox
+                android:id="@+id/remember_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/dp_30"
+                android:checked="true"
+                android:text="@string/CheckBox_hint_password"
+                android:textColor="@color/white_color" />
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/dp_5">
-
-            <Button
-                android:id="@+id/button_exit"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="@dimen/dp_60"
-                android:background="@drawable/shape"
-                android:text="@string/button_exit"
-                android:textColor="@color/white_color" />
+            android:layout_marginLeft="@dimen/dp_40"
+            android:layout_marginRight="@dimen/dp_40">
 
             <Button
                 android:id="@+id/button_ok"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="@dimen/dp_60"
+                android:layout_centerHorizontal="true"
                 android:background="@drawable/shape"
-                android:text="@string/button_ok"
+                android:text="@string/button_login"
                 android:textColor="@color/white_color" />
         </RelativeLayout>
     </LinearLayout>

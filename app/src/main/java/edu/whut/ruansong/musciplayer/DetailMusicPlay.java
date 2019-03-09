@@ -3,7 +3,7 @@ package edu.whut.ruansong.musciplayer;
 import android.os.Bundle;
 
 /**
- * Created by 阮阮 on 2018/11/17.
+ * Created by 阮 on 2018/11/17.
  * 歌曲播放细节
  */
 

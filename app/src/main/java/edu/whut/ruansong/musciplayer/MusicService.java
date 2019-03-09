@@ -13,7 +13,7 @@ import android.widget.Toast;
 import java.util.Random;
 
 /**
- * Created by 阮松 on 2018/11/18.
+ * Created by 阮 on 2018/11/18.
  * 音乐service，后台处理播放逻辑
  */
 

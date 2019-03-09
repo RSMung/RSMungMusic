@@ -35,7 +35,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Created by 阮阮 on 2018/11/17.
+ * Created by 阮 on 2018/11/17.
  * 前端处理UI变化
  */
 

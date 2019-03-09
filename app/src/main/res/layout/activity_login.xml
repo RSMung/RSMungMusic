@@ -17,6 +17,17 @@
         android:gravity="center_vertical"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp_20"
+                android:src="@drawable/head"/>
+        </LinearLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,12 +63,14 @@
                 android:inputType="numberPassword"
                 android:padding="@dimen/dp_10"
                 android:singleLine="true"
-                android:textColorHint="@color/white_color" />
+                android:textColorHint="@color/white_color"
+                android:textColor="@color/white_color"/>
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp_5">
 
             <CheckBox
                 android:id="@+id/ckBox"
@@ -66,7 +79,8 @@
                 android:layout_marginLeft="@dimen/dp_30"
                 android:checked="true"
                 android:text="@string/CheckBox_hint_user"
-                android:textColor="@color/white_color" />
+                android:textColor="@color/white_color"
+                style="@style/CustomCheckBoxTheme"/>
 
             <CheckBox
                 android:id="@+id/remember_password"
@@ -76,23 +90,51 @@
                 android:layout_marginRight="@dimen/dp_30"
                 android:checked="true"
                 android:text="@string/CheckBox_hint_password"
-                android:textColor="@color/white_color" />
+                android:textColor="@color/white_color"
+                style="@style/CustomCheckBoxTheme"
+                />
         </RelativeLayout>
 
         <RelativeLayout
-            android:layout_width="match_parent"
+            android:id="@+id/RelaLay_login_reg"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_40"
-            android:layout_marginRight="@dimen/dp_40">
+            android:layout_marginRight="@dimen/dp_40"
+            android:layout_marginTop="@dimen/dp_5">
 
             <Button
-                android:id="@+id/button_ok"
-                android:layout_width="match_parent"
+                android:id="@+id/button_login"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:background="@drawable/shape"
                 android:text="@string/button_login"
-                android:textColor="@color/white_color" />
+                android:textColor="@color/white_color"
+                />
+            <Button
+                android:id="@+id/button_reg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/shape"
+                android:text="@string/button_reg"
+                android:textColor="@color/white_color"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/forget_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp_20">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/forget_pas"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:textColor="@color/white_color"/>
         </RelativeLayout>
     </LinearLayout>
 </FrameLayout>

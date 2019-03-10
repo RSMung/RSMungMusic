@@ -1,7 +1,7 @@
 package edu.whut.ruansong.musciplayer;
 
 /**
- * Created by 阮阮 on 2018/11/17.
+ * Created by 阮 on 2018/11/17.
  */
 
 public class Song {
@@ -15,8 +15,8 @@ public class Song {
 
     public Song(long id,
                 long album_id,
-                int song_list_id,
-                int song_imageidid,
+                int song_list_id,//在listview里面的位置
+                int song_image_id,//左侧图片在drawable里面的id
                 String song_name,
                 String song_author,
                 String song_addr,
@@ -26,7 +26,7 @@ public class Song {
         this.id = id;
         this.album_id = album_id;
         this.song_list_id = song_list_id;
-        this.song_imageid = song_imageidid;
+        this.song_imageid = song_image_id;
         this.song_name = song_name;
         this.song_author = song_author;
         this.song_addr = song_addr;
@@ -75,9 +75,9 @@ public class Song {
 
     public void setAlbum_id(int album_id) {this.album_id = album_id;}
 
-    public int getSong_imageid() { return song_imageid;}
+    public int getSong_image_id() { return song_imageid;}
 
-    public void setSong_imageid(int song_imageid) {
+    public void setSong_image_id(int song_imageid) {
         this.song_imageid = song_imageid;
     }
 

@@ -2,16 +2,21 @@ package edu.whut.ruansong.musciplayer;
 
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +30,9 @@ import edu.whut.ruansong.musciplayer.dynamicBackGround.VideoBackground;
 
 public class LoginActivity extends BaseActivity {
 
-    private VideoBackground videoBackground;
+    private VideoBackground videoBackground = null;
+    private int curVolume;
+    private static int statusMusicPlayer = 0;
     private Button b_login;
     private CheckBox ck_userName,ck_password;
     private TextView password;
@@ -33,15 +40,30 @@ public class LoginActivity extends BaseActivity {
     private String passwordStr;//用来存放密码
     private String userStr;//存放用户名
     private SharedPreferences.Editor editor_usr,editor_password;
-    ProgressDialog progDia1;
+    private ProgressDialog progDia1;
+    private ImageButton ban_music;
+    private int flag_ban_music = 0;//控制禁止音乐图片用的
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        b_login = findViewById(R.id.button_login);
-        initButtonDeal();//处理登录按钮的事件
-        initBackground();//初始化动态背景
-        loadDefaultMsg();//加载默认用户名和密码
+        Log.w("LoginActivity","onCreate被执行了");
+        Log.w("LoginActivity","statusMusicPlayer是"+statusMusicPlayer);
+        if(statusMusicPlayer == 0){
+            setContentView(R.layout.activity_login);
+            b_login = findViewById(R.id.button_login);
+            initButtonDeal();//处理登录按钮的事件
+            initBackground();//初始化动态背景
+            loadDefaultMsg();//加载默认用户名和密码
+            ban_music_button();
+        }else{
+            jump();
+        }
+    }
+
+    public void jump(){
+        Intent intent = new Intent(LoginActivity.this, DisplayActivity.class);
+        intent.putExtra("userName", userStr);
+        startActivity(intent);
     }
 
     public void initButtonDeal(){
@@ -143,9 +165,8 @@ public class LoginActivity extends BaseActivity {
                     String reponse = (String) msg.obj;
                     //代表身份验证成功
                     if(reponse.contains(":1")){
-                        Intent intent = new Intent(LoginActivity.this, DisplayActivity.class);
-                        intent.putExtra("userName", userStr);
-                        startActivity(intent);
+                        jump();
+                        statusMusicPlayer = 1;
                     }else{
                         Toast.makeText(LoginActivity.this, "账号验证失败，请重试！", Toast.LENGTH_SHORT).show();
                     }
@@ -195,17 +216,38 @@ public class LoginActivity extends BaseActivity {
             password.setText(default_password);
         }
     }
-
+    public void ban_music_button(){
+        ban_music = findViewById(R.id.ban_music);
+        ban_music.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(flag_ban_music == 0){//正在播放
+                    ban_music.setImageDrawable(getResources().getDrawable(R.drawable.music_false));
+                    flag_ban_music = 1;
+                    curVolume = videoBackground.setVolume(0);
+                }else{
+                    ban_music.setImageDrawable(getResources().getDrawable(R.drawable.music_true));
+                    flag_ban_music = 0;
+                    videoBackground.setVolume(curVolume);
+                }
+            }
+        });
+    }
+    public static void setStatusMusicPlayer(int statusMusicPlayer) {
+        LoginActivity.statusMusicPlayer = statusMusicPlayer;
+    }
     //返回重启加载
     @Override
     protected void onRestart() {
         super.onRestart();
+        Log.w("LoginActivity","onRestart被执行了");
         initBackground();
     }
     //防止锁屏或者切出的时候，背景音乐在播放
     @Override
     protected void onStop() {
         super.onStop();
+        if (videoBackground!=null)
         videoBackground.stopPlayback();
     }
 }

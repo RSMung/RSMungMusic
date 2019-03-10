@@ -1,10 +1,14 @@
 package edu.whut.ruansong.musciplayer.dynamicBackGround;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.VideoView;
+
+import java.lang.reflect.Field;
 
 /**
  * Created by 阮阮 on 2018/11/17.
@@ -35,4 +39,14 @@ public class VideoBackground extends VideoView {
         int height = getDefaultSize(0, heightMeasureSpec);
         setMeasuredDimension(width, height);
     }
+
+    public int setVolume(int setVolume) {//控制音量
+        AudioManager am = (AudioManager) getContext().getSystemService(
+                Context.AUDIO_SERVICE);
+        int curVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+        am.setStreamVolume(AudioManager.STREAM_MUSIC,
+                setVolume, AudioManager.FLAG_PLAY_SOUND);
+        return curVolume;
+    }
+
 }

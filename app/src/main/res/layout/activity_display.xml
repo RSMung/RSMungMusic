@@ -28,7 +28,7 @@
             android:id="@+id/list_song"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/play_bar_bottom"></ListView>
+            android:layout_above="@+id/play_bar_bottom" />
 
         <RelativeLayout
             android:id="@+id/play_bar_bottom"
@@ -42,21 +42,31 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:src="@drawable/music1" />
+                android:src="@drawable/music1"
+                android:contentDescription="@string/music_image_content" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_toStartOf="@id/button_play"
                 android:layout_toEndOf="@+id/image_music"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:ignore="RelativeOverlap">
 
                 <TextView
                     android:id="@+id/buttom_textview_songname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black_color"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:marqueeRepeatLimit="marquee_forever"/>
 
                 <TextView
                     android:id="@+id/buttom_textview_songauthor"
@@ -64,7 +74,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/dp_10"
                     android:textColor="@color/black_color"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:marqueeRepeatLimit="marquee_forever"/>
             </LinearLayout>
 
             <ImageButton
@@ -74,7 +90,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/dp_10"
                 android:layout_toStartOf="@+id/history_menu"
-                android:background="@drawable/play_2" /><!--layout_toStartOf本元素从某个元素开始-->
+                android:background="@drawable/play_2"
+                tools:ignore="ContentDescription" /><!--layout_toStartOf本元素从某个元素开始-->
 
             <ImageButton
                 android:id="@+id/history_menu"
@@ -83,7 +100,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/dp_5"
-                android:background="@drawable/menu" />
+                android:background="@drawable/menu"
+                tools:ignore="ContentDescription" />
         </RelativeLayout>
 
         <LinearLayout
@@ -104,7 +122,7 @@
             <ListView
                 android:id="@+id/list_playhistory"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"></ListView>
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <LinearLayout
@@ -126,8 +144,8 @@
                     android:id="@+id/name_search_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="@dimen/dp_20"
                     android:text="@string/search_result"
                     android:textColor="@color/white_color"
                     android:layout_centerVertical="true"/>
@@ -136,15 +154,16 @@
                     android:id="@+id/image_close_search"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="@dimen/dp_20"
-                    android:src="@drawable/close" />
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="@dimen/dp_20"
+                    android:src="@drawable/close"
+                    tools:ignore="ContentDescription" />
             </RelativeLayout>
 
             <ListView
                 android:id="@+id/list_search"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"></ListView>
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </RelativeLayout>
 

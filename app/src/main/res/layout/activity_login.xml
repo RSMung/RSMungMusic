@@ -14,13 +14,14 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:layout_margin="@dimen/dp_10">
         <ImageButton
             android:id="@+id/ban_music"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/music_true" />
+            android:background="@drawable/music_true"
+            tools:ignore="ContentDescription" />
     </LinearLayout>
 
     <LinearLayout
@@ -37,7 +38,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_20"
-                android:src="@drawable/head"/>
+                android:src="@drawable/head"
+                tools:ignore="ContentDescription" />
         </LinearLayout>
 
         <RelativeLayout
@@ -88,7 +90,7 @@
                 android:id="@+id/ckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/dp_30"
+                android:layout_marginStart="@dimen/dp_30"
                 android:checked="true"
                 android:text="@string/CheckBox_hint_user"
                 android:textColor="@color/white_color"
@@ -98,13 +100,13 @@
                 android:id="@+id/remember_password"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="@dimen/dp_30"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/dp_30"
                 android:checked="true"
                 android:text="@string/CheckBox_hint_password"
                 android:textColor="@color/white_color"
                 style="@style/CustomCheckBoxTheme"
-                />
+                tools:ignore="RelativeOverlap" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -132,7 +134,7 @@
                 android:background="@drawable/shape"
                 android:text="@string/button_reg"
                 android:textColor="@color/white_color"
-                />
+                tools:ignore="RelativeOverlap" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -145,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/forget_pas"
                 android:layout_alignParentStart="true"
-                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginStart="@dimen/dp_20"
                 android:textColor="@color/white_color"/>
         </RelativeLayout>
     </LinearLayout>

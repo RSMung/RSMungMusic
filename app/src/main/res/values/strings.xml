@@ -23,4 +23,5 @@
     <string name="search_hint">输入歌曲名</string>
     <string name="search_result">搜索结果</string>
     <string name="forget_pas">忘记密码"?"</string>
+    <string name="music_image_content">这首音乐的专辑图片</string>
 </resources>

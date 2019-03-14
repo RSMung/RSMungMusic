@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/root_view_display"
     tools:context="edu.whut.ruansong.musciplayer.DisplayActivity">
 
     <android.support.v7.widget.SearchView
@@ -42,6 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/music1"
                 android:contentDescription="@string/music_image_content" />
 

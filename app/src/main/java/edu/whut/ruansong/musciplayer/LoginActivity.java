@@ -2,10 +2,7 @@ package edu.whut.ruansong.musciplayer;
 
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -25,6 +22,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
 import edu.whut.ruansong.musciplayer.dynamicBackGround.VideoBackground;
 
@@ -81,6 +79,8 @@ public class LoginActivity extends BaseActivity {
                     progDia1 = new ProgressDialog(LoginActivity.this);
                     progDia1.setMessage("连接服务器中...");
                     progDia1.show();
+                    progDia1.setCanceledOnTouchOutside(false);
+                    progDia1.setCancelable(true);//设置进度条是否可以按退回键取消
                 }else{
                     Toast.makeText(LoginActivity.this,
                             "账号、密码不能为空！",Toast.LENGTH_SHORT).show();
@@ -97,6 +97,10 @@ public class LoginActivity extends BaseActivity {
                 //用HttpClient发送请求分为五步
                 //第一步，创建HttpClient对象
                 HttpClient httpClient = new DefaultHttpClient();
+                httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
+                        10000);//请求超时
+                httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 10000 );
+                //读取超时
                 //第二步，创建代表请求的对象，参数是访问的服务器的地址
                 /*真机和run服务器的主机连接到同一个局域网，
                 URL中IP的值就是run服务器主机的局域网地址*/

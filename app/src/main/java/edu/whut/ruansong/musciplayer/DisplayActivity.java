@@ -8,9 +8,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -63,6 +66,8 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //解决软键盘弹起时，底部控件被顶上去的问题
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setContentView(R.layout.activity_display);
         startService();//启动后台服务
         initHeadset();//初始化耳机监听
@@ -169,7 +174,6 @@ public class DisplayActivity extends BaseActivity {
                 if (cursor != null)
                     cursor.close();
             }
-
             if (song_number == 0) {
                 Toast.makeText(DisplayActivity.this, "没有找到歌曲，请下载！",
                         Toast.LENGTH_SHORT).show();
@@ -410,7 +414,8 @@ public class DisplayActivity extends BaseActivity {
                     current_music = MusicService.getCurrent_number();
                     initBottomMes(current_music);
                     image_music = findViewById(R.id.image_music);
-                    image_music.setImageDrawable(getImage(songsList.get(current_music).getAlbum_id()));
+                    image_music.setImageDrawable(getImage(songsList.get(
+                                current_music).getAlbum_id()));
 //                    initImagePlay(1,MusicService.getCurrent_number());
                     break;
                 case MusicService.STATUS_PAUSED:
@@ -448,23 +453,86 @@ public class DisplayActivity extends BaseActivity {
         TextView songAuthor = findViewById(R.id.buttom_textview_songauthor);
         songAuthor.setText(song.getSong_author());
     }
+    //为完全实现，有错误
+//    public void softKeyboardRaise(){//解决软键盘弹起时，底部控件被顶上去的问题
+//        View rootView = findViewById(R.id.root_view_display);
+//        rootView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View v,int left, int top, int right, int bottom,
+//                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+//                if (bottom - oldBottom < -1) {
+//                    Log.w("DisplayActivity","软键盘弹上去了,动态设置高度为1");
+//                    Log.w("DisplayActivity","bottom"+bottom);
+//                    Log.w("DisplayActivity","oldBottom"+oldBottom);
+//                    View play_bar_bottom = findViewById(R.id.play_bar_bottom);
+//                    //取控件当前的布局参数
+//                    RelativeLayout.LayoutParams params =
+//                            (RelativeLayout.LayoutParams) play_bar_bottom.getLayoutParams();
+//                    //设置高度值
+//                    params.height = 1;
+//                } else if (bottom - oldBottom > 1) {
+//                    Log.w("DisplayActivity","bottom"+bottom);
+//                    Log.w("DisplayActivity","oldBottom"+oldBottom);
+//                    Log.w("DisplayActivity","软键盘弹下去了，动态设置高度，恢复原先控件高度");
+//                    View play_bar_bottom = findViewById(R.id.play_bar_bottom);
+//                    //取控件当前的布局参数
+//                    RelativeLayout.LayoutParams params =
+//                            (RelativeLayout.LayoutParams) play_bar_bottom.getLayoutParams();
+//                    //设置高度值
+//                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//                     } } });
+//    }
     /**********获取  设置歌曲专辑图片*************/
     @SuppressWarnings("deprecation")
     private BitmapDrawable getImage(long albumId) {
-        BitmapDrawable bmpDraw = null;
+        BitmapDrawable bmpDraw;
         String albumArt = getAlbumArt(albumId);
         Bitmap bm ;
-        if (albumArt != null) {
+        if (albumArt!=null) {
+//            Log.w("DisplayActivity","albumArt不为空");
             bm = BitmapFactory.decodeFile(albumArt);
             bmpDraw = new BitmapDrawable(bm);
+            int width = bmpDraw.getIntrinsicWidth();
+            int height = bmpDraw.getIntrinsicHeight();
+            // drawable转换成bitmap
+            Bitmap oldbmp = bmpDraw.getBitmap();
+            // 创建操作图片用的Matrix对象
+            Matrix matrix = new Matrix();
+            // 计算缩放比例
+            float sx = ((float) 400 / width);
+            float sy = ((float) 400 / height);
+            // 设置缩放比例
+            matrix.postScale(sx, sy);
+            // 建立新的bitmap，其内容是对原bitmap的缩放后的图
+            Bitmap newbmp = Bitmap.createBitmap(oldbmp, 0, 0, width, height,
+                    matrix, false);
+            return new BitmapDrawable(newbmp);
+        }else{
+//            Log.w("DisplayActivity","albumArt为空");
+            Resources res = getResources();
+            Bitmap default_d = BitmapFactory.decodeResource(res,
+                    R.drawable.music1);
+            int width = default_d.getWidth();
+            int height = default_d.getHeight();
+            // 创建操作图片用的Matrix对象
+            Matrix matrix = new Matrix();
+            // 计算缩放比例
+            float sx = ((float) 400 / width);
+            float sy = ((float) 400 / height);
+            // 设置缩放比例
+            matrix.postScale(sx, sy);
+            // 建立新的bitmap，其内容是对原bitmap的缩放后的图
+            Bitmap newbmp = Bitmap.createBitmap(default_d, 0, 0, width, height,
+                    matrix, false);
+            return new BitmapDrawable(newbmp);
         }
-        return bmpDraw;
     }
     private String getAlbumArt(long album_id) {
         String mUriAlbums = "content://media/external/audio/albums";
         String[] projection = new String[]{"album_art"};
         Cursor cur = this.getContentResolver().query(Uri.parse(mUriAlbums + "/" +
-                Long.toString(album_id)), projection, null, null, null);
+                Long.toString(album_id)), projection, null, null,
+                null);
         String album_art = null;
         if(cur != null){
             if (cur.getCount() > 0 && cur.getColumnCount() > 0) {

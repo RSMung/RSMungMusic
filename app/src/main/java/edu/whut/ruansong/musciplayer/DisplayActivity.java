@@ -44,14 +44,13 @@ import java.util.TimerTask;
  */
 
 public class DisplayActivity extends BaseActivity {
-    private HeadsetPlugReceiver headsetReceiver;
-    private int init_headSet = 0;//控制刚登录时不提示“耳机断开”
+    private HeadsetPlugReceiver headsetReceiver = null;
     private static int song_number = 0;//歌曲总数量
     private int current_music;//当前播放歌曲
     private static List<Song> songsList = new ArrayList<>();
     private int status;//播放状态默认为停止
     private View history_ln_view;//历史播放记录控件
-    private int flag = 0;//用来控制历史播放记录控件是否可见
+    private int menuFlag = 0;//用来控制历史播放记录控件是否可见
     private ImageButton image_button_play;//底部的图片播放按钮
     private int input_time = 0;
     private Timer sleepTimer = null;
@@ -94,24 +93,16 @@ public class DisplayActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             try {
-                if ("android.intent.action.HEADSET_PLUG".equalsIgnoreCase(intent.getAction())) {
-                    if (intent.hasExtra("state")) {
-                        if (intent.getIntExtra("state", 0) == 1) {
-                            if(init_headSet!=0){
-                                Toast.makeText(context, "耳机状态：连接", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            if(init_headSet != 0){
-                                if (status == MusicService.STATUS_PLAYING) {//耳机拔出，音乐暂停
-                                    sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
-                                }
-                                Toast.makeText(context, "耳机状态：断开",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                            init_headSet++;//刚登陆，加一改变状态，以后就会提示拔出耳机了
-                        }
-                    }
-                }
+                //耳机相关广播
+                if ("android.intent.action.HEADSET_PLUG".equalsIgnoreCase(intent.getAction()))
+                    //有状态信息
+                    if (intent.hasExtra("state"))
+                        //耳机断开
+                        if (intent.getIntExtra("state", 0) != 1)
+                            //音乐正在播放
+                            if (status == MusicService.STATUS_PLAYING)
+                                //音乐暂停
+                                sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -128,22 +119,23 @@ public class DisplayActivity extends BaseActivity {
                         null, null, null, null);
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
-                        //是否是music
+                        //是否是音频
                         int isMusic = cursor.getInt(cursor.getColumnIndex(
                                 MediaStore.Audio.Media.IS_MUSIC));
                         //时长
                         long duration = cursor.getLong(
                                 cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                        if (isMusic != 0 && duration / (3 * 60) >= 1) {
+                        //是音乐并且时长大于3分钟
+                        if (isMusic != 0 && duration  >= 3*60*1000) {
                             long id = cursor.getLong(
                                     cursor.getColumnIndex(MediaStore.Audio.Media._ID));
-                            // 获取歌手信息
+                            //歌手信息
                             String artist = cursor.getString(
                                     cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                            //获取歌曲名称
+                            //歌曲名称
                             String musicName = cursor.getString(
                                     cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
-                            //获取文件路径
+                            //文件路径
                             String musicPath = cursor.getString(
                                     cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
                             //专辑id
@@ -152,17 +144,12 @@ public class DisplayActivity extends BaseActivity {
                             //专辑
                             String album = cursor.getString(
                                     cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                            Song song = new Song(id,
-                                    albumId,
-                                    song_number,
+                            Song song = new Song(
+                                    id,albumId,song_number,
                                     R.drawable.music_2,//song_image_id   图片在drawable里面的id
-                                    musicName,
-                                    artist,
-                                    musicPath,
-                                    duration,
-                                    isMusic,
-                                    album);
-                            //R.drawable.music_2是歌曲列表前面那个图片
+                                    musicName,artist,musicPath,
+                                    duration,isMusic,album
+                            );//R.drawable.music_2是歌曲列表前面那个图片
                             songsList.add(song);
                             song_number++;
                         }
@@ -175,7 +162,7 @@ public class DisplayActivity extends BaseActivity {
                     cursor.close();
             }
             if (song_number == 0) {
-                Toast.makeText(DisplayActivity.this, "没有找到歌曲，请下载！",
+                Toast.makeText(DisplayActivity.this, "没有找到歌曲,请下载！",
                         Toast.LENGTH_SHORT).show();
                 return;//不做下面的事情了
             }
@@ -230,15 +217,15 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 searchview.clearFocus();
-                if (flag == 0) {
+                if (menuFlag == 0) {
                     SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_item, PlayHistory.songs);
                     ListView list_playHistory = findViewById(R.id.list_playhistory);
                     list_playHistory.setAdapter(adapter_his);
                     history_ln_view.setVisibility(View.VISIBLE);
-                    flag = 1;
+                    menuFlag = 1;
                 } else {
                     history_ln_view.setVisibility(View.GONE);
-                    flag = 0;
+                    menuFlag = 0;
                 }
 
             }
@@ -658,7 +645,8 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(headsetReceiver);
+        if(headsetReceiver!=null)
+            unregisterReceiver(headsetReceiver);
         unregisterReceiver(receiver);
         if (status == MusicService.STATUS_STOPPED) {
             stopService(new Intent(this, MusicService.class));

@@ -13,16 +13,11 @@ public class Song {
     private int isMusic;
     private String album;
 
-    public Song(long id,
-                long album_id,
+    public Song(long id,long album_id,
                 int song_list_id,//在listview里面的位置
                 int song_image_id,//左侧图片在drawable里面的id
-                String song_name,
-                String song_author,
-                String song_addr,
-                long duration,
-                int isMusic,
-                String album) {
+                String song_name,String song_author,String song_addr,
+                long duration,int isMusic,String album) {
         this.id = id;
         this.album_id = album_id;
         this.song_list_id = song_list_id;

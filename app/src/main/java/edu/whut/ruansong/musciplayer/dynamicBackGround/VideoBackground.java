@@ -43,7 +43,7 @@ public class VideoBackground extends VideoView {
     public int setVolume(int setVolume) {//控制音量
         AudioManager am = (AudioManager) getContext().getSystemService(
                 Context.AUDIO_SERVICE);
-        int curVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+        int curVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC);//获取当前音量
         am.setStreamVolume(AudioManager.STREAM_MUSIC,
                 setVolume, AudioManager.FLAG_PLAY_SOUND);
         return curVolume;

@@ -14,13 +14,13 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityCollector.addActivity(this);
+        ActivityCollector.addActivity(this);//add oneself to the activity manager
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ActivityCollector.removeActivity(this);
+        ActivityCollector.removeActivity(this);//remove oneself from the activity manager
     }
     public static Context getContext() {
         return context;

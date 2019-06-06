@@ -72,14 +72,38 @@ public class LoginActivity extends BaseActivity {
                 userStr = login_user.getText().toString();//获得输入的用户名（文本）
                 passwordStr = login_pas.getText().toString();//获得输入的密码（文本）
                 if(!userStr.equals("")&&!passwordStr.equals("")){//如果都不为空
-                    //开启新线程去请求服务器中的数据
-                    sendRequestWithHttpClient(userStr,passwordStr);
-                    //显示  圈圈  连接服务器中...
-                    progDia1 = new ProgressDialog(LoginActivity.this);
-                    progDia1.setMessage("连接服务器中...");
-                    progDia1.show();
-                    progDia1.setCanceledOnTouchOutside(false);//点击提示圈外部时这个圈不会消失设置
-                    progDia1.setCancelable(true);//设置进度条是否可以按退回键取消
+                    /******保存用户名和密码*****/
+                    //检测是否想要记住用户名
+                    sPreEditor_usr = getSharedPreferences("username_data",
+                            MODE_PRIVATE).edit();
+                    if (remember_user.isChecked()) {
+                        sPreEditor_usr.putString("name", userStr);//存入数据
+                    } else {
+                        sPreEditor_usr.clear();//清除数据
+                    }
+                    sPreEditor_usr.apply();//生效
+
+                    //检测是否想要记住密码
+                    sPreEditor_password = getSharedPreferences("password_data",
+                            MODE_PRIVATE).edit();
+                    if(remember_password.isChecked()){
+                        sPreEditor_password.putString("password",passwordStr);//保存
+                    }else{
+                        sPreEditor_password.clear();//清除
+                    }
+                    sPreEditor_password.apply();//生效
+
+                    /******使用socket与主机通信验证密码*****/
+                    socketLogin s1 = new socketLogin(userStr,passwordStr);
+                    s1.work();
+                    String login_state = s1.getR_state();//获取主机验证后返回的信息
+                    if(login_state.equals("true")){//验证成功
+                        jumpToNextPage();
+                        statusMusicPlayer = 1;
+                    }else{//验证失败
+                        Toast.makeText(LoginActivity.this, "账号验证失败，请重试！",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }else{
                     Toast.makeText(LoginActivity.this,
                             "账号、密码不能为空！",Toast.LENGTH_SHORT).show();
@@ -87,99 +111,6 @@ public class LoginActivity extends BaseActivity {
             }
         });
     }
-
-    //发送网络请求的方法
-    public void sendRequestWithHttpClient(final String username,final  String password){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //用HttpClient发送请求分为五步
-                //第一步，创建HttpClient对象
-                HttpClient httpClient = new DefaultHttpClient();
-                //请求超时
-                httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
-                        10000);
-                //读取超时
-                httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 10000 );
-                //第二步，创建代表请求的对象，参数是访问的服务器的地址
-                /*真机和run服务器的主机连接到同一个局域网，
-                URL中IP的值就是run服务器主机的局域网地址*/
-                //如果在模拟器上面进行测试，那么 IP的值设置为 10.0.2.2
-                String LOGIN_URL = "http://192.168.31.174:8080/Demo_Login/android/" +
-                        "loginServlet.jsp?";
-                LOGIN_URL = LOGIN_URL+"name="+username+"&password="+password;
-                HttpGet httpGet = new HttpGet(LOGIN_URL);
-                try {
-                    //第三步，执行请求，并获取服务器发还的相应对象
-                    HttpResponse httpResponse = httpClient.execute(httpGet);
-                    //第四步，检查相应的状态是否正常，检查状态码的值是200表示正常
-                    if(httpResponse.getStatusLine().getStatusCode() ==200){
-                        //第五步，从相应对象中取出数据，放到entity中
-                        HttpEntity entity = httpResponse.getEntity();
-                        //把数据转换为字符串
-                        String response = EntityUtils.toString(entity,"utf-8");
-
-                        //在子线程中将Message对象发送出去
-                        Message message = Message.obtain();
-                        message.what = 1;//代表获取数据获取成功
-                        message.obj = response;
-                        handler.sendMessage(message);
-
-                        //检测是否想要记住用户名
-                        sPreEditor_usr = getSharedPreferences("username_data",
-                                MODE_PRIVATE).edit();
-                        if (remember_user.isChecked()) {
-                            sPreEditor_usr.putString("name", userStr);//存入数据
-                        } else {
-                            sPreEditor_usr.clear();//清除数据
-                        }
-                        sPreEditor_usr.apply();//生效
-
-                        //检测是否想要记住密码
-                        sPreEditor_password = getSharedPreferences("password_data",
-                                MODE_PRIVATE).edit();
-                        if(remember_password.isChecked()){
-                            sPreEditor_password.putString("password",passwordStr);//保存
-                        }else{
-                            sPreEditor_password.clear();//清除
-                        }
-                        sPreEditor_password.apply();//生效
-                    }
-                }catch (Exception e){
-                    //获取服务器数据出错
-                    Message message = Message.obtain();
-                    message.what = 0;//代表获取数据出错
-                    handler.sendMessage(message);
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    private Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg){
-            super.handleMessage(msg);
-            progDia1.dismiss();
-            switch (msg.what){
-                case 1://获取服务器成功
-                    String reponse = (String) msg.obj;
-                    //代表身份验证成功
-                    if(reponse.contains(":1")){
-                        jumpToNextPage();
-                        statusMusicPlayer = 1;
-                    }else{
-                        Toast.makeText(LoginActivity.this, "账号验证失败，请重试！", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                case 0://获取服务器数据失败
-                    Toast.makeText(LoginActivity.this, "获取服务器数据失败", Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
 
     public void initBackground() {
         //找VideoView控件

@@ -13,19 +13,21 @@ import java.net.Socket;
  * Time: 21:16
  * 使用socket与本机进行通信实现密码验证
  */
-public class socketLogin {
+public class socketLogin extends Thread{
     private String user,password;
     private String ip = "192.168.31.174";//主机ip
     private int port = 1234;
     private String r_state;//用于保存主机返回的密码验证状态
+    private int yes = 0;
     public socketLogin(String user,String password){
         this.user = user;
         this.password = password;
     }
-    public String getR_state(){
-        return r_state;
+    public int getYes(){
+        return yes;
     }
-    public void work(){
+    @Override
+    public void run(){
         Socket socket = null;
         OutputStream outputStream = null;
         InputStream inputStream = null;
@@ -68,6 +70,11 @@ public class socketLogin {
                 //读取该长度的信息
                 inputStream.read(bytes);
                 r_state = new String(bytes, "UTF-8");
+                if(r_state.equals("true"))
+                    yes = 1;
+                else if(r_state.equals("flase"))
+                    yes = 0;
+                Log.w("socketLogin","state is "+yes);
             }
         }catch (Exception e){
             Log.w("socketLogin",e);

@@ -72,7 +72,7 @@ public class MusicService extends Service {
         super.onCreate();
         //绑定广播接收器，可以接受广播
         bindCommandReceiver();
-//        Log.w("MusicService", "服务的onCreate被执行了");
+        Log.w("MusicService", "服务的onCreate被执行了");
         player.setOnCompletionListener(completionListener);//监听播放是否完成
     }
 
@@ -87,7 +87,7 @@ public class MusicService extends Service {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
             sendBroadcastOnStatusChanged(MusicService.STATUS_COMPLETED);
-//            Log.w("DisplayActivity", "已经播放完毕，播放下一首！");
+            Log.w("DisplayActivity", "已经播放完毕，播放下一首！");
             moveNumberToNext();
         }
     };

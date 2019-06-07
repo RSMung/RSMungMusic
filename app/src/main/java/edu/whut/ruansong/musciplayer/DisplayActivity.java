@@ -61,6 +61,7 @@ public class DisplayActivity extends BaseActivity {
     private LinearLayout search_LinearLayout;//搜索结果的整个布局
     private ImageView image_music;
     private SearchView searchview = null;
+    private int headSet_flag = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,10 +78,12 @@ public class DisplayActivity extends BaseActivity {
         initDealPlayBarBottom();//点击底部一栏的事件
         bindStatusChangedReceiver();//启动广播接收器
     }
-    public void startService(){
+
+    public void startService() {
         Intent intentService = new Intent(DisplayActivity.this, MusicService.class);
         startService(intentService);
     }
+
     public void initHeadset() {//初始化耳机监听
         //给广播绑定响应的过滤器
         IntentFilter intentFilter = new IntentFilter();
@@ -88,6 +91,7 @@ public class DisplayActivity extends BaseActivity {
         headsetReceiver = new HeadsetPlugReceiver();
         registerReceiver(headsetReceiver, intentFilter);
     }
+
     //内部类，接收耳机状态变化
     class HeadsetPlugReceiver extends BroadcastReceiver {
         @Override
@@ -101,13 +105,19 @@ public class DisplayActivity extends BaseActivity {
                         if (intent.getIntExtra("state", 0) != 1)
                             //音乐正在播放
                             if (status == MusicService.STATUS_PLAYING)
-                                //音乐暂停
-                                sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
+                                if(headSet_flag == 0){//如果是resume方法被执行过,这个变量是1
+                                    //音乐暂停
+                                    Log.w("DisplayActivity", "耳机断开，歌曲正在播放，即将暂停");
+                                    sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
+                                }else
+                                    headSet_flag = 0;
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
     /**************加载歌曲数据************/
     private void initSongs() {
         if (songsList.size() == 0) {
@@ -126,7 +136,7 @@ public class DisplayActivity extends BaseActivity {
                         long duration = cursor.getLong(
                                 cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
                         //是音乐并且时长大于3分钟
-                        if (isMusic != 0 && duration  >= 3*60*1000) {
+                        if (isMusic != 0 && duration >= 3 * 60 * 1000) {
                             long id = cursor.getLong(
                                     cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                             //歌手信息
@@ -145,10 +155,10 @@ public class DisplayActivity extends BaseActivity {
                             String album = cursor.getString(
                                     cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
                             Song song = new Song(
-                                    id,albumId,song_number,
+                                    id, albumId, song_number,
                                     R.drawable.music_2,//song_image_id   图片在drawable里面的id
-                                    musicName,artist,musicPath,
-                                    duration,isMusic,album
+                                    musicName, artist, musicPath,
+                                    duration, isMusic, album
                             );//R.drawable.music_2是歌曲列表前面那个图片
                             songsList.add(song);
                             song_number++;
@@ -189,6 +199,7 @@ public class DisplayActivity extends BaseActivity {
             }
         });
     }
+
     /**************初始化播放按钮点击事件************/
     public void dealMusicButton() {
         ImageButton b_Paly = findViewById(R.id.button_play);
@@ -209,6 +220,7 @@ public class DisplayActivity extends BaseActivity {
             }
         });
     }
+
     /**************历史播放记录按钮点击************/
     public void dealPlayHistoryButton() {
         ImageButton history_menu = findViewById(R.id.history_menu);
@@ -231,6 +243,7 @@ public class DisplayActivity extends BaseActivity {
             }
         });
     }
+
     public void dealSearch() {
         searchview = findViewById(R.id.searchview);
         searchview.setSubmitButtonEnabled(true);//提交按钮  显示
@@ -256,36 +269,36 @@ public class DisplayActivity extends BaseActivity {
                     //当前歌曲名转换为的字符数组的长度
                     int cur_name_l = char_current_song_name.length;
 //                    Log.w("DisplayActivity", "n的值为"+in_mes_l+"    m的值为"+cur_name_l);
-                    if(in_mes_l<=cur_name_l){//如果目标歌名比当前歌名短或者长度相等
+                    if (in_mes_l <= cur_name_l) {//如果目标歌名比当前歌名短或者长度相等
                         int flag_current_mes = 0;
                         int flag_input_mes = 0;
                         //循环比较每一个字符
-                        while(true){
+                        while (true) {
                             //有一个字符相同
-                            if (char_current_song_name[flag_current_mes]==input_mes[flag_input_mes]){
+                            if (char_current_song_name[flag_current_mes] == input_mes[flag_input_mes]) {
                                 flag_current_mes++;//两个数组同时向后移动
                                 flag_input_mes++;
 
                                 matching_degree++;//匹配值加一
-                            }else{//如果不匹配就只是当前歌名字符向后移动一个
+                            } else {//如果不匹配就只是当前歌名字符向后移动一个
                                 flag_current_mes++;
                             }
                             //两个数组任意一个的标志到达末尾后结束本次比较
-                            if(flag_input_mes==in_mes_l || flag_current_mes==cur_name_l){
+                            if (flag_input_mes == in_mes_l || flag_current_mes == cur_name_l) {
                                 break;
                             }
                         }
                         //匹配百分比计算规则
-                        percent_matching_degree = (matching_degree/in_mes_l+
-                                matching_degree/cur_name_l)/2;//相同的字符占整个字符串的平均比例
+                        percent_matching_degree = (matching_degree / in_mes_l +
+                                matching_degree / cur_name_l) / 2;//相同的字符占整个字符串的平均比例
 //                        Log.w("DisplayActivity", "匹配度是"+matching_degree);
 //                        Log.w("DisplayActivity", "匹配百分比是"+percent_matching_degree);
                         //找到百分之百匹配的了，直接退出，不找了
-                        if (percent_matching_degree==1){
+                        if (percent_matching_degree == 1) {
                             search_list.add(songsList.get(i));
 //                            Log.w("DisplayActivity", "找到百分之百匹配的了，不找了");
                             break;
-                        }else if (percent_matching_degree>0.2) {//阈值为0.2
+                        } else if (percent_matching_degree > 0.2) {//阈值为0.2
                             Log.w("DisplayActivity", "百分比匹配度大于阈值");
                             search_list.add(songsList.get(i));
                         }
@@ -331,6 +344,7 @@ public class DisplayActivity extends BaseActivity {
                 }
                 return true;
             }
+
             //搜索框内部改变回调，newText就是搜索框里的内容 不知道用处，反正不写就报错
             @Override
             public boolean onQueryTextChange(String newText) {
@@ -338,6 +352,7 @@ public class DisplayActivity extends BaseActivity {
             }
         });
     }
+
     public void initDealPlayBarBottom() {//底部一整栏的点击事件  待实现歌曲详情页
         View v = findViewById(R.id.play_bar_bottom);
         v.setOnClickListener(new View.OnClickListener() {
@@ -349,12 +364,14 @@ public class DisplayActivity extends BaseActivity {
             }
         });
     }
+
     //绑定广播接收器
     private void bindStatusChangedReceiver() {
         receiver = new StatusChangedReceiver();
         IntentFilter intentFilter = new IntentFilter(MusicService.BROADCAST_MUSICSERVICE_UPDATE_STATUS);
         registerReceiver(receiver, intentFilter);
     }
+
     /*发送命令，控制音乐播放，参数定义在MusicService中*/
     private void sendBroadcastOnCommand(int command) {
         clear_searchView_focus();//清除搜索框的焦点
@@ -386,6 +403,7 @@ public class DisplayActivity extends BaseActivity {
         sendBroadcast(intent);
 //        Log.w("DisplatActivity", "发送了命令广播" + command);
     }
+
     /*内部类，接受广播命令并执行操作*/
     class StatusChangedReceiver extends BroadcastReceiver {
         @Override
@@ -402,7 +420,7 @@ public class DisplayActivity extends BaseActivity {
                     initBottomMes(current_music);
                     image_music = findViewById(R.id.image_music);
                     image_music.setImageDrawable(getImage(songsList.get(
-                                current_music).getAlbum_id()));
+                            current_music).getAlbum_id()));
 //                    initImagePlay(1,MusicService.getCurrent_number());
                     break;
                 case MusicService.STATUS_PAUSED:
@@ -427,12 +445,14 @@ public class DisplayActivity extends BaseActivity {
             }
         }
     }
+
     /**************一些工具方法类****************/
-    public void clear_searchView_focus(){//清除搜索框的焦点
-        if(searchview!=null){
+    public void clear_searchView_focus() {//清除搜索框的焦点
+        if (searchview != null) {
             searchview.clearFocus();
         }
     }
+
     public void initBottomMes(int position) {//设置底部的一栏左侧的歌曲名和歌手
         Song song = songsList.get(position);//获取点击位置的song对象
         TextView songName = findViewById(R.id.buttom_textview_songname);
@@ -469,13 +489,14 @@ public class DisplayActivity extends BaseActivity {
 //                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 //                     } } });
 //    }
+
     /**********获取  设置歌曲专辑图片*************/
     @SuppressWarnings("deprecation")
     private BitmapDrawable getImage(long albumId) {
         BitmapDrawable bmpDraw;
         String albumArt = getAlbumArt(albumId);
-        Bitmap bm ;
-        if (albumArt!=null) {
+        Bitmap bm;
+        if (albumArt != null) {
 //            Log.w("DisplayActivity","albumArt不为空");
             bm = BitmapFactory.decodeFile(albumArt);
             bmpDraw = new BitmapDrawable(bm);
@@ -494,7 +515,7 @@ public class DisplayActivity extends BaseActivity {
             Bitmap newbmp = Bitmap.createBitmap(oldbmp, 0, 0, width, height,
                     matrix, false);
             return new BitmapDrawable(newbmp);
-        }else{
+        } else {
 //            Log.w("DisplayActivity","albumArt为空");
             Resources res = getResources();
             Bitmap default_d = BitmapFactory.decodeResource(res,
@@ -514,14 +535,15 @@ public class DisplayActivity extends BaseActivity {
             return new BitmapDrawable(newbmp);
         }
     }
+
     private String getAlbumArt(long album_id) {
         String mUriAlbums = "content://media/external/audio/albums";
         String[] projection = new String[]{"album_art"};
         Cursor cur = this.getContentResolver().query(Uri.parse(mUriAlbums + "/" +
-                Long.toString(album_id)), projection, null, null,
+                        Long.toString(album_id)), projection, null, null,
                 null);
         String album_art = null;
-        if(cur != null){
+        if (cur != null) {
             if (cur.getCount() > 0 && cur.getColumnCount() > 0) {
                 cur.moveToNext();
                 album_art = cur.getString(0);
@@ -531,12 +553,14 @@ public class DisplayActivity extends BaseActivity {
         return album_art;
     }
     //获取  设置歌曲专辑图片           到此结束
+
     /***********添加顶部右侧 menu***********/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
     //menu的事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -556,6 +580,7 @@ public class DisplayActivity extends BaseActivity {
         }
         return true;
     }
+
     public void timePausePlay() {//定时停止播放
         final AlertDialog.Builder customizeDialog =
                 new AlertDialog.Builder(DisplayActivity.this);
@@ -596,6 +621,7 @@ public class DisplayActivity extends BaseActivity {
             }
         });
     }
+
     public void selectMode() {//选择播放模式
         final AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this);
         builder.setIcon(R.drawable.play_1);
@@ -635,17 +661,20 @@ public class DisplayActivity extends BaseActivity {
         });
         builder.show();
     }
+
     /****************一些重写的系统方法************/
     @Override
     protected void onResume() {
         super.onResume();
         sendBroadcastOnCommand(MusicService.COMMAND_CHECK_IS_PLAYING);
+        headSet_flag = 1;
     }
+
     /*在onDestroy()方法中通过调用unregisterReceiver()方法来取消耳机广播接收器的注册*/
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(headsetReceiver!=null)
+        if (headsetReceiver != null)
             unregisterReceiver(headsetReceiver);
         unregisterReceiver(receiver);
         if (status == MusicService.STATUS_STOPPED) {
@@ -655,13 +684,16 @@ public class DisplayActivity extends BaseActivity {
             }
         }
     }
+
     @Override
     public void onBackPressed() {
         ActivityCollector.finishAll();
     }//回退键   不返回登录界面
+
     public static List<Song> getSongsList() {
         return songsList;
     }
+
     public static int getSong_number() {
         return song_number;
     }

@@ -262,7 +262,7 @@ public class MusicService extends Service {
             current_status = MusicService.STATUS_STOPPED;
             sendBroadcastOnStatusChanged(MusicService.STATUS_STOPPED);
         }
-        LoginActivity.setStatusMusicPlayer(0);
+        LoginActivity.setLogin_status(0);
     }
 
     private void resume() {//暂停后的恢复播放

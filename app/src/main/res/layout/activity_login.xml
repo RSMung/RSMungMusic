@@ -4,26 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/root_view_login"
+    android:background="@drawable/dark"
+    android:id="@+id/rootView_login"
     tools:context="edu.whut.ruansong.musciplayer.LoginActivity">
-
-    <edu.whut.ruansong.musciplayer.dynamicBackGround.VideoBackground
-        android:id="@+id/login_videoview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_margin="@dimen/dp_10">
-        <ImageButton
-            android:id="@+id/login_ban_music"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/music_true"
-            tools:ignore="ContentDescription" />
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,17 +40,16 @@
                 android:paddingStart="@dimen/dp_15"/>
 
             <EditText
-                android:id="@+id/login_user"
+                android:id="@+id/login_edit_text_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/dp_10"
-                android:background="@drawable/bg_edittext"
+                android:background="@drawable/bg_edit_text"
                 android:hint="@string/username_hint"
                 android:padding="@dimen/dp_10"
+                android:paddingStart="@dimen/dp_40"
                 android:singleLine="true"
                 android:textColor="@color/white_color"
-                android:textColorHint="@color/white_color"
-                android:paddingStart="@dimen/dp_40"/>
+                android:textColorHint="@color/white_color" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -88,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_5"
-                android:background="@drawable/bg_edittext"
+                android:background="@drawable/bg_edit_text"
                 android:hint="@string/userpassword_hint"
                 android:inputType="numberPassword"
                 android:padding="@dimen/dp_10"

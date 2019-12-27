@@ -571,7 +571,7 @@ public class DisplayActivity extends BaseActivity {
             case R.id.mode_play://播放模式
                 selectMode();
                 break;
-            case R.id.exit://推出播放器
+            case R.id.exit://退出播放器
                 ActivityCollector.finishAll();
                 sendBroadcastOnCommand(MusicService.COMMAND_STOP);
                 break;

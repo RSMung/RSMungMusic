@@ -15,7 +15,7 @@ import java.net.Socket;
  */
 public class socketLogin extends Thread{
     private String user,password;
-    private String ip = "192.168.31.174";//主机ip
+    private String ip = "192.168.31.174";//主机ip  192.168.31.174
     private int port = 1234;
     private String r_state;//用于保存主机返回的密码验证状态
     private int yes = 0;

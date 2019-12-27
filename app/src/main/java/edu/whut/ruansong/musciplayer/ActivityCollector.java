@@ -14,13 +14,13 @@ import java.util.List;
  */
 
 public class ActivityCollector {
-    public static List<Activity> activities = new ArrayList<>();
+    private static List<Activity> activities = new ArrayList<>();
 
-    public static void addActivity(Activity activity) {
+    protected static void addActivity(Activity activity) {
         activities.add(activity);
     }
 
-    public static void removeActivity(Activity activity) {
+    protected static void removeActivity(Activity activity) {
         activities.remove(activity);
     }
 

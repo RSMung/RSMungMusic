@@ -30,30 +30,30 @@ public class LoginActivity extends BaseActivity {
 
     private VideoBackground login_videoview = null;
     private int curVolume;
-    private static int statusMusicPlayer = 0;//µÇÂ¼×´Ì¬
+    private static int login_status = 0;//ï¿½ï¿½Â¼×´Ì¬
     private Button b_login;
     private CheckBox remember_user,remember_password;
     private TextView login_pas;
     private TextView login_user;
-    private String passwordStr;//ÓÃÀ´´æ·ÅÃÜÂë
-    private String userStr;//´æ·ÅÓÃ»§Ãû
+    private String passwordStr;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    private String userStr;//ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½
     private SharedPreferences.Editor sPreEditor_usr,sPreEditor_password;
     private ProgressDialog progDia1;
     private ImageButton login_ban_music;
-    private int flag_ban_music = 0;//¿ØÖÆ½ûÖ¹ÒôÀÖÍ¼Æ¬ÓÃµÄ
+    private int flag_ban_music = 0;//ï¿½ï¿½ï¿½Æ½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½Ãµï¿½
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.w("LoginActivity","onCreate±»Ö´ÐÐÁË");
-        Log.w("LoginActivity","statusMusicPlayerÊÇ"+statusMusicPlayer);
-        if(statusMusicPlayer == 0){//Î´µÇÂ¼Çé¿ö
+        Log.w("LoginActivity","onCreateï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½");
+        Log.w("LoginActivity","login_statusï¿½ï¿½"+login_status);
+        if(login_status == 0){//Î´ï¿½ï¿½Â¼ï¿½ï¿½ï¿½
             setContentView(R.layout.activity_login);
-            b_login = findViewById(R.id.button_login);//µÇÂ¼°´Å¥ÊµÀý»¯
-            initButtonDeal();//´¦ÀíµÇÂ¼°´Å¥µÄÊÂ¼þ
-            initBackground();//³õÊ¼»¯¶¯Ì¬±³¾°
-            loadDefaultMsg();//¼ÓÔØÄ¬ÈÏÓÃ»§ÃûºÍÃÜÂë
+            b_login = findViewById(R.id.button_login);//ï¿½ï¿½Â¼ï¿½ï¿½Å¥Êµï¿½ï¿½ï¿½ï¿½
+            initButtonDeal();//ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½Å¥ï¿½ï¿½ï¿½Â¼ï¿½
+            initBackground();//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½
+            loadDefaultMsg();//ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             ban_music_button();
-        }else{//ÒÑ¾­µÇÂ½¹ý  ÕâÑù×öÊÇÎªÁËµÇÂ¼ºóÍË³öappÔÙ½øÈë²»ÐèÒªÔÙ´ÎµÇÂ¼
+        }else{//ï¿½Ñ¾ï¿½ï¿½ï¿½Â½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Ëµï¿½Â¼ï¿½ï¿½ï¿½Ë³ï¿½appï¿½Ù½ï¿½ï¿½ë²»ï¿½ï¿½Òªï¿½Ù´Îµï¿½Â¼
             jumpToNextPage();
         }
     }
@@ -63,92 +63,92 @@ public class LoginActivity extends BaseActivity {
         startActivity(intent);
     }
     public void initButtonDeal(){
-        //´¦ÀíÈ·¶¨°´Å¥µÄÊÂ¼þ
+        //ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½Å¥ï¿½ï¿½ï¿½Â¼ï¿½
         b_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                login_pas = findViewById(R.id.login_pas);//ÃÜÂëÎÄ±¾¿ò¶ÔÏó
-                login_user = findViewById(R.id.login_user);//ÓÃ»§ÃûÎÄ±¾¿ò¶ÔÏó
-                userStr = login_user.getText().toString();//»ñµÃÊäÈëµÄÓÃ»§Ãû£¨ÎÄ±¾£©
-                passwordStr = login_pas.getText().toString();//»ñµÃÊäÈëµÄÃÜÂë£¨ÎÄ±¾£©
-                if(!userStr.equals("")&&!passwordStr.equals("")){//Èç¹û¶¼²»Îª¿Õ
-                    //¿ªÆôÐÂÏß³ÌÈ¥ÇëÇó·þÎñÆ÷ÖÐµÄÊý¾Ý
+                login_pas = findViewById(R.id.login_pas);//ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                login_user = findViewById(R.id.login_user);//ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                userStr = login_user.getText().toString();//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½
+                passwordStr = login_pas.getText().toString();//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë£¨ï¿½Ä±ï¿½ï¿½ï¿½
+                if(!userStr.equals("")&&!passwordStr.equals("")){//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½
+                    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½
                     sendRequestWithHttpClient(userStr,passwordStr);
-                    //ÏÔÊ¾  È¦È¦  Á¬½Ó·þÎñÆ÷ÖÐ...
+                    //ï¿½ï¿½Ê¾  È¦È¦  ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...
                     progDia1 = new ProgressDialog(LoginActivity.this);
-                    progDia1.setMessage("Á¬½Ó·þÎñÆ÷ÖÐ...");
+                    progDia1.setMessage("ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...");
                     progDia1.show();
-                    progDia1.setCanceledOnTouchOutside(false);//µã»÷ÌáÊ¾È¦Íâ²¿Ê±Õâ¸öÈ¦²»»áÏûÊ§ÉèÖÃ
-                    progDia1.setCancelable(true);//ÉèÖÃ½ø¶ÈÌõÊÇ·ñ¿ÉÒÔ°´ÍË»Ø¼üÈ¡Ïû
+                    progDia1.setCanceledOnTouchOutside(false);//ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾È¦ï¿½â²¿Ê±ï¿½ï¿½ï¿½È¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½ï¿½ï¿½
+                    progDia1.setCancelable(true);//ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ô°ï¿½ï¿½Ë»Ø¼ï¿½È¡ï¿½ï¿½
                 }else{
                     Toast.makeText(LoginActivity.this,
-                            "ÕËºÅ¡¢ÃÜÂë²»ÄÜÎª¿Õ£¡",Toast.LENGTH_SHORT).show();
+                            "ï¿½ËºÅ¡ï¿½ï¿½ï¿½ï¿½ë²»ï¿½ï¿½Îªï¿½Õ£ï¿½",Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
-    //·¢ËÍÍøÂçÇëÇóµÄ·½·¨
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½
     public void sendRequestWithHttpClient(final String username,final  String password){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //ÓÃHttpClient·¢ËÍÇëÇó·ÖÎªÎå²½
-                //µÚÒ»²½£¬´´½¨HttpClient¶ÔÏó
+                //ï¿½ï¿½HttpClientï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½å²½
+                //ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½HttpClientï¿½ï¿½ï¿½ï¿½
                 HttpClient httpClient = new DefaultHttpClient();
-                //ÇëÇó³¬Ê±
+                //ï¿½ï¿½ï¿½ï¿½Ê±
                 httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
                         10000);
-                //¶ÁÈ¡³¬Ê±
+                //ï¿½ï¿½È¡ï¿½ï¿½Ê±
                 httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 10000 );
-                //µÚ¶þ²½£¬´´½¨´ú±íÇëÇóµÄ¶ÔÏó£¬²ÎÊýÊÇ·ÃÎÊµÄ·þÎñÆ÷µÄµØÖ·
-                /*Õæ»úºÍrun·þÎñÆ÷µÄÖ÷»úÁ¬½Óµ½Í¬Ò»¸ö¾ÖÓòÍø£¬
-                URLÖÐIPµÄÖµ¾ÍÊÇrun·þÎñÆ÷Ö÷»úµÄ¾ÖÓòÍøµØÖ·*/
-                //Èç¹ûÔÚÄ£ÄâÆ÷ÉÏÃæ½øÐÐ²âÊÔ£¬ÄÇÃ´ IPµÄÖµÉèÖÃÎª 10.0.2.2
+                //ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ó£¬²ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ÊµÄ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Ö·
+                /*ï¿½ï¿½ï¿½ï¿½ï¿½runï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½Í¬Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                URLï¿½ï¿½IPï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½runï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·*/
+                //ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð²ï¿½ï¿½Ô£ï¿½ï¿½ï¿½Ã´ IPï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Îª 10.0.2.2
                 String LOGIN_URL = "http://192.168.31.174:8080/Demo_Login/android/" +
                         "loginServlet.jsp?";
                 LOGIN_URL = LOGIN_URL+"name="+username+"&password="+password;
                 HttpGet httpGet = new HttpGet(LOGIN_URL);
                 try {
-                    //µÚÈý²½£¬Ö´ÐÐÇëÇó£¬²¢»ñÈ¡·þÎñÆ÷·¢»¹µÄÏàÓ¦¶ÔÏó
+                    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬²ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
                     HttpResponse httpResponse = httpClient.execute(httpGet);
-                    //µÚËÄ²½£¬¼ì²éÏàÓ¦µÄ×´Ì¬ÊÇ·ñÕý³££¬¼ì²é×´Ì¬ÂëµÄÖµÊÇ200±íÊ¾Õý³£
+                    //ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½×´Ì¬ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Öµï¿½ï¿½200ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
                     if(httpResponse.getStatusLine().getStatusCode() ==200){
-                        //µÚÎå²½£¬´ÓÏàÓ¦¶ÔÏóÖÐÈ¡³öÊý¾Ý£¬·Åµ½entityÖÐ
+                        //ï¿½ï¿½ï¿½å²½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½Åµï¿½entityï¿½ï¿½
                         HttpEntity entity = httpResponse.getEntity();
-                        //°ÑÊý¾Ý×ª»»Îª×Ö·û´®
+                        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½Îªï¿½Ö·ï¿½ï¿½ï¿½
                         String response = EntityUtils.toString(entity,"utf-8");
 
-                        //ÔÚ×ÓÏß³ÌÖÐ½«Message¶ÔÏó·¢ËÍ³öÈ¥
+                        //ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½ï¿½Ð½ï¿½Messageï¿½ï¿½ï¿½ï¿½ï¿½Í³ï¿½È¥
                         Message message = Message.obtain();
-                        message.what = 1;//´ú±í»ñÈ¡Êý¾Ý»ñÈ¡³É¹¦
+                        message.what = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ý»ï¿½È¡ï¿½É¹ï¿½
                         message.obj = response;
                         handler.sendMessage(message);
 
-                        //¼ì²âÊÇ·ñÏëÒª¼Ç×¡ÓÃ»§Ãû
+                        //ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½×¡ï¿½Ã»ï¿½ï¿½ï¿½
                         sPreEditor_usr = getSharedPreferences("username_data",
                                 MODE_PRIVATE).edit();
                         if (remember_user.isChecked()) {
-                            sPreEditor_usr.putString("name", userStr);//´æÈëÊý¾Ý
+                            sPreEditor_usr.putString("name", userStr);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                         } else {
-                            sPreEditor_usr.clear();//Çå³ýÊý¾Ý
+                            sPreEditor_usr.clear();//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                         }
-                        sPreEditor_usr.apply();//ÉúÐ§
+                        sPreEditor_usr.apply();//ï¿½ï¿½Ð§
 
-                        //¼ì²âÊÇ·ñÏëÒª¼Ç×¡ÃÜÂë
+                        //ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½×¡ï¿½ï¿½ï¿½ï¿½
                         sPreEditor_password = getSharedPreferences("password_data",
                                 MODE_PRIVATE).edit();
                         if(remember_password.isChecked()){
-                            sPreEditor_password.putString("password",passwordStr);//±£´æ
+                            sPreEditor_password.putString("password",passwordStr);//ï¿½ï¿½ï¿½ï¿½
                         }else{
-                            sPreEditor_password.clear();//Çå³ý
+                            sPreEditor_password.clear();//ï¿½ï¿½ï¿½
                         }
-                        sPreEditor_password.apply();//ÉúÐ§
+                        sPreEditor_password.apply();//ï¿½ï¿½Ð§
                     }
                 }catch (Exception e){
-                    //»ñÈ¡·þÎñÆ÷Êý¾Ý³ö´í
+                    //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
                     Message message = Message.obtain();
-                    message.what = 0;//´ú±í»ñÈ¡Êý¾Ý³ö´í
+                    message.what = 0;//ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
                     handler.sendMessage(message);
                     e.printStackTrace();
                 }
@@ -162,18 +162,18 @@ public class LoginActivity extends BaseActivity {
             super.handleMessage(msg);
             progDia1.dismiss();
             switch (msg.what){
-                case 1://»ñÈ¡·þÎñÆ÷³É¹¦
+                case 1://ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¹ï¿½
                     String reponse = (String) msg.obj;
-                    //´ú±íÉí·ÝÑéÖ¤³É¹¦
+                    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½É¹ï¿½
                     if(reponse.contains(":1")){
                         jumpToNextPage();
-                        statusMusicPlayer = 1;
+                        login_status = 1;
                     }else{
-                        Toast.makeText(LoginActivity.this, "ÕËºÅÑéÖ¤Ê§°Ü£¬ÇëÖØÊÔ£¡", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "ï¿½Ëºï¿½ï¿½ï¿½Ö¤Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô£ï¿½", Toast.LENGTH_SHORT).show();
                     }
                     break;
-                case 0://»ñÈ¡·þÎñÆ÷Êý¾ÝÊ§°Ü
-                    Toast.makeText(LoginActivity.this, "»ñÈ¡·þÎñÆ÷Êý¾ÝÊ§°Ü", Toast.LENGTH_SHORT).show();
+                case 0://ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
+                    Toast.makeText(LoginActivity.this, "ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½", Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     break;
@@ -182,13 +182,13 @@ public class LoginActivity extends BaseActivity {
     };
 
     public void initBackground() {
-        //ÕÒVideoView¿Ø¼þ
-        login_videoview = findViewById(R.id.login_videoview); //¼ÓÔØÊÓÆµ²¼¾Ö
+        //ï¿½ï¿½VideoViewï¿½Ø¼ï¿½
+        login_videoview = findViewById(R.id.login_videoview); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½
         login_videoview.setVideoURI(Uri.parse("android.resource://" + getPackageName() +
                 "/" + R.raw.five));
-        // ²¥·Å
+        // ï¿½ï¿½ï¿½ï¿½
         login_videoview.start();
-        //Ñ­»·²¥·Å  ÉèÖÃÒ»¸öÔÚÃ½ÌåÎÄ¼þ²¥·ÅÍê±Ï£¬µ½´ïÖÕµãÊ±µ÷ÓÃµÄ»Øµ÷
+        //Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½Ê±ï¿½ï¿½ï¿½ÃµÄ»Øµï¿½
         login_videoview.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
@@ -197,11 +197,11 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    public void loadDefaultMsg(){//¼ÓÔØÄ¬ÈÏÓÃ»§ÃûºÍÃÜÂë
+    public void loadDefaultMsg(){//ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
         remember_user = findViewById(R.id.remember_user);
         login_user = findViewById(R.id.login_user);
-        //¼ÓÔØÄ¬ÈÏÓÃ»§Ãû
+        //ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½
         SharedPreferences pref = getSharedPreferences("username_data", MODE_PRIVATE);
         String default_name = pref.getString("name", "");
         if (!default_name.isEmpty()) {
@@ -210,22 +210,22 @@ public class LoginActivity extends BaseActivity {
 
         remember_password = findViewById(R.id.remember_password);
         login_pas = findViewById(R.id.login_pas);
-        //¼ÓÔØÄ¬ÈÏÃÜÂë
+        //ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         SharedPreferences pref_pas = getSharedPreferences("password_data", MODE_PRIVATE);
         String default_password = pref_pas.getString("password", "");
         if (!default_password.isEmpty()) {
             login_pas.setText(default_password);
         }
     }
-    public void ban_music_button(){//½ûÖ¹±³¾°ÒôÀÖ²¥·Å
+    public void ban_music_button(){//ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½
         login_ban_music = findViewById(R.id.login_ban_music);
         login_ban_music.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(flag_ban_music == 0){//ÕýÔÚ²¥·Å
+                if(flag_ban_music == 0){//ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½
                     login_ban_music.setImageDrawable(getResources().getDrawable(R.drawable.music_false));
                     flag_ban_music = 1;
-                    //½ûÖ¹ÉùÒôÖ®Ç°·µ»Øµ±Ç°ÒôÁ¿   ×ÔÐ´VideoBackgroundÀàÖÐ
+                    //ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½Ö®Ç°ï¿½ï¿½ï¿½Øµï¿½Ç°ï¿½ï¿½ï¿½ï¿½   ï¿½ï¿½Ð´VideoBackgroundï¿½ï¿½ï¿½ï¿½
                     curVolume = login_videoview.setVolume(0);
                 }else{
                     login_ban_music.setImageDrawable(getResources().getDrawable(R.drawable.music_true));
@@ -235,17 +235,17 @@ public class LoginActivity extends BaseActivity {
             }
         });
     }
-    public static void setStatusMusicPlayer(int statusMusicPlayer) {//ºóÌ¨·þÎñMusicServiceÖÐÓÐÓÃµ½
-        LoginActivity.statusMusicPlayer = statusMusicPlayer;
+    public static void setStatusMusicPlayer(int login_status) {//ï¿½ï¿½Ì¨ï¿½ï¿½ï¿½ï¿½MusicServiceï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½
+        LoginActivity.login_status = login_status;
     }
-    //·µ»ØÖØÆô¼ÓÔØ
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.w("LoginActivity","onRestart±»Ö´ÐÐÁË");
+        Log.w("LoginActivity","onRestartï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½");
         initBackground();
     }
-    //·ÀÖ¹ËøÆÁ»òÕßÇÐ³öµÄÊ±ºò£¬±³¾°ÒôÀÖÔÚ²¥·Å
+    //ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð³ï¿½ï¿½ï¿½Ê±ï¿½ò£¬±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½
     @Override
     protected void onStop() {
         super.onStop();

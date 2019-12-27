@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
  */
 
 public class BaseActivity extends AppCompatActivity {
-    private static Context context;
+    private static Context context;//内存泄露风险，待解决
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

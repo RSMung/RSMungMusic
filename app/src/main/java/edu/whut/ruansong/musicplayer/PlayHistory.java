@@ -1,6 +1,4 @@
-package edu.whut.ruansong.musciplayer;
-
-import android.app.Activity;
+package edu.whut.ruansong.musicplayer;
 
 import java.util.ArrayList;
 import java.util.List;

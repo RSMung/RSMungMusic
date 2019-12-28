@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musciplayer;
+package edu.whut.ruansong.musicplayer;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -49,8 +49,8 @@ public class DisplayActivity extends BaseActivity {
     private int current_music;//当前播放歌曲
     private static List<Song> songsList = new ArrayList<>();
     private int status;//播放状态默认为停止
-    private View history_ln_view;//历史播放记录控件
-    private int menuFlag = 0;//用来控制历史播放记录控件是否可见
+    private View view_history;//历史播放记录控件
+    private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
     private ImageButton image_button_play;//底部的图片播放按钮
     private int input_time = 0;
     private Timer sleepTimer = null;
@@ -202,7 +202,7 @@ public class DisplayActivity extends BaseActivity {
 
     /**************初始化播放按钮点击事件************/
     public void dealMusicButton() {
-        ImageButton b_Paly = findViewById(R.id.button_play);
+        ImageButton b_Paly = findViewById(R.id.btn_play);
         b_Paly.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {//播放按钮
@@ -223,21 +223,21 @@ public class DisplayActivity extends BaseActivity {
 
     /**************历史播放记录按钮点击************/
     public void dealPlayHistoryButton() {
-        ImageButton history_menu = findViewById(R.id.history_menu);
-        history_ln_view = findViewById(R.id.history_ln_view);
-        history_menu.setOnClickListener(new View.OnClickListener() {
+        ImageButton btn_history_menu = findViewById(R.id.btn_history_menu);
+        view_history = findViewById(R.id.view_list_history);
+        btn_history_menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 searchview.clearFocus();
-                if (menuFlag == 0) {
+                if (view_history_Flag == 0) {
                     SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_item, PlayHistory.songs);
                     ListView list_playHistory = findViewById(R.id.list_playhistory);
                     list_playHistory.setAdapter(adapter_his);
-                    history_ln_view.setVisibility(View.VISIBLE);
-                    menuFlag = 1;
+                    view_history.setVisibility(View.VISIBLE);
+                    view_history_Flag = 1;
                 } else {
-                    history_ln_view.setVisibility(View.GONE);
-                    menuFlag = 0;
+                    view_history.setVisibility(View.GONE);
+                    view_history_Flag = 0;
                 }
 
             }
@@ -245,7 +245,7 @@ public class DisplayActivity extends BaseActivity {
     }
 
     public void dealSearch() {
-        searchview = findViewById(R.id.searchview);
+        searchview = findViewById(R.id.search_view);
         searchview.setSubmitButtonEnabled(true);//提交按钮  显示
         searchview.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -414,7 +414,7 @@ public class DisplayActivity extends BaseActivity {
             switch (status) {
                 case MusicService.STATUS_PLAYING:
                     Log.w("DisplayActivity", "播放状态，改变播放图标.");
-                    image_button_play = findViewById(R.id.button_play);
+                    image_button_play = findViewById(R.id.btn_play);
                     image_button_play.setBackground(getDrawable(R.drawable.pause));//把底部播放按钮的图标改变
                     current_music = MusicService.getCurrent_number();
                     initBottomMes(current_music);
@@ -425,7 +425,7 @@ public class DisplayActivity extends BaseActivity {
                     break;
                 case MusicService.STATUS_PAUSED:
                     Log.w("DisplayActivity", "暂停状态，将改变播放图标.");
-                    image_button_play = findViewById(R.id.button_play);
+                    image_button_play = findViewById(R.id.btn_play);
                     image_button_play.setBackground(getDrawable(R.drawable.play_2));//把底部播放按钮的图标改变
                     break;
                 case MusicService.STATUS_STOPPED:
@@ -557,7 +557,7 @@ public class DisplayActivity extends BaseActivity {
     /***********添加顶部右侧 menu***********/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.menu_display, menu);
         return true;
     }
 

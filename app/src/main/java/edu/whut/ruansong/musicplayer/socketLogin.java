@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musciplayer;
+package edu.whut.ruansong.musicplayer;
 
 import android.util.Log;
 
@@ -15,7 +15,9 @@ import java.net.Socket;
  */
 public class socketLogin extends Thread{
     private String user,password;
-    private String ip = "192.168.31.174";//主机ip  192.168.31.174
+    private String ip = "112.124.66.85";
+    //主机ip  192.168.31.174
+    //云服务器ip   112.124.66.85
     private int port = 1234;
     private String r_state;//用于保存主机返回的密码验证状态
     private int yes = 0;
@@ -70,6 +72,7 @@ public class socketLogin extends Thread{
                 //读取该长度的信息
                 inputStream.read(bytes);
                 r_state = new String(bytes, "UTF-8");
+//                Log.w("socketLogin","r_state is "+r_state);
                 if(r_state.equals("true"))
                     yes = 1;
                 else if(r_state.equals("flase"))

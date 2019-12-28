@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musciplayer;
+package edu.whut.ruansong.musicplayer;
 
 /**
  * Created by 阮 on 2018/11/17.

@@ -6,21 +6,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/root_view_display"
-    tools:context="edu.whut.ruansong.musciplayer.DisplayActivity">
+    tools:context="edu.whut.ruansong.musicplayer.DisplayActivity">
 
     <android.support.v7.widget.SearchView
-        android:id="@+id/searchview"
+        android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_40"
         android:focusable="false"
-        android:focusableInTouchMode="false"
         android:textColor="@color/black_color"
         app:iconifiedByDefault="false"
         app:queryHint="请输入歌曲名"
         android:background="@drawable/search_view"
         android:layout_marginLeft="@dimen/dp_10"
         android:layout_marginRight="@dimen/dp_10"/>
-
+<!--app:iconifiedByDefault为true时，搜索框只有点图标才出现-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -52,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp_10"
                 android:layout_marginEnd="@dimen/dp_10"
-                android:layout_toStartOf="@id/button_play"
+                android:layout_toStartOf="@id/btn_play"
                 android:layout_toEndOf="@+id/image_music"
                 android:orientation="vertical"
                 tools:ignore="RelativeOverlap">
@@ -86,28 +85,38 @@
             </LinearLayout>
 
             <ImageButton
-                android:id="@+id/button_play"
+                android:id="@+id/btn_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_10"
-                android:layout_toStartOf="@+id/history_menu"
+                android:layout_marginEnd="@dimen/dp_20"
+                android:layout_toStartOf="@+id/btn_next"
                 android:background="@drawable/play_2"
                 tools:ignore="ContentDescription" /><!--layout_toStartOf本元素从某个元素开始-->
 
             <ImageButton
-                android:id="@+id/history_menu"
+                android:id="@+id/btn_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dp_15"
+                android:layout_toStartOf="@+id/btn_history_menu"
+                android:background="@drawable/next_2"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton
+                android:id="@+id/btn_history_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_5"
+                android:layout_marginEnd="@dimen/dp_10"
                 android:background="@drawable/menu"
                 tools:ignore="ContentDescription" />
         </RelativeLayout>
 
         <LinearLayout
-            android:id="@+id/history_ln_view"
+            android:id="@+id/view_list_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/play_bar_bottom"

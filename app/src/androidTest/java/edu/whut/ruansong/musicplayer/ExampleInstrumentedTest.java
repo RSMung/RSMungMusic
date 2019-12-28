@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musciplayer;
+package edu.whut.ruansong.musicplayer;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("edu.whut.ruansong.musciplayer", appContext.getPackageName());
+        assertEquals("edu.whut.ruansong.musicplayer", appContext.getPackageName());
     }
 }

@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musciplayer;
+package edu.whut.ruansong.musicplayer;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;

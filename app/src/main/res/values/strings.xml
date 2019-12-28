@@ -24,4 +24,7 @@
     <string name="search_result">搜索结果</string>
     <string name="forget_pas">忘记密码"?"</string>
     <string name="music_image_content">这首音乐的专辑图片</string>
+<!--MainInterface-->
+    <string name="title_toolbar">本地音乐</string>
+    <string name="share">分享</string>
 </resources>

@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musciplayer;
+package musicplayer;
 
 
 import android.app.ProgressDialog;
@@ -24,7 +24,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
-import edu.whut.ruansong.musciplayer.dynamicBackGround.VideoBackground;
+import musicplayer.dynamicBackGround.VideoBackground;
 
 public class LoginActivity extends BaseActivity {
 

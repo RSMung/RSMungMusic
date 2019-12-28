@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musciplayer;
+package edu.whut.ruansong.musicplayer;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -55,7 +55,7 @@ public class LoginActivity extends BaseActivity {
                     sPreEditor_usr = getSharedPreferences("username_data",
                             MODE_PRIVATE).edit();
                     if (remember_user.isChecked()) {
-                        sPreEditor_usr.putString("name", userStr);//存入数据
+                        sPreEditor_usr.putString("name",userStr);//存入数据
                     } else {
                         sPreEditor_usr.clear();//清除数据
                     }
@@ -65,15 +65,17 @@ public class LoginActivity extends BaseActivity {
                     sPreEditor_password = getSharedPreferences("password_data",
                             MODE_PRIVATE).edit();
                     if (remember_password.isChecked()) {
-                        sPreEditor_password.putString("password", passwordStr);//保存
+                        sPreEditor_password.putString("password",passwordStr);//保存
                     } else {
                         sPreEditor_password.clear();//清除
                     }
                     sPreEditor_password.apply();//生效
 
                     /******使用socket与主机通信验证密码*****/
+//                    Log.w("LoginActivity", "使用的信息是" + userStr+""+passwordStr);
                     final socketLogin s1 = new socketLogin(userStr, passwordStr);
                     s1.start();
+                    Log.w("socketLogin","ok");
 
                     new Handler().postDelayed(new Runnable() {//延时1000ms后获取主机返回的验证状态
                         @Override

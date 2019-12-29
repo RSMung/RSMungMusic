@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:id="@+id/root_view_main_interface">
+    tools:context=".activity.SearchDetailActivity">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar_main_interface"
+        android:id="@+id/toolbar_activity_search_detail"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/back"
         android:background="@color/black_color"
-        app:title="@string/title_toolbar"
-        app:titleTextColor="@color/white_color"/>
+        app:navigationIcon="@drawable/back"
+        app:title="@string/search"
+        app:titleTextColor="@color/white_color" />
 
 </LinearLayout>

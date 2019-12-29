@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musicplayer;
+package edu.whut.ruansong.musicplayer.service;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -11,6 +11,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Random;
+
+import edu.whut.ruansong.musicplayer.PlayHistory;
+import edu.whut.ruansong.musicplayer.Song;
+import edu.whut.ruansong.musicplayer.activity.DisplayActivity;
+import edu.whut.ruansong.musicplayer.activity.LoginActivity;
 
 /**
  * Created by 阮 on 2018/11/18.

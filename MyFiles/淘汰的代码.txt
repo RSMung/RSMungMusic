@@ -1,0 +1,16 @@
+1.原display界面的toolbar下面的搜索控件
+xml：
+<!--
+    <android.support.v7.widget.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        android:focusable="false"
+        android:textColor="@color/black_color"
+        app:iconifiedByDefault="false"
+        app:queryHint="请输入歌曲名"
+        android:background="@drawable/search_view"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10"/>
+        -->
+<!--app:iconifiedByDefault为true时，搜索框只有点图标才出现-->

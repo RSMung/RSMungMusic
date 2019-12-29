@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musicplayer;
+package edu.whut.ruansong.musicplayer.activity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -17,6 +17,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,16 +39,25 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import edu.whut.ruansong.musicplayer.ActivityCollector;
+import edu.whut.ruansong.musicplayer.BaseActivity;
+import edu.whut.ruansong.musicplayer.service.MusicService;
+import edu.whut.ruansong.musicplayer.PlayHistory;
+import edu.whut.ruansong.musicplayer.R;
+import edu.whut.ruansong.musicplayer.Song;
+import edu.whut.ruansong.musicplayer.SongAdapter;
+
 /**
  * Created by 阮 on 2018/11/17.
  * 前端处理UI变化
  */
 
 public class DisplayActivity extends BaseActivity {
-    private HeadsetPlugReceiver headsetReceiver = null;
+    private Toolbar toolbar = null;//toolbar
+    private HeadsetPlugReceiver headsetReceiver = null;//耳机监听
+    private static List<Song> songsList = new ArrayList<>();//歌曲数据初始化
     private static int song_number = 0;//歌曲总数量
-    private int current_music;//当前播放歌曲
-    private static List<Song> songsList = new ArrayList<>();
+    private int current_music_list_number;//当前正在播放的歌曲
     private int status;//播放状态默认为停止
     private View view_history;//历史播放记录控件
     private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
@@ -68,22 +78,53 @@ public class DisplayActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         //解决软键盘弹起时，底部控件被顶上去的问题
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        //设定布局
         setContentView(R.layout.activity_display);
-        startService();//启动后台服务
-        initHeadset();//初始化耳机监听
-        initSongs(); // 初始化歌曲数据
-        dealMusicButton();//初始化播放按钮点击事件
+        //toolbar控件
+        toolbar = findViewById(R.id.toolbar_activity_search_detail);
+        setSupportActionBar(toolbar);
+        //启动后台服务
+        startService();
+        //初始化耳机监听
+        initHeadset();
+        // 初始化歌曲数据
+        load_Songs_data();
+        //初始化播放按钮点击事件
+        dealMusicButton();
         dealPlayHistoryButton();//历史播放记录
-        dealSearch();//搜索本地歌曲的逻辑
+        //dealSearch();//搜索本地歌曲的逻辑
         initDealPlayBarBottom();//点击底部一栏的事件
         bindStatusChangedReceiver();//启动广播接收器
     }
 
+    /***********toolbar的menu***********/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_display, menu);
+        return true;
+    }
+    //点击事件
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.display_toolbar_menu_search://toolbar上的搜索按钮
+                Intent intent_jump_toolbar_search =
+                     new Intent(DisplayActivity.this,SearchDetailActivity.class);
+                startActivity(intent_jump_toolbar_search);
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    /***启动音乐播放服务*/
     public void startService() {
         Intent intentService = new Intent(DisplayActivity.this, MusicService.class);
         startService(intentService);
     }
 
+    /**耳机监听**/
     public void initHeadset() {//初始化耳机监听
         //给广播绑定响应的过滤器
         IntentFilter intentFilter = new IntentFilter();
@@ -92,7 +133,7 @@ public class DisplayActivity extends BaseActivity {
         registerReceiver(headsetReceiver, intentFilter);
     }
 
-    //内部类，接收耳机状态变化
+    /******内部类，接收耳机状态变化*/
     class HeadsetPlugReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -119,7 +160,7 @@ public class DisplayActivity extends BaseActivity {
     }
 
     /**************加载歌曲数据************/
-    private void initSongs() {
+    private void load_Songs_data() {
         if (songsList.size() == 0) {
             Log.w("DisplayActivity", "歌曲列表为空，需要加载");
             ContentResolver contentResolver = getContentResolver();
@@ -174,22 +215,22 @@ public class DisplayActivity extends BaseActivity {
             if (song_number == 0) {
                 Toast.makeText(DisplayActivity.this, "没有找到歌曲,请下载！",
                         Toast.LENGTH_SHORT).show();
-                return;//不做下面的事情了
+                return;//不做下面的事情了(即不用把歌曲信息载入列表,因为根本没有)
             }
         } else {
             Log.w("DisplayActivity", "歌曲列表不为空，直接载入");
         }
         //配置歌曲信息
-        SongAdapter adapter = new SongAdapter(DisplayActivity.this,
+        SongAdapter adapter_view_list_song = new SongAdapter(DisplayActivity.this,
                 R.layout.song_item, songsList);
-        ListView listView = findViewById(R.id.list_song);
-        listView.setAdapter(adapter);
+        ListView view_list_all_song = findViewById(R.id.view_list_all_song);
+        view_list_all_song.setAdapter(adapter_view_list_song);
         //设置歌曲item点击事件
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        view_list_all_song.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                current_music = position;
+                current_music_list_number = position;
                 if (status == MusicService.STATUS_STOPPED || status == MusicService.STATUS_PLAYING) {
                     //在musicService服务中有逻辑控制到底是播放还是暂停   play_pause()函数
                     sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
@@ -228,7 +269,7 @@ public class DisplayActivity extends BaseActivity {
         btn_history_menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                searchview.clearFocus();
+                clear_searchView_focus();
                 if (view_history_Flag == 0) {
                     SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_item, PlayHistory.songs);
                     ListView list_playHistory = findViewById(R.id.list_playhistory);
@@ -244,7 +285,8 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-    public void dealSearch() {
+    /**原搜索处理方法*/
+    /*public void dealSearch() {
         searchview = findViewById(R.id.search_view);
         searchview.setSubmitButtonEnabled(true);//提交按钮  显示
         searchview.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -322,7 +364,7 @@ public class DisplayActivity extends BaseActivity {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view,
                                                 int position, long id) {
-                            current_music = search_list.get(position).getSong_list_id();
+                            current_music_list_number = search_list.get(position).getSong_list_id();
                             if (status == MusicService.STATUS_STOPPED || status == MusicService.STATUS_PLAYING) {
                                 sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
                             } else if (status == MusicService.STATUS_PAUSED) {
@@ -351,9 +393,10 @@ public class DisplayActivity extends BaseActivity {
                 return true;
             }
         });
-    }
+    }  */
 
-    public void initDealPlayBarBottom() {//底部一整栏的点击事件  待实现歌曲详情页
+    /**底部一整栏的点击事件  待实现歌曲详情页**/
+    public void initDealPlayBarBottom() {
         View v = findViewById(R.id.play_bar_bottom);
         v.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -365,14 +408,14 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-    //绑定广播接收器
+    /*******绑定广播接收器*/
     private void bindStatusChangedReceiver() {
         receiver = new StatusChangedReceiver();
         IntentFilter intentFilter = new IntentFilter(MusicService.BROADCAST_MUSICSERVICE_UPDATE_STATUS);
         registerReceiver(receiver, intentFilter);
     }
 
-    /*发送命令，控制音乐播放，参数定义在MusicService中*/
+    /***发送命令，控制音乐播放，参数定义在MusicService中*/
     private void sendBroadcastOnCommand(int command) {
         clear_searchView_focus();//清除搜索框的焦点
         Intent intent = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
@@ -380,7 +423,7 @@ public class DisplayActivity extends BaseActivity {
         //根据不同的命令封装不同的数据
         switch (command) {
             case MusicService.COMMAND_PLAY:
-                intent.putExtra("number", current_music);//封装歌曲在list中的位置
+                intent.putExtra("number", current_music_list_number);//封装歌曲在list中的位置
                 break;
             case MusicService.COMMAND_PREVIOUS:
                 //待实现
@@ -395,7 +438,7 @@ public class DisplayActivity extends BaseActivity {
                 //待实现
                 break;
             case MusicService.COMMAND_RESUME:
-                intent.putExtra("number", current_music);
+                intent.putExtra("number", current_music_list_number);
                 break;
             default:
                 break;
@@ -404,7 +447,7 @@ public class DisplayActivity extends BaseActivity {
 //        Log.w("DisplatActivity", "发送了命令广播" + command);
     }
 
-    /*内部类，接受广播命令并执行操作*/
+    /*****内部类，接受广播命令并执行操作*/
     class StatusChangedReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -416,11 +459,11 @@ public class DisplayActivity extends BaseActivity {
                     Log.w("DisplayActivity", "播放状态，改变播放图标.");
                     image_button_play = findViewById(R.id.btn_play);
                     image_button_play.setBackground(getDrawable(R.drawable.pause));//把底部播放按钮的图标改变
-                    current_music = MusicService.getCurrent_number();
-                    initBottomMes(current_music);
+                    current_music_list_number = MusicService.getCurrent_number();
+                    initBottomMes(current_music_list_number);
                     image_music = findViewById(R.id.image_music);
                     image_music.setImageDrawable(getImage(songsList.get(
-                            current_music).getAlbum_id()));
+                            current_music_list_number).getAlbum_id()));
 //                    initImagePlay(1,MusicService.getCurrent_number());
                     break;
                 case MusicService.STATUS_PAUSED:
@@ -453,42 +496,46 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
-    public void initBottomMes(int position) {//设置底部的一栏左侧的歌曲名和歌手
+    /**设置底部的一栏左侧的歌曲名和歌手*/
+    public void initBottomMes(int position) {//
         Song song = songsList.get(position);//获取点击位置的song对象
         TextView songName = findViewById(R.id.buttom_textview_songname);
         songName.setText(song.getSong_name());
         TextView songAuthor = findViewById(R.id.buttom_textview_songauthor);
         songAuthor.setText(song.getSong_author());
     }
-    //为完全实现，有错误
-//    public void softKeyboardRaise(){//解决软键盘弹起时，底部控件被顶上去的问题
-//        View rootView = findViewById(R.id.root_view_display);
-//        rootView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-//            @Override
-//            public void onLayoutChange(View v,int left, int top, int right, int bottom,
-//                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
-//                if (bottom - oldBottom < -1) {
-//                    Log.w("DisplayActivity","软键盘弹上去了,动态设置高度为1");
-//                    Log.w("DisplayActivity","bottom"+bottom);
-//                    Log.w("DisplayActivity","oldBottom"+oldBottom);
-//                    View play_bar_bottom = findViewById(R.id.play_bar_bottom);
-//                    //取控件当前的布局参数
-//                    RelativeLayout.LayoutParams params =
-//                            (RelativeLayout.LayoutParams) play_bar_bottom.getLayoutParams();
-//                    //设置高度值
-//                    params.height = 1;
-//                } else if (bottom - oldBottom > 1) {
-//                    Log.w("DisplayActivity","bottom"+bottom);
-//                    Log.w("DisplayActivity","oldBottom"+oldBottom);
-//                    Log.w("DisplayActivity","软键盘弹下去了，动态设置高度，恢复原先控件高度");
-//                    View play_bar_bottom = findViewById(R.id.play_bar_bottom);
-//                    //取控件当前的布局参数
-//                    RelativeLayout.LayoutParams params =
-//                            (RelativeLayout.LayoutParams) play_bar_bottom.getLayoutParams();
-//                    //设置高度值
-//                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//                     } } });
-//    }
+
+    /**解决软键盘弹起时，底部控件被顶上去的问题,未完全实现，有错误*/
+    /*
+    public void softKeyboardRaise(){
+        View rootView = findViewById(R.id.root_view_display);
+        rootView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v,int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (bottom - oldBottom < -1) {
+                    Log.w("DisplayActivity","软键盘弹上去了,动态设置高度为1");
+                    Log.w("DisplayActivity","bottom"+bottom);
+                    Log.w("DisplayActivity","oldBottom"+oldBottom);
+                    View play_bar_bottom = findViewById(R.id.play_bar_bottom);
+                    //取控件当前的布局参数
+                    RelativeLayout.LayoutParams params =
+                            (RelativeLayout.LayoutParams) play_bar_bottom.getLayoutParams();
+                    //设置高度值
+                    params.height = 1;
+                } else if (bottom - oldBottom > 1) {
+                    Log.w("DisplayActivity","bottom"+bottom);
+                    Log.w("DisplayActivity","oldBottom"+oldBottom);
+                    Log.w("DisplayActivity","软键盘弹下去了，动态设置高度，恢复原先控件高度");
+                    View play_bar_bottom = findViewById(R.id.play_bar_bottom);
+                    //取控件当前的布局参数
+                    RelativeLayout.LayoutParams params =
+                            (RelativeLayout.LayoutParams) play_bar_bottom.getLayoutParams();
+                    //设置高度值
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                     } } });
+    }
+    */
 
     /**********获取  设置歌曲专辑图片*************/
     @SuppressWarnings("deprecation")
@@ -552,16 +599,10 @@ public class DisplayActivity extends BaseActivity {
         }
         return album_art;
     }
-    //获取  设置歌曲专辑图片           到此结束
+    /***获取  设置歌曲专辑图片           到此结束*/
 
-    /***********添加顶部右侧 menu***********/
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_display, menu);
-        return true;
-    }
-
-    //menu的事件
+    /****旧的menu的点击事件         已淘汰!!!!*/
+    /*
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -581,7 +622,10 @@ public class DisplayActivity extends BaseActivity {
         return true;
     }
 
-    public void timePausePlay() {//定时停止播放
+     */
+
+    /**定时停止播放*/
+    public void timePausePlay() {
         final AlertDialog.Builder customizeDialog =
                 new AlertDialog.Builder(DisplayActivity.this);
         @SuppressLint("InflateParams") final View dialogView = LayoutInflater.from(DisplayActivity.this)
@@ -622,7 +666,8 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-    public void selectMode() {//选择播放模式
+    /**选择播放模式*/
+    public void selectMode() {//
         final AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this);
         builder.setIcon(R.drawable.play_1);
         builder.setTitle("播放模式");

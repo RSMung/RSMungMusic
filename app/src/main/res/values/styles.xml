@@ -3,12 +3,34 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
+        <!--Appbar背景色，应用的主要色调，actionBar默认使用该颜色-->
+<!--        <item name="colorPrimary">@color/black_color</item>-->
+
+        <!--状态栏颜色，应用的主要暗色调，statusBarColor默认使用该颜色-->
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+
+        <!--各个控制控件的默认颜色-->
+<!--        <item name="android:colorControlNormal">@color/white_color</item>-->
+
+        <!--一般控件的选中效果默认采用该颜色-->
+<!--        <item name="colorAccent">@color/black_color</item>-->
+
+        <!--设置menu中item的图标颜色-->
+        <item name="android:textColorSecondary">@color/white_color</item>
     </style>
     <style name="CustomCheckBoxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
          <item name="android:button">@drawable/checkbox_style</item>
+    </style>
+
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <!-- Gets rid of the search icon -->
+        <item name="searchIcon">@drawable/search</item>
+        <!-- Gets rid of the "underline" in the text -->
+<!--        <item name="queryBackground">@color/white</item>-->
+        <!-- Gets rid of the search icon when the SearchView is expanded -->
+        <item name="searchHintIcon">@null</item>
+        <!-- The hint text that appears when the user has not typed anything -->
+        <item name="queryHint">@string/search_hint</item>
     </style>
 
 </resources>

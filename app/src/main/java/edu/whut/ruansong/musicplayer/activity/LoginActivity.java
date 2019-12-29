@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musicplayer;
+package edu.whut.ruansong.musicplayer.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +10,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import edu.whut.ruansong.musicplayer.BaseActivity;
+import edu.whut.ruansong.musicplayer.R;
+import edu.whut.ruansong.musicplayer.socketLogin;
 
 public class LoginActivity extends BaseActivity {
 

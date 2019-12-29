@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="@drawable/login_background"
     android:id="@+id/rootView_login"
-    tools:context="edu.whut.ruansong.musicplayer.LoginActivity">
+    tools:context="edu.whut.ruansong.musicplayer.activity.LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

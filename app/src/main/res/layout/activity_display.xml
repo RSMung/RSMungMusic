@@ -6,26 +6,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/root_view_display"
-    tools:context="edu.whut.ruansong.musicplayer.DisplayActivity">
+    tools:context="edu.whut.ruansong.musicplayer.activity.DisplayActivity">
 
-    <android.support.v7.widget.SearchView
-        android:id="@+id/search_view"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_activity_search_detail"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_40"
-        android:focusable="false"
-        android:textColor="@color/black_color"
-        app:iconifiedByDefault="false"
-        app:queryHint="请输入歌曲名"
-        android:background="@drawable/search_view"
-        android:layout_marginLeft="@dimen/dp_10"
-        android:layout_marginRight="@dimen/dp_10"/>
-<!--app:iconifiedByDefault为true时，搜索框只有点图标才出现-->
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/back"
+        android:background="@color/black_color"
+        app:title="@string/title_toolbar"
+        app:titleTextColor="@color/white_color"/>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ListView
-            android:id="@+id/list_song"
+            android:id="@+id/view_list_all_song"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/play_bar_bottom" />

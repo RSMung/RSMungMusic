@@ -21,7 +21,6 @@
         </activity>
         <activity android:name=".activity.DisplayActivity" />
         <activity android:name=".activity.SearchDetailActivity"></activity>
-        <activity android:name=".DetailMusicPlay" />
         <activity android:name=".MainInterface" />
 
         <service

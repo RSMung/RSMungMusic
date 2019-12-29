@@ -25,7 +25,7 @@
         android:layout_marginStart="@dimen/dp_10">
 
         <TextView
-            android:id="@+id/song_name"
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
@@ -34,7 +34,7 @@
             android:textColor="@color/black_color"/>
 
         <TextView
-            android:id="@+id/song_author"
+            android:id="@+id/artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

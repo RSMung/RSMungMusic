@@ -28,7 +28,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.support.v7.widget.SearchView;
 import android.widget.TextView;
@@ -61,14 +60,12 @@ public class DisplayActivity extends BaseActivity {
     private int status;//播放状态默认为停止
     private View view_history;//历史播放记录控件
     private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
-    private ImageButton image_button_play;//底部的图片播放按钮
+    private ImageButton image_btn_play;//底部的图片播放按钮
     private int input_time = 0;
     private Timer sleepTimer = null;
     private AlertDialog dialog;//定时停止播放得对话框
     private int playMode = 0;//播放模式
     private StatusChangedReceiver receiver;//状态接收器，接收来自service的播放器状态信息
-    private List<Song> search_list = new ArrayList<>();//用来装查询获取的songs
-    private LinearLayout search_LinearLayout;//搜索结果的整个布局
     private ImageView image_music;
     private SearchView searchview = null;
     private int headSet_flag = 0;
@@ -178,29 +175,24 @@ public class DisplayActivity extends BaseActivity {
                                 cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
                         //是音乐并且时长大于3分钟
                         if (isMusic != 0 && duration >= 3 * 60 * 1000) {
-                            long id = cursor.getLong(
-                                    cursor.getColumnIndex(MediaStore.Audio.Media._ID));
-                            //歌手信息
-                            String artist = cursor.getString(
-                                    cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                            //歌曲名称
-                            String musicName = cursor.getString(
-                                    cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
-                            //文件路径
-                            String musicPath = cursor.getString(
-                                    cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                            //歌名
+                            String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                            //歌手
+                            String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
                             //专辑id
-                            long albumId = cursor.getInt(
-                                    cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                            //专辑
-                            String album = cursor.getString(
-                                    cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                            long albumId = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+                            //文件路径
+                            String dataPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+
+                            //歌名，歌手，时长，专辑,图标,文件路径
                             Song song = new Song(
-                                    id, albumId, song_number,
-                                    R.drawable.music_2,//song_image_id   图片在drawable里面的id
-                                    musicName, artist, musicPath,
-                                    duration, isMusic, album
-                            );//R.drawable.music_2是歌曲列表前面那个图片
+                                    title,
+                                    artist,
+                                    duration,
+                                    albumId,
+                                    R.drawable.song_item_picture,
+                                    dataPath
+                            );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
                             songsList.add(song);
                             song_number++;
                         }
@@ -222,9 +214,10 @@ public class DisplayActivity extends BaseActivity {
         }
         //配置歌曲信息
         SongAdapter adapter_view_list_song = new SongAdapter(DisplayActivity.this,
-                R.layout.song_item, songsList);
+                R.layout.song_list_item, songsList);
         ListView view_list_all_song = findViewById(R.id.view_list_all_song);
         view_list_all_song.setAdapter(adapter_view_list_song);
+
         //设置歌曲item点击事件
         view_list_all_song.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -271,7 +264,7 @@ public class DisplayActivity extends BaseActivity {
             public void onClick(View view) {
                 clear_searchView_focus();
                 if (view_history_Flag == 0) {
-                    SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_item, PlayHistory.songs);
+                    SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.songs);
                     ListView list_playHistory = findViewById(R.id.list_playhistory);
                     list_playHistory.setAdapter(adapter_his);
                     view_history.setVisibility(View.VISIBLE);
@@ -305,7 +298,7 @@ public class DisplayActivity extends BaseActivity {
                 for (int i = 0; i < song_number; i++) {//遍历整个列表  匹配歌曲名
 //                    Log.w("DisplayActivity", "第" + i + "次遍历");
                     //获取列表中当前歌曲名
-                    String current_song_name = songsList.get(i).getSong_name();
+                    String current_song_name = songsList.get(i).getTitle();
                     //当前歌曲名转换为字符数组
                     char[] char_current_song_name = current_song_name.toCharArray();
                     //当前歌曲名转换为的字符数组的长度
@@ -356,7 +349,7 @@ public class DisplayActivity extends BaseActivity {
                             Toast.LENGTH_SHORT).show();
                     //用search_list配置歌曲信息，加载进入控件
                     SongAdapter adapter_search = new SongAdapter(DisplayActivity.this,
-                            R.layout.song_item, search_list);
+                            R.layout.song_list_item, search_list);
                     ListView listView_search = findViewById(R.id.list_search);
                     listView_search.setAdapter(adapter_search);
                     //设置search_list歌曲item点击事件   以便可以点击搜素结果 播放歌曲
@@ -417,25 +410,13 @@ public class DisplayActivity extends BaseActivity {
 
     /***发送命令，控制音乐播放，参数定义在MusicService中*/
     private void sendBroadcastOnCommand(int command) {
-        clear_searchView_focus();//清除搜索框的焦点
+        //1.创建intent
         Intent intent = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
+        //2.封装数据
         intent.putExtra("command", command);
-        //根据不同的命令封装不同的数据
         switch (command) {
             case MusicService.COMMAND_PLAY:
                 intent.putExtra("number", current_music_list_number);//封装歌曲在list中的位置
-                break;
-            case MusicService.COMMAND_PREVIOUS:
-                //待实现
-                break;
-            case MusicService.COMMAND_NEXT:
-                //待实现
-                break;
-            case MusicService.COMMAND_PAUSE:
-                //待实现
-                break;
-            case MusicService.COMMAND_STOP:
-                //待实现
                 break;
             case MusicService.COMMAND_RESUME:
                 intent.putExtra("number", current_music_list_number);
@@ -443,33 +424,33 @@ public class DisplayActivity extends BaseActivity {
             default:
                 break;
         }
+        //3.发送广播
         sendBroadcast(intent);
-//        Log.w("DisplatActivity", "发送了命令广播" + command);
     }
 
     /*****内部类，接受广播命令并执行操作*/
     class StatusChangedReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            clear_searchView_focus();
             //获取播放器状态
             status = intent.getIntExtra("status", -1);
             switch (status) {
                 case MusicService.STATUS_PLAYING:
+                    //把底部播放按钮的图标改变
                     Log.w("DisplayActivity", "播放状态，改变播放图标.");
-                    image_button_play = findViewById(R.id.btn_play);
-                    image_button_play.setBackground(getDrawable(R.drawable.pause));//把底部播放按钮的图标改变
+                    image_btn_play = findViewById(R.id.btn_play);
+                    image_btn_play.setBackground(getDrawable(R.drawable.pause));
                     current_music_list_number = MusicService.getCurrent_number();
+                    //加载歌名和歌手
                     initBottomMes(current_music_list_number);
+                    //设置专辑图片
                     image_music = findViewById(R.id.image_music);
-                    image_music.setImageDrawable(getImage(songsList.get(
-                            current_music_list_number).getAlbum_id()));
-//                    initImagePlay(1,MusicService.getCurrent_number());
+                    image_music.setImageDrawable(getImage(songsList.get(current_music_list_number).getAlbum_id()));
                     break;
                 case MusicService.STATUS_PAUSED:
                     Log.w("DisplayActivity", "暂停状态，将改变播放图标.");
-                    image_button_play = findViewById(R.id.btn_play);
-                    image_button_play.setBackground(getDrawable(R.drawable.play_2));//把底部播放按钮的图标改变
+                    image_btn_play = findViewById(R.id.btn_play);
+                    image_btn_play.setBackground(getDrawable(R.drawable.play_2));//把底部播放按钮的图标改变
                     break;
                 case MusicService.STATUS_STOPPED:
                     Log.w("DisplayActivity", "停止状态");
@@ -500,42 +481,10 @@ public class DisplayActivity extends BaseActivity {
     public void initBottomMes(int position) {//
         Song song = songsList.get(position);//获取点击位置的song对象
         TextView songName = findViewById(R.id.buttom_textview_songname);
-        songName.setText(song.getSong_name());
+        songName.setText(song.getTitle());
         TextView songAuthor = findViewById(R.id.buttom_textview_songauthor);
-        songAuthor.setText(song.getSong_author());
+        songAuthor.setText(song.getArtist());
     }
-
-    /**解决软键盘弹起时，底部控件被顶上去的问题,未完全实现，有错误*/
-    /*
-    public void softKeyboardRaise(){
-        View rootView = findViewById(R.id.root_view_display);
-        rootView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v,int left, int top, int right, int bottom,
-                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                if (bottom - oldBottom < -1) {
-                    Log.w("DisplayActivity","软键盘弹上去了,动态设置高度为1");
-                    Log.w("DisplayActivity","bottom"+bottom);
-                    Log.w("DisplayActivity","oldBottom"+oldBottom);
-                    View play_bar_bottom = findViewById(R.id.play_bar_bottom);
-                    //取控件当前的布局参数
-                    RelativeLayout.LayoutParams params =
-                            (RelativeLayout.LayoutParams) play_bar_bottom.getLayoutParams();
-                    //设置高度值
-                    params.height = 1;
-                } else if (bottom - oldBottom > 1) {
-                    Log.w("DisplayActivity","bottom"+bottom);
-                    Log.w("DisplayActivity","oldBottom"+oldBottom);
-                    Log.w("DisplayActivity","软键盘弹下去了，动态设置高度，恢复原先控件高度");
-                    View play_bar_bottom = findViewById(R.id.play_bar_bottom);
-                    //取控件当前的布局参数
-                    RelativeLayout.LayoutParams params =
-                            (RelativeLayout.LayoutParams) play_bar_bottom.getLayoutParams();
-                    //设置高度值
-                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                     } } });
-    }
-    */
 
     /**********获取  设置歌曲专辑图片*************/
     @SuppressWarnings("deprecation")

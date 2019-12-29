@@ -54,7 +54,7 @@ public class MusicService extends Service {
     private static int current_number = -1;//当前歌曲序号
     private int next_number = 0;//获取的序号
 
-    private int current_status = MusicService.STATUS_STOPPED;
+    private static int current_status = MusicService.STATUS_STOPPED;
 
     private int current_PlayMode = PLAY_MODE_ORDER;//当前播放顺序
 
@@ -66,6 +66,7 @@ public class MusicService extends Service {
     public static int getCurrent_number() {
         return current_number;
     }
+    public static int getCurrent_status() { return current_status; }
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -136,7 +137,7 @@ public class MusicService extends Service {
 
     public void play() {
         Song song = DisplayActivity.getSongsList().get(next_number);
-        path = song.getSong_addr();//获取其地址
+        path = song.getDataPath();//获取其地址
         PlayHistory.addSong(song);//加入历史记录列表
         prePlay();
         current_status = MusicService.STATUS_PLAYING;

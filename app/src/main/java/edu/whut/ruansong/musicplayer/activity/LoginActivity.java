@@ -79,19 +79,19 @@ public class LoginActivity extends BaseActivity {
 //                    Log.w("LoginActivity", "使用的信息是" + userStr+""+passwordStr);
                     final socketLogin s1 = new socketLogin(userStr, passwordStr);
                     s1.start();
-                    Log.w("socketLogin","ok");
 
                     new Handler().postDelayed(new Runnable() {//延时1000ms后获取主机返回的验证状态
                         @Override
                         public void run() {
-                            int login_state = s1.getYes();//获取主机验证后返回的信息
+                            int login_state = s1.getRespond_state_int();//获取主机验证后返回的信息
                             Log.w("LoginActivity", "state is " + login_state);
-                            if (login_state == 1) {//验证成功
+                            if(login_state == -1){
+                                Toast.makeText(LoginActivity.this, "服务器未响应！", Toast.LENGTH_SHORT).show();
+                            }else if (login_state == 1) {//验证成功
                                 jumpToNextActivity();
                                 login_status = 1;
                             } else {//验证失败
-                                Toast.makeText(LoginActivity.this, "账号验证失败，请重试！",
-                                        Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "账号验证失败，请重试！", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }, 1000);

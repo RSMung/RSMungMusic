@@ -5,6 +5,7 @@ import android.util.Log;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by Android Studio.
@@ -16,17 +17,17 @@ import java.net.Socket;
 public class socketLogin extends Thread{
     private String user,password;
     private String ip = "112.124.66.85";
-    //主机ip  192.168.31.174
+    //本地服务器ip  192.168.31.174
     //云服务器ip   112.124.66.85
     private int port = 1234;
-    private String r_state;//用于保存主机返回的密码验证状态
-    private int yes = 0;
+    private String return_state_string;//用于保存主机返回的密码验证状态
+    private int respond_state_int = -1;
     public socketLogin(String user,String password){
         this.user = user;
         this.password = password;
     }
-    public int getYes(){
-        return yes;
+    public int getRespond_state_int(){
+        return respond_state_int;
     }
     @Override
     public void run(){
@@ -41,43 +42,49 @@ public class socketLogin extends Thread{
 
             //先发送用户名，再发送密码
             // 首先需要计算得知消息的长度
-            byte[] sendBytes = user.getBytes("UTF-8");
+            byte[] userBytes = user.getBytes(StandardCharsets.UTF_8);
             // 然后将消息的长度优先发送出去
-            outputStream.write(sendBytes.length >> 8);
-            outputStream.write(sendBytes.length);
+            outputStream.write(userBytes.length >> 8);
+            outputStream.write(userBytes.length);
             //然后将消息发送出去
-            outputStream.write(sendBytes);
+            outputStream.write(userBytes);
             outputStream.flush();
 
             //发送密码
-            byte[] sendBytes2 = password.getBytes("UTF-8");
-            outputStream.write(sendBytes2.length >> 8);
-            outputStream.write(sendBytes2.length);
+            byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
+            outputStream.write(passwordBytes.length >> 8);
+            outputStream.write(passwordBytes.length);
 
-            outputStream.write(sendBytes2);
+            outputStream.write(passwordBytes);
             outputStream.flush();
 
             //接收主机返回的密码验证信息
             inputStream = socket.getInputStream();
             //先读长度信息
             int L1 = 0;
+            int L2 = 0;
+            int length = 0;
             while(true) {
+                //获取数据的长度
+//                Log.w("socketLogin", "read上");
                 L1 = inputStream.read();//先读第一个字节
+//                Log.w("socketLogin", "read下");
                 if (L1 == -1)
                     break;
-                int L2 = inputStream.read();
-                int length = (L1 << 8) + L2;//获取了数据的长度
+                L2 = inputStream.read();
+                length = (L1 << 8) + L2;
+                //接收数据
                 //构造一个该长度的数组
                 byte[] bytes = new byte[length];
                 //读取该长度的信息
                 inputStream.read(bytes);
-                r_state = new String(bytes, "UTF-8");
-//                Log.w("socketLogin","r_state is "+r_state);
-                if(r_state.equals("true"))
-                    yes = 1;
-                else if(r_state.equals("flase"))
-                    yes = 0;
-                Log.w("socketLogin","state is "+yes);
+                return_state_string = new String(bytes, StandardCharsets.UTF_8);
+                Log.w("socketLogin","return_state_string is "+ return_state_string);
+                if(return_state_string.equals("true"))
+                    respond_state_int = 1;
+                else if(return_state_string.equals("false"))
+                    respond_state_int = 0;
+                Log.w("socketLogin","state is "+ respond_state_int);
             }
         }catch (Exception e){
             Log.w("socketLogin",e);

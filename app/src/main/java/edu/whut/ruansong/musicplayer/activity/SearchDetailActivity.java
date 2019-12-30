@@ -1,5 +1,6 @@
 package edu.whut.ruansong.musicplayer.activity;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
@@ -20,6 +21,7 @@ import java.util.List;
 import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.Song;
 import edu.whut.ruansong.musicplayer.SongAdapter;
+import edu.whut.ruansong.musicplayer.service.MusicService;
 
 public class SearchDetailActivity extends AppCompatActivity {
 
@@ -27,8 +29,8 @@ public class SearchDetailActivity extends AppCompatActivity {
     private List<Song> songsList = null;
     private int num_songs = 0;
     private List<Song> search_list = new ArrayList<>();//用来装查询结果
-//    private int current_music_list_number = -1;//当前正在播放的歌曲
-//    private int status;//播放状态默认为停止
+    private int current_music_list_number = -1;//当前正在播放的歌曲
+    private int status;//播放状态默认为停止
     private LinearLayout search_LinearLayout;//搜索结果的整个布局
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class SearchDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 //        current_music_list_number = MusicService.getCurrent_number();
 //        status = MusicService.getCurrent_status();
+        search_LinearLayout = findViewById(R.id.search_LinearLayout);
     }
 
     /***********toolbar的menu***********/
@@ -57,6 +60,8 @@ public class SearchDetailActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                search_LinearLayout.setVisibility(View.GONE);
+                search_list.clear();//清除搜索结果
                 dealSearchAction(query);
                 return false;
             }
@@ -153,21 +158,21 @@ public class SearchDetailActivity extends AppCompatActivity {
             SongAdapter adapter_search = new SongAdapter(SearchDetailActivity.this, R.layout.song_list_item, search_list);
             ListView listView_search = findViewById(R.id.list_search);
             listView_search.setAdapter(adapter_search);
-            //设置search_list歌曲item点击事件   以便可以点击搜素结果 播放歌曲
+
+            /***设置search_list歌曲item点击事件   以便可以点击搜素结果 播放歌曲*/
             listView_search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view,
                                         int position, long id) {
-//                    current_music_list_number = search_list.get(position).getSong_list_id();
-//                    if (status == MusicService.STATUS_STOPPED || status == MusicService.STATUS_PLAYING) {
-//                        sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
-//                    } else if (status == MusicService.STATUS_PAUSED) {
-//                        sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
-//                    }
-//
+                    current_music_list_number = search_list.get(position).getList_id_display();
+                    if (status == MusicService.STATUS_STOPPED || status == MusicService.STATUS_PLAYING) {
+                        sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
+                    } else if (status == MusicService.STATUS_PAUSED) {
+                        sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
+                    }
                 }
             });
-            search_LinearLayout = findViewById(R.id.search_LinearLayout);
+
             search_LinearLayout.setVisibility(View.VISIBLE);//显示搜素结果
             ImageView close_search = findViewById(R.id.image_close_search);//x 按钮 关闭搜索结果
             close_search.setOnClickListener(new View.OnClickListener() {
@@ -178,5 +183,25 @@ public class SearchDetailActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    /***发送命令，控制音乐播放，参数定义在MusicService中*/
+    private void sendBroadcastOnCommand(int command) {
+        //1.创建intent
+        Intent intent = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
+        //2.封装数据
+        intent.putExtra("command", command);
+        switch (command) {
+            case MusicService.COMMAND_PLAY:
+                intent.putExtra("number", current_music_list_number);//封装歌曲在list中的位置
+                break;
+            case MusicService.COMMAND_RESUME://不是多余的,接到这两种命令后Service中的处理不一样
+                intent.putExtra("number", current_music_list_number);
+                break;
+            default:
+                break;
+        }
+        //3.发送广播
+        sendBroadcast(intent);
     }
 }

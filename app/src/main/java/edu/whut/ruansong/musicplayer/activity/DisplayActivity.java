@@ -23,13 +23,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.support.v7.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,9 +51,19 @@ import edu.whut.ruansong.musicplayer.SongAdapter;
 
 public class DisplayActivity extends BaseActivity {
     private Toolbar toolbar = null;//toolbar
+
     private HeadsetPlugReceiver headsetReceiver = null;//耳机监听
-    private static List<Song> songsList = new ArrayList<>();//歌曲数据初始化
-    private static int song_number = 0;//歌曲总数量
+
+    private static List<Song> songsList = new ArrayList<>();//歌曲数据
+    private static int song_total_number = 0;//歌曲总数
+
+    private StatusChangedReceiver statusChangedReceiver;//状态接收器，接收来自service的播放器状态信息
+
+    public static final int PLAY_MODE_ORDER = 8;//顺序播放(默认是它)
+    public static final int PLAY_MODE_LOOP = 9;//单曲循环
+    public static final int PLAY_MODE_RANDOM = 10;//随机播放
+    private int playMode = PLAY_MODE_ORDER;//播放模式,默认顺序播放
+
     private int current_music_list_number;//当前正在播放的歌曲
     private int status;//播放状态默认为停止
     private View view_history;//历史播放记录控件
@@ -64,34 +72,54 @@ public class DisplayActivity extends BaseActivity {
     private int input_time = 0;
     private Timer sleepTimer = null;
     private AlertDialog dialog;//定时停止播放得对话框
-    private int playMode = 0;//播放模式
-    private StatusChangedReceiver receiver;//状态接收器，接收来自service的播放器状态信息
+
     private ImageView image_music;
-    private SearchView searchview = null;
     private int headSet_flag = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //解决软键盘弹起时，底部控件被顶上去的问题
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        //设定布局
+//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        /***设定布局*/
         setContentView(R.layout.activity_display);
-        //toolbar控件
+
+        /***toolbar控件*/
         toolbar = findViewById(R.id.toolbar_activity_search_detail);
         setSupportActionBar(toolbar);
-        //启动后台服务
+
+        /***启动后台服务*/
         startService();
-        //初始化耳机监听
+
+        /***初始化耳机监听*/
         initHeadset();
-        // 初始化歌曲数据
+
+        /***初始化歌曲数据*/
         load_Songs_data();
-        //初始化播放按钮点击事件
+
+        /***初始化播放按钮点击事件*/
         dealMusicButton();
-        dealPlayHistoryButton();//历史播放记录
-        //dealSearch();//搜索本地歌曲的逻辑
-        initDealPlayBarBottom();//点击底部一栏的事件
-        bindStatusChangedReceiver();//启动广播接收器
+
+        /***历史播放记录*/
+        dealPlayHistoryButton();
+
+        /***点击底部一栏的事件*/
+        initDealPlayBarBottom();
+
+        /***启动广播接收器*/
+        bindStatusChangedReceiver();
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sendBroadcastOnCommand(MusicService.COMMAND_CHECK_IS_PLAYING);
+        headSet_flag = 1;
     }
 
     /***********toolbar的menu***********/
@@ -121,10 +149,9 @@ public class DisplayActivity extends BaseActivity {
         startService(intentService);
     }
 
-    /**耳机监听**/
+    /**耳机监听广播注册**/
     public void initHeadset() {//初始化耳机监听
-        //给广播绑定响应的过滤器
-        IntentFilter intentFilter = new IntentFilter();
+        IntentFilter intentFilter = new IntentFilter();//给广播绑定响应的过滤器
         intentFilter.addAction("android.intent.action.HEADSET_PLUG");
         headsetReceiver = new HeadsetPlugReceiver();
         registerReceiver(headsetReceiver, intentFilter);
@@ -143,13 +170,13 @@ public class DisplayActivity extends BaseActivity {
                         if (intent.getIntExtra("state", 0) != 1)
                             //音乐正在播放
                             if (status == MusicService.STATUS_PLAYING)
-                                if(headSet_flag == 0){//如果是resume方法被执行过,这个变量是1
+                                if(headSet_flag == 0){//在onResume方法中此标志被置1
                                     //音乐暂停
                                     Log.w("DisplayActivity", "耳机断开，歌曲正在播放，即将暂停");
                                     sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
                                 }else
+                                    //打开App后首次插入耳机会置0
                                     headSet_flag = 0;
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -184,17 +211,18 @@ public class DisplayActivity extends BaseActivity {
                             //文件路径
                             String dataPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
 
-                            //歌名，歌手，时长，专辑,图标,文件路径
+                            //歌名，歌手，时长，专辑,图标,文件路径,sequence number of list in display activity
                             Song song = new Song(
                                     title,
                                     artist,
                                     duration,
                                     albumId,
                                     R.drawable.song_item_picture,
-                                    dataPath
+                                    dataPath,
+                                    song_total_number
                             );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
                             songsList.add(song);
-                            song_number++;
+                            song_total_number++;
                         }
                     }
                 }
@@ -204,9 +232,8 @@ public class DisplayActivity extends BaseActivity {
                 if (cursor != null)
                     cursor.close();
             }
-            if (song_number == 0) {
-                Toast.makeText(DisplayActivity.this, "没有找到歌曲,请下载！",
-                        Toast.LENGTH_SHORT).show();
+            if (song_total_number == 0) {
+                Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
                 return;//不做下面的事情了(即不用把歌曲信息载入列表,因为根本没有)
             }
         } else {
@@ -218,7 +245,7 @@ public class DisplayActivity extends BaseActivity {
         ListView view_list_all_song = findViewById(R.id.view_list_all_song);
         view_list_all_song.setAdapter(adapter_view_list_song);
 
-        //设置歌曲item点击事件
+        /**设置歌曲item点击事件*/
         view_list_all_song.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
@@ -262,7 +289,6 @@ public class DisplayActivity extends BaseActivity {
         btn_history_menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clear_searchView_focus();
                 if (view_history_Flag == 0) {
                     SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.songs);
                     ListView list_playHistory = findViewById(R.id.list_playhistory);
@@ -278,134 +304,23 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-    /**原搜索处理方法*/
-    /*public void dealSearch() {
-        searchview = findViewById(R.id.search_view);
-        searchview.setSubmitButtonEnabled(true);//提交按钮  显示
-        searchview.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query_text) {
-                searchview.clearFocus();//开始搜索后清除搜索框焦点，软键盘消失，光标不再闪烁
-//                Log.w("DisplayActivity", "开始处理搜素");
-//                Log.w("DisplayActivity", "query是" + query_text);
-                //使用  暴力匹配算法（Brute Force Algorithm）
-                double matching_degree = 0;//匹配值
-                double percent_matching_degree;//百分比匹配度
-                //将输入的字符串转换为字符数组
-                char[] input_mes = query_text.toCharArray();
-                int in_mes_l = input_mes.length;//获得这个字符数组的长度
-
-                for (int i = 0; i < song_number; i++) {//遍历整个列表  匹配歌曲名
-//                    Log.w("DisplayActivity", "第" + i + "次遍历");
-                    //获取列表中当前歌曲名
-                    String current_song_name = songsList.get(i).getTitle();
-                    //当前歌曲名转换为字符数组
-                    char[] char_current_song_name = current_song_name.toCharArray();
-                    //当前歌曲名转换为的字符数组的长度
-                    int cur_name_l = char_current_song_name.length;
-//                    Log.w("DisplayActivity", "n的值为"+in_mes_l+"    m的值为"+cur_name_l);
-                    if (in_mes_l <= cur_name_l) {//如果目标歌名比当前歌名短或者长度相等
-                        int flag_current_mes = 0;
-                        int flag_input_mes = 0;
-                        //循环比较每一个字符
-                        while (true) {
-                            //有一个字符相同
-                            if (char_current_song_name[flag_current_mes] == input_mes[flag_input_mes]) {
-                                flag_current_mes++;//两个数组同时向后移动
-                                flag_input_mes++;
-
-                                matching_degree++;//匹配值加一
-                            } else {//如果不匹配就只是当前歌名字符向后移动一个
-                                flag_current_mes++;
-                            }
-                            //两个数组任意一个的标志到达末尾后结束本次比较
-                            if (flag_input_mes == in_mes_l || flag_current_mes == cur_name_l) {
-                                break;
-                            }
-                        }
-                        //匹配百分比计算规则
-                        percent_matching_degree = (matching_degree / in_mes_l +
-                                matching_degree / cur_name_l) / 2;//相同的字符占整个字符串的平均比例
-//                        Log.w("DisplayActivity", "匹配度是"+matching_degree);
-//                        Log.w("DisplayActivity", "匹配百分比是"+percent_matching_degree);
-                        //找到百分之百匹配的了，直接退出，不找了
-                        if (percent_matching_degree == 1) {
-                            search_list.add(songsList.get(i));
-//                            Log.w("DisplayActivity", "找到百分之百匹配的了，不找了");
-                            break;
-                        } else if (percent_matching_degree > 0.2) {//阈值为0.2
-                            Log.w("DisplayActivity", "百分比匹配度大于阈值");
-                            search_list.add(songsList.get(i));
-                        }
-//                        matching_degree=0;
-//                        percent_matching_degree=0;
-                    }
-                }//遍历匹配循环到此结束
-                if (search_list.isEmpty()) {//如果搜索结果为空，提示
-                    Toast.makeText(DisplayActivity.this, "搜索结果为空",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(DisplayActivity.this, "搜索完毕，显示结果",
-                            Toast.LENGTH_SHORT).show();
-                    //用search_list配置歌曲信息，加载进入控件
-                    SongAdapter adapter_search = new SongAdapter(DisplayActivity.this,
-                            R.layout.song_list_item, search_list);
-                    ListView listView_search = findViewById(R.id.list_search);
-                    listView_search.setAdapter(adapter_search);
-                    //设置search_list歌曲item点击事件   以便可以点击搜素结果 播放歌曲
-                    listView_search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view,
-                                                int position, long id) {
-                            current_music_list_number = search_list.get(position).getSong_list_id();
-                            if (status == MusicService.STATUS_STOPPED || status == MusicService.STATUS_PLAYING) {
-                                sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
-                            } else if (status == MusicService.STATUS_PAUSED) {
-                                sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
-                            }
-
-                        }
-                    });
-                    search_LinearLayout = findViewById(R.id.search_LinearLayout);
-                    search_LinearLayout.setVisibility(View.VISIBLE);//显示搜素结果
-                    ImageView close_search = findViewById(R.id.image_close_search);//x 按钮 关闭搜索结果
-                    close_search.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            search_LinearLayout.setVisibility(View.GONE);
-                            search_list.clear();//清除搜索结果
-                        }
-                    });
-                }
-                return true;
-            }
-
-            //搜索框内部改变回调，newText就是搜索框里的内容 不知道用处，反正不写就报错
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return true;
-            }
-        });
-    }  */
-
     /**底部一整栏的点击事件  待实现歌曲详情页**/
     public void initDealPlayBarBottom() {
         View v = findViewById(R.id.play_bar_bottom);
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clear_searchView_focus();
                 Toast.makeText(DisplayActivity.this, "你点击了底部栏！",
                         Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    /*******绑定广播接收器*/
+    /*******绑定广播接收器,接收来自服务的播放器状态更新消息*/
     private void bindStatusChangedReceiver() {
-        receiver = new StatusChangedReceiver();
+        statusChangedReceiver = new StatusChangedReceiver();
         IntentFilter intentFilter = new IntentFilter(MusicService.BROADCAST_MUSICSERVICE_UPDATE_STATUS);
-        registerReceiver(receiver, intentFilter);
+        registerReceiver(statusChangedReceiver, intentFilter);
     }
 
     /***发送命令，控制音乐播放，参数定义在MusicService中*/
@@ -428,13 +343,14 @@ public class DisplayActivity extends BaseActivity {
         sendBroadcast(intent);
     }
 
-    /*****内部类，接受广播命令并执行操作*/
+    /*****内部类，接受播放器状态更改广播命令并执行操作*/
     class StatusChangedReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             //获取播放器状态
             status = intent.getIntExtra("status", -1);
             switch (status) {
+                //播放器状态更改为正在播放
                 case MusicService.STATUS_PLAYING:
                     //把底部播放按钮的图标改变
                     Log.w("DisplayActivity", "播放状态，改变播放图标.");
@@ -447,23 +363,32 @@ public class DisplayActivity extends BaseActivity {
                     image_music = findViewById(R.id.image_music);
                     image_music.setImageDrawable(getImage(songsList.get(current_music_list_number).getAlbum_id()));
                     break;
+
+                //播放器状态更改为暂停
                 case MusicService.STATUS_PAUSED:
                     Log.w("DisplayActivity", "暂停状态，将改变播放图标.");
                     image_btn_play = findViewById(R.id.btn_play);
                     image_btn_play.setBackground(getDrawable(R.drawable.play_2));//把底部播放按钮的图标改变
                     break;
+
+                //播放器状态更改为停止
                 case MusicService.STATUS_STOPPED:
                     Log.w("DisplayActivity", "停止状态");
                     break;
+
+                //播放器状态更改为播放完成
                 case MusicService.STATUS_COMPLETED:
-                    Log.w("DisplayActivity", "已经播放完毕，播放下一首！");
+                    Log.w("DisplayActivity", "已经播放完毕，播放下一首!");
                     break;
+
                 case MusicService.PLAY_MODE_LOOP://单曲循环模式
-                    playMode = 1;
+                    playMode = PLAY_MODE_LOOP;//更新本活动内播放模式变量
                     break;
+
                 case MusicService.PLAY_MODE_RANDOM://单曲循环模式
-                    playMode = 2;
+                    playMode = PLAY_MODE_RANDOM;//更新本活动内播放模式变量
                     break;
+
                 default:
                     break;
             }
@@ -471,11 +396,6 @@ public class DisplayActivity extends BaseActivity {
     }
 
     /**************一些工具方法类****************/
-    public void clear_searchView_focus() {//清除搜索框的焦点
-        if (searchview != null) {
-            searchview.clearFocus();
-        }
-    }
 
     /**设置底部的一栏左侧的歌曲名和歌手*/
     public void initBottomMes(int position) {//
@@ -656,21 +576,13 @@ public class DisplayActivity extends BaseActivity {
         builder.show();
     }
 
-    /****************一些重写的系统方法************/
-    @Override
-    protected void onResume() {
-        super.onResume();
-        sendBroadcastOnCommand(MusicService.COMMAND_CHECK_IS_PLAYING);
-        headSet_flag = 1;
-    }
-
     /*在onDestroy()方法中通过调用unregisterReceiver()方法来取消耳机广播接收器的注册*/
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (headsetReceiver != null)
             unregisterReceiver(headsetReceiver);
-        unregisterReceiver(receiver);
+        unregisterReceiver(statusChangedReceiver);
         if (status == MusicService.STATUS_STOPPED) {
             stopService(new Intent(this, MusicService.class));
             if (sleepTimer != null) {
@@ -679,16 +591,13 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
+    /**回退键   不返回登录界面*/
     @Override
     public void onBackPressed() {
         ActivityCollector.finishAll();
-    }//回退键   不返回登录界面
-
-    public static List<Song> getSongsList() {
-        return songsList;
     }
 
-    public static int getSong_number() {
-        return song_number;
-    }
+    public static List<Song> getSongsList() { return songsList; }
+
+    public static int getSong_total_number() { return song_total_number; }
 }

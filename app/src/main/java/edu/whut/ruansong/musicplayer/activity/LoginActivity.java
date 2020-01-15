@@ -11,9 +11,9 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import edu.whut.ruansong.musicplayer.BaseActivity;
+import edu.whut.ruansong.musicplayer.tool.BaseActivity;
 import edu.whut.ruansong.musicplayer.R;
-import edu.whut.ruansong.musicplayer.socketLogin;
+import edu.whut.ruansong.musicplayer.tool.socketLogin;
 
 public class LoginActivity extends BaseActivity {
 

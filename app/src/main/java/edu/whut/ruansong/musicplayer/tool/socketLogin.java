@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musicplayer;
+package edu.whut.ruansong.musicplayer.tool;
 
 import android.util.Log;
 
@@ -19,7 +19,7 @@ public class socketLogin extends Thread{
     private String ip = "112.124.66.85";
     //本地服务器ip  192.168.31.174
     //云服务器ip   112.124.66.85
-    private int port = 1234;
+    private int port = 1998;
     private String return_state_string;//用于保存主机返回的密码验证状态
     private int respond_state_int = -1;
     public socketLogin(String user,String password){

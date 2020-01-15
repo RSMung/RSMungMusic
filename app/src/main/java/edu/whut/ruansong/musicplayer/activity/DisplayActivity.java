@@ -36,13 +36,13 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import edu.whut.ruansong.musicplayer.ActivityCollector;
-import edu.whut.ruansong.musicplayer.BaseActivity;
+import edu.whut.ruansong.musicplayer.tool.ActivityCollector;
+import edu.whut.ruansong.musicplayer.tool.BaseActivity;
 import edu.whut.ruansong.musicplayer.service.MusicService;
-import edu.whut.ruansong.musicplayer.PlayHistory;
+import edu.whut.ruansong.musicplayer.tool.PlayHistory;
 import edu.whut.ruansong.musicplayer.R;
-import edu.whut.ruansong.musicplayer.Song;
-import edu.whut.ruansong.musicplayer.SongAdapter;
+import edu.whut.ruansong.musicplayer.tool.Song;
+import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
 /**
  * Created by 阮 on 2018/11/17.
@@ -99,6 +99,9 @@ public class DisplayActivity extends BaseActivity {
 
         /***初始化播放按钮点击事件*/
         dealMusicButton();
+
+        /***初始化下一首按钮点击事件*/
+        dealNextMusicButton();
 
         /***历史播放记录*/
         dealPlayHistoryButton();
@@ -300,6 +303,16 @@ public class DisplayActivity extends BaseActivity {
                     view_history_Flag = 0;
                 }
 
+            }
+        });
+    }
+    /**下一首歌按钮点击事件*/
+    public void dealNextMusicButton(){
+        ImageButton btn_next_music = findViewById(R.id.btn_next);
+        btn_next_music.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendBroadcastOnCommand(MusicService.COMMAND_NEXT);
             }
         });
     }

@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musicplayer;
+package edu.whut.ruansong.musicplayer.tool;
 
 import java.util.ArrayList;
 import java.util.List;

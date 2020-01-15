@@ -1,4 +1,4 @@
-package edu.whut.ruansong.musicplayer;
+package edu.whut.ruansong.musicplayer.tool;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -10,6 +10,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
+
+import edu.whut.ruansong.musicplayer.R;
+import edu.whut.ruansong.musicplayer.tool.Song;
 
 /**
  * Created by 阮 on 2018/11/17.

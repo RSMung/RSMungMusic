@@ -1,8 +1,10 @@
-package edu.whut.ruansong.musicplayer;
+package edu.whut.ruansong.musicplayer.tool;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import edu.whut.ruansong.musicplayer.tool.ActivityCollector;
 
 /**
  * Created by 阮 on 2018/11/17.

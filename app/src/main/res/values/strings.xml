@@ -1,13 +1,8 @@
 <resources>
-    <string name="app_name">MusicPlayer</string>
-    <string name="username_hint">请输入用户名</string>
-    <string name="userpassword_hint">请输入密码</string>
-    <string name="CheckBox_hint_user">记住用户名</string>
-    <string name="CheckBox_hint_password">记住密码</string>
+    <string name="app_name">MungMusicPlayer</string>
+
     <string name="button_exit">退出</string>
     <string name="button_ok">确定</string>
-    <string name="button_login">登录</string>
-    <string name="button_reg">注册</string>
     <string name="login_error">密码错误，请重试！</string>
     <string name="welcome">欢迎您 </string>
     <string name="null_username">用户名为空！</string>
@@ -22,9 +17,18 @@
     <string name="task_cancel">取消任务</string>
     <string name="search_hint">搜索本地歌曲</string>
     <string name="search_result">搜索结果</string>
-    <string name="forget_pas">忘记密码"?"</string>
+
     <string name="music_image_content">这首音乐的专辑图片</string>
-    <!--MainInterface-->
-    <string name="title_toolbar">本地音乐</string>
+    <!--DisplayActivity-->
+    <string name="title_toolbar">LocalMusic</string>
     <string name="share">分享</string>
+    <!--LoginActivity-->
+    <string name="username_hint">InputUserName</string>
+    <string name="userpassword_hint">InputPassword</string>
+    <string name="CheckBox_hint_user">RecordUserName</string>
+    <string name="CheckBox_hint_password">RecordPassword</string>
+    <string name="button_login">login</string>
+    <string name="button_reg">register</string>
+    <string name="forget_pas">ForgetPassword"?"</string>
+    <!--SearchDetailActivity-->
 </resources>

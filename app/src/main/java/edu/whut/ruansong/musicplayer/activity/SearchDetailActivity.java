@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.whut.ruansong.musicplayer.R;
-import edu.whut.ruansong.musicplayer.Song;
-import edu.whut.ruansong.musicplayer.SongAdapter;
+import edu.whut.ruansong.musicplayer.tool.Song;
+import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 import edu.whut.ruansong.musicplayer.service.MusicService;
 
 public class SearchDetailActivity extends AppCompatActivity {
@@ -38,6 +37,14 @@ public class SearchDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search_detail);
         toolbar = findViewById(R.id.toolbar_activity_search_detail);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent_back = new Intent(SearchDetailActivity.this,
+                        DisplayActivity.class);
+                startActivity(intent_back);
+            }
+        });
 //        current_music_list_number = MusicService.getCurrent_number();
 //        status = MusicService.getCurrent_status();
         search_LinearLayout = findViewById(R.id.search_LinearLayout);

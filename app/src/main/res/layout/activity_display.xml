@@ -12,10 +12,11 @@
         android:id="@+id/toolbar_activity_search_detail"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/back"
+        app:navigationIcon="@drawable/menu_gray"
         android:background="@color/black_color"
         app:title="@string/title_toolbar"
         app:titleTextColor="@color/white_color"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -107,7 +108,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/dp_10"
-                android:background="@drawable/menu"
+                android:background="@drawable/menu_black"
                 tools:ignore="ContentDescription" />
         </RelativeLayout>
 

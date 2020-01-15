@@ -12,8 +12,8 @@ import android.widget.Toast;
 
 import java.util.Random;
 
-import edu.whut.ruansong.musicplayer.PlayHistory;
-import edu.whut.ruansong.musicplayer.Song;
+import edu.whut.ruansong.musicplayer.tool.PlayHistory;
+import edu.whut.ruansong.musicplayer.tool.Song;
 import edu.whut.ruansong.musicplayer.activity.DisplayActivity;
 import edu.whut.ruansong.musicplayer.activity.LoginActivity;
 

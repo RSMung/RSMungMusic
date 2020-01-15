@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.whut.ruansong.musicplayer.R;
+import edu.whut.ruansong.musicplayer.tool.ActivityCollector;
 import edu.whut.ruansong.musicplayer.tool.Song;
 import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 import edu.whut.ruansong.musicplayer.service.MusicService;
@@ -48,6 +49,14 @@ public class SearchDetailActivity extends AppCompatActivity {
 //        current_music_list_number = MusicService.getCurrent_number();
 //        status = MusicService.getCurrent_status();
         search_LinearLayout = findViewById(R.id.search_LinearLayout);
+    }
+
+    /**活动不可见时调用*/
+    @Override
+    protected void onStop() {
+        //this.finish();//用toolbar的返回键回退后,再用系统的回退键,不会再退回到搜索界面
+        //或者在manifest文件中定义DisplayActivity启动模式为singleTask
+        super.onStop();
     }
 
     /***********toolbar的menu***********/

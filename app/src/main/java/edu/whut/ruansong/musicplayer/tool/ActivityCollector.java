@@ -16,11 +16,11 @@ import java.util.List;
 public class ActivityCollector {
     private static List<Activity> activities = new ArrayList<>();
 
-    protected static void addActivity(Activity activity) {
+    public static void addActivity(Activity activity) {
         activities.add(activity);
     }
 
-    protected static void removeActivity(Activity activity) {
+    public static void removeActivity(Activity activity) {
         activities.remove(activity);
     }
 

@@ -1,10 +1,13 @@
 package edu.whut.ruansong.musicplayer.service;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.util.Log;
@@ -12,10 +15,13 @@ import android.widget.Toast;
 
 import java.util.Random;
 
+import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.tool.PlayHistory;
 import edu.whut.ruansong.musicplayer.tool.Song;
 import edu.whut.ruansong.musicplayer.activity.DisplayActivity;
 import edu.whut.ruansong.musicplayer.activity.LoginActivity;
+
+import static android.app.PendingIntent.getActivity;
 
 /**
  * Created by 阮 on 2018/11/18.
@@ -95,6 +101,25 @@ public class MusicService extends Service {
                 nextMusic_update_number();
             }
         });//监听播放是否完成
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        Notification.Builder builder = new Notification.Builder(this.getApplicationContext());
+        Intent nfIntent = new Intent(this, DisplayActivity.class);
+        builder.setContentIntent(PendingIntent.getActivity(this,0,nfIntent,0))
+                // 设置PendingIntent(点击后的跳转)
+                .setContentTitle("MungMusicPlayer")// 设置下拉列表里的标题
+                .setContentText("MusicService is running")
+                .setSmallIcon(R.mipmap.logo)// 设置状态栏内的小图标
+                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.logo))// 设置下拉列表中的图标(大图标)
+                ;
+        Notification notification = builder.build();// 获取构建好的Notification
+        //notification.defaults = Notification.DEFAULT_SOUND; //设置为默认的声音
+        startForeground(1, notification);// 开始前台服务
+
+        return super.onStartCommand(intent, flags, startId);
     }
 
     /**内部类，接受广播命令并执行操作*/
@@ -248,6 +273,7 @@ public class MusicService extends Service {
         }
         Log.w("MusicService", "命令接收器已经被取消注册，服务被销毁");
         unregisterReceiver(commandReceiver);
+        stopForeground(true);
     }
 
     private void moveNumberToPrevious() {
@@ -284,4 +310,5 @@ public class MusicService extends Service {
         current_status = MusicService.STATUS_PLAYING;
         sendBroadcastOnStatusChange(MusicService.STATUS_PLAYING);
     }
+
 }

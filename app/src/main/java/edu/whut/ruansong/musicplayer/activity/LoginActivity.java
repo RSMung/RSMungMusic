@@ -130,4 +130,8 @@ public class LoginActivity extends BaseActivity {
     public static void setLogin_status(int login_status) {//后台服务MusicService中有用到
         LoginActivity.login_status = login_status;
     }
+
+    public static int getLogin_status() {
+        return login_status;
+    }
 }

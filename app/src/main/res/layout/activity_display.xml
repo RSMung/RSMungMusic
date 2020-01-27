@@ -115,9 +115,10 @@
         <LinearLayout
             android:id="@+id/view_list_history"
             android:layout_width="match_parent"
+            android:layout_margin="@dimen/dp_10"
             android:layout_height="wrap_content"
             android:layout_above="@+id/play_bar_bottom"
-            android:background="@color/black_color"
+            android:background="@color/violet_color"
             android:orientation="vertical"
             android:visibility="gone">
 

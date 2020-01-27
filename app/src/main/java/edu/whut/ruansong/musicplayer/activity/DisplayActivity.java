@@ -1,5 +1,6 @@
 package edu.whut.ruansong.musicplayer.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -10,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -17,8 +19,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -77,6 +82,8 @@ public class DisplayActivity extends BaseActivity {
 
     private ImageView image_music;
     private int headSet_flag = 0;
+    private final int REQ_READ_EXTERNAL_STORAGE = 1;//权限请求码,1代表外部存储权限
+    private int login_state = 0;//0是未登录,1是已登陆
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +103,10 @@ public class DisplayActivity extends BaseActivity {
         /***初始化耳机监听*/
         initHeadset();
 
-        /***初始化歌曲数据*/
-        load_Songs_data();
+        /**请求权限(歌曲总数为0则加载歌曲数据)*/
+        requestPermissionByHand();
+        if(song_total_number == 0)
+            load_Songs_data();//加载歌曲数据
 
         /***初始化播放按钮点击事件*/
         dealMusicButton();
@@ -116,7 +125,7 @@ public class DisplayActivity extends BaseActivity {
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
     }
 
@@ -133,13 +142,14 @@ public class DisplayActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.menu_display, menu);
         return true;
     }
+
     //点击事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.display_toolbar_menu_search://toolbar上的搜索按钮
                 Intent intent_jump_toolbar_search =
-                     new Intent(DisplayActivity.this,SearchDetailActivity.class);
+                        new Intent(DisplayActivity.this, SearchDetailActivity.class);
                 startActivity(intent_jump_toolbar_search);
                 break;
             default:
@@ -154,7 +164,9 @@ public class DisplayActivity extends BaseActivity {
         startService(intentService);
     }
 
-    /**耳机监听广播注册**/
+    /**
+     * 耳机监听广播注册
+     **/
     public void initHeadset() {//初始化耳机监听
         IntentFilter intentFilter = new IntentFilter();//给广播绑定响应的过滤器
         intentFilter.addAction("android.intent.action.HEADSET_PLUG");
@@ -175,11 +187,11 @@ public class DisplayActivity extends BaseActivity {
                         if (intent.getIntExtra("state", 0) != 1)
                             //音乐正在播放
                             if (status == MusicService.STATUS_PLAYING)
-                                if(headSet_flag == 0){//在onResume方法中此标志被置1
+                                if (headSet_flag == 0) {//在onResume方法中此标志被置1
                                     //音乐暂停
                                     Log.w("DisplayActivity", "耳机断开，歌曲正在播放，即将暂停");
                                     sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
-                                }else
+                                } else
                                     //打开App后首次插入耳机会置0
                                     headSet_flag = 0;
             } catch (Exception e) {
@@ -308,8 +320,11 @@ public class DisplayActivity extends BaseActivity {
             }
         });
     }
-    /**下一首歌按钮点击事件*/
-    public void dealNextMusicButton(){
+
+    /**
+     * 下一首歌按钮点击事件
+     */
+    public void dealNextMusicButton() {
         ImageButton btn_next_music = findViewById(R.id.btn_next);
         btn_next_music.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -319,7 +334,9 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-    /**底部一整栏的点击事件  待实现歌曲详情页**/
+    /**
+     * 底部一整栏的点击事件  待实现歌曲详情页
+     **/
     public void initDealPlayBarBottom() {
         View v = findViewById(R.id.play_bar_bottom);
         v.setOnClickListener(new View.OnClickListener() {
@@ -412,7 +429,9 @@ public class DisplayActivity extends BaseActivity {
 
     /**************一些工具方法类****************/
 
-    /**设置底部的一栏左侧的歌曲名和歌手*/
+    /**
+     * 设置底部的一栏左侧的歌曲名和歌手
+     */
     public void initBottomMes(int position) {//
         Song song = songsList.get(position);//获取点击位置的song对象
         TextView songName = findViewById(R.id.buttom_textview_songname);
@@ -508,7 +527,9 @@ public class DisplayActivity extends BaseActivity {
 
      */
 
-    /**定时停止播放*/
+    /**
+     * 定时停止播放
+     */
     public void timePausePlay() {
         final AlertDialog.Builder customizeDialog =
                 new AlertDialog.Builder(DisplayActivity.this);
@@ -550,7 +571,9 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-    /**选择播放模式*/
+    /**
+     * 选择播放模式
+     */
     public void selectMode() {//
         final AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this);
         builder.setIcon(R.drawable.play_1);
@@ -591,6 +614,39 @@ public class DisplayActivity extends BaseActivity {
         builder.show();
     }
 
+    public void requestPermissionByHand() {
+        //判断当前系统的版本
+        if (Build.VERSION.SDK_INT >= 23) {
+            int checkWriteStoragePermission = ContextCompat.checkSelfPermission(
+                    DisplayActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+            //如果没有被授予
+            if (checkWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                //请求权限,此处可以同时申请多个权限
+                ActivityCompat.requestPermissions(
+                        DisplayActivity.this, new String[]{
+                                Manifest.permission.READ_EXTERNAL_STORAGE
+                        }, REQ_READ_EXTERNAL_STORAGE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, final String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQ_READ_EXTERNAL_STORAGE:
+                // 如果请求被取消了，那么结果数组就是空的
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // 权限被授予了
+                    if(song_total_number == 0)
+                        load_Songs_data();//加载歌曲数据
+                } else {
+                    Toast.makeText(DisplayActivity.this, "申请权限失败", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
     /*在onDestroy()方法中通过调用unregisterReceiver()方法来取消耳机广播接收器的注册*/
     @Override
     protected void onDestroy() {
@@ -606,13 +662,19 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
-    /**回退键   不返回登录界面*/
+    /**
+     * 回退键   不返回登录界面
+     */
     @Override
     public void onBackPressed() {
         ActivityCollector.finishAll();
     }
 
-    public static List<Song> getSongsList() { return songsList; }
+    public static List<Song> getSongsList() {
+        return songsList;
+    }
 
-    public static int getSong_total_number() { return song_total_number; }
+    public static int getSong_total_number() {
+        return song_total_number;
+    }
 }

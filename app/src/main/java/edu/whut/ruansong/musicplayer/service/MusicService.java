@@ -1,6 +1,8 @@
 package edu.whut.ruansong.musicplayer.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -9,7 +11,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,6 +27,7 @@ import edu.whut.ruansong.musicplayer.activity.DisplayActivity;
 import edu.whut.ruansong.musicplayer.activity.LoginActivity;
 
 import static android.app.PendingIntent.getActivity;
+import static android.content.Intent.ACTION_DELETE;
 
 /**
  * Created by 阮 on 2018/11/18.
@@ -106,19 +112,29 @@ public class MusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        Notification.Builder builder = new Notification.Builder(this.getApplicationContext());
-        Intent nfIntent = new Intent(this, DisplayActivity.class);
-        builder.setContentIntent(PendingIntent.getActivity(this,0,nfIntent,0))
-                // 设置PendingIntent(点击后的跳转)
-                .setContentTitle("MungMusicPlayer")// 设置下拉列表里的标题
-                .setContentText("MusicService is running")
-                .setSmallIcon(R.mipmap.logo)// 设置状态栏内的小图标
-                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.logo))// 设置下拉列表中的图标(大图标)
-                ;
-        Notification notification = builder.build();// 获取构建好的Notification
+        String channel_id = "musicService_channel_id";
+        CharSequence name = "musicService_channel_name";
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Notification notification = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {//O(欧)->API26  android 8
+            NotificationChannel mChannel = new NotificationChannel(channel_id, name, NotificationManager.IMPORTANCE_LOW);
+            notificationManager.createNotificationChannel(mChannel);
+            notification = new Notification.Builder(this)
+                    .setChannelId(channel_id)
+                    .setContentTitle("MusicService")
+                    .setContentText("MusicService is running!")
+                    .setSmallIcon(R.mipmap.logo).build();
+        } else {
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                    .setContentTitle("MusicService")
+                    .setContentText("MusicService is running!")
+                    .setSmallIcon(R.mipmap.logo)
+                    .setOngoing(true);
+            notification = notificationBuilder.build();
+        }
         //notification.defaults = Notification.DEFAULT_SOUND; //设置为默认的声音
-        startForeground(1, notification);// 开始前台服务
-
+        // notificationManager.notify(1, notification);把通知显示出来
+        startForeground(1,notification);//前台通知(会一直显示在通知栏)
         return super.onStartCommand(intent, flags, startId);
     }
 

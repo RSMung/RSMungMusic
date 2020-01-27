@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,6 +39,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -53,7 +57,7 @@ import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
 /**
  * Created by 阮 on 2018/11/17.
- * 前端处理UI变化
+ * 处理UI变化
  */
 
 public class DisplayActivity extends BaseActivity {
@@ -71,7 +75,7 @@ public class DisplayActivity extends BaseActivity {
     public static final int PLAY_MODE_RANDOM = 10;//随机播放
     private int playMode = PLAY_MODE_ORDER;//播放模式,默认顺序播放
 
-    private int current_music_list_number;//当前正在播放的歌曲
+    private int current_music_list_number = 1;//当前正在播放的歌曲
     private int status;//播放状态默认为停止
     private View view_history;//历史播放记录控件
     private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
@@ -224,7 +228,7 @@ public class DisplayActivity extends BaseActivity {
                             //歌手
                             String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
                             //专辑id
-                            long albumId = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+                            long albumId = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
                             //文件路径
                             String dataPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
 
@@ -357,7 +361,7 @@ public class DisplayActivity extends BaseActivity {
 
     /***发送命令，控制音乐播放，参数定义在MusicService中*/
     private void sendBroadcastOnCommand(int command) {
-        //1.创建intent
+        //1.创建intent,控制命令
         Intent intent = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
         //2.封装数据
         intent.putExtra("command", command);
@@ -384,23 +388,20 @@ public class DisplayActivity extends BaseActivity {
             switch (status) {
                 //播放器状态更改为正在播放
                 case MusicService.STATUS_PLAYING:
-                    //把底部播放按钮的图标改变
+                    //把底部播放按钮的图标改变,列表中正在播放的歌曲的颜色改变
                     Log.w("DisplayActivity", "播放状态，改变播放图标.");
-                    image_btn_play = findViewById(R.id.btn_play);
-                    image_btn_play.setBackground(getDrawable(R.drawable.pause));
-                    current_music_list_number = MusicService.getCurrent_number();
-                    //加载歌名和歌手
+                    image_btn_play = findViewById(R.id.btn_play);//获取控件
+                    image_btn_play.setBackground(getDrawable(R.drawable.pause_5));//改变图标
+                    current_music_list_number = MusicService.getCurrent_number();//更改存储的当前播放歌曲序号
+                    //加载歌名和歌手,设置专辑图片
                     initBottomMes(current_music_list_number);
-                    //设置专辑图片
-                    image_music = findViewById(R.id.image_music);
-                    image_music.setImageDrawable(getImage(songsList.get(current_music_list_number).getAlbum_id()));
                     break;
 
                 //播放器状态更改为暂停
                 case MusicService.STATUS_PAUSED:
                     Log.w("DisplayActivity", "暂停状态，将改变播放图标.");
                     image_btn_play = findViewById(R.id.btn_play);
-                    image_btn_play.setBackground(getDrawable(R.drawable.play_2));//把底部播放按钮的图标改变
+                    image_btn_play.setBackground(getDrawable(R.drawable.play_5));//把底部播放按钮的图标改变
                     break;
 
                 //播放器状态更改为停止
@@ -430,7 +431,7 @@ public class DisplayActivity extends BaseActivity {
     /**************一些工具方法类****************/
 
     /**
-     * 设置底部的一栏左侧的歌曲名和歌手
+     * 设置底部的一栏左侧的歌曲名和歌手以及专辑图片
      */
     public void initBottomMes(int position) {//
         Song song = songsList.get(position);//获取点击位置的song对象
@@ -438,69 +439,51 @@ public class DisplayActivity extends BaseActivity {
         songName.setText(song.getTitle());
         TextView songAuthor = findViewById(R.id.buttom_textview_songauthor);
         songAuthor.setText(song.getArtist());
+        //设置专辑图片
+        image_music = findViewById(R.id.image_music);
+        //image_music.setImageDrawable(getImage(songsList.get(current_music_list_number).getAlbum_id()));
+        image_music.setImageBitmap(getAlbumPicture(songsList.get(current_music_list_number).getDataPath()));
     }
 
-    /**********获取  设置歌曲专辑图片*************/
-    @SuppressWarnings("deprecation")
-    private BitmapDrawable getImage(long albumId) {
-        BitmapDrawable bmpDraw;
-        String albumArt = getAlbumArt(albumId);
-        Bitmap bm;
-        if (albumArt != null) {
-//            Log.w("DisplayActivity","albumArt不为空");
-            bm = BitmapFactory.decodeFile(albumArt);
-            bmpDraw = new BitmapDrawable(bm);
-            int width = bmpDraw.getIntrinsicWidth();
-            int height = bmpDraw.getIntrinsicHeight();
-            // drawable转换成bitmap
-            Bitmap oldbmp = bmpDraw.getBitmap();
+    /**********获取歌曲专辑图片*************/
+    public Bitmap getAlbumPicture(String dataPath){
+        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(dataPath);
+        byte[] data = mmr.getEmbeddedPicture();
+        Bitmap albumPicture = null;
+        if (data != null){
+            //获取bitmap对象
+            albumPicture =  BitmapFactory.decodeByteArray(data, 0, data.length);
+            //获取宽高
+            int width = albumPicture.getWidth();
+            int height = albumPicture.getHeight();
+            //Log.w("DisplayActivity","width = "+width+" height = "+height);
             // 创建操作图片用的Matrix对象
             Matrix matrix = new Matrix();
             // 计算缩放比例
-            float sx = ((float) 400 / width);
-            float sy = ((float) 400 / height);
+            float sx = ((float) 120 / width);
+            float sy = ((float) 120 / height);
             // 设置缩放比例
             matrix.postScale(sx, sy);
             // 建立新的bitmap，其内容是对原bitmap的缩放后的图
-            Bitmap newbmp = Bitmap.createBitmap(oldbmp, 0, 0, width, height,
-                    matrix, false);
-            return new BitmapDrawable(newbmp);
-        } else {
-//            Log.w("DisplayActivity","albumArt为空");
-            Resources res = getResources();
-            Bitmap default_d = BitmapFactory.decodeResource(res,
-                    R.drawable.music1);
-            int width = default_d.getWidth();
-            int height = default_d.getHeight();
+            albumPicture = Bitmap.createBitmap(albumPicture, 0, 0, width, height, matrix,false);
+            return albumPicture;
+        }else{
+            albumPicture = BitmapFactory.decodeResource(getResources(), R.drawable.music1);
+            int width = albumPicture.getWidth();
+            int height = albumPicture.getHeight();
+            //Log.w("DisplayActivity","width = "+width+" height = "+height);
             // 创建操作图片用的Matrix对象
             Matrix matrix = new Matrix();
             // 计算缩放比例
-            float sx = ((float) 400 / width);
-            float sy = ((float) 400 / height);
+            float sx = ((float) 120 / width);
+            float sy = ((float) 120 / height);
             // 设置缩放比例
             matrix.postScale(sx, sy);
             // 建立新的bitmap，其内容是对原bitmap的缩放后的图
-            Bitmap newbmp = Bitmap.createBitmap(default_d, 0, 0, width, height,
-                    matrix, false);
-            return new BitmapDrawable(newbmp);
+            albumPicture = Bitmap.createBitmap(albumPicture, 0, 0, width, height, matrix, false);
+            return albumPicture;
         }
-    }
-
-    private String getAlbumArt(long album_id) {
-        String mUriAlbums = "content://media/external/audio/albums";
-        String[] projection = new String[]{"album_art"};
-        Cursor cur = this.getContentResolver().query(Uri.parse(mUriAlbums + "/" +
-                        Long.toString(album_id)), projection, null, null,
-                null);
-        String album_art = null;
-        if (cur != null) {
-            if (cur.getCount() > 0 && cur.getColumnCount() > 0) {
-                cur.moveToNext();
-                album_art = cur.getString(0);
-            }
-            cur.close();
-        }
-        return album_art;
     }
     /***获取  设置歌曲专辑图片           到此结束*/
 
@@ -576,7 +559,7 @@ public class DisplayActivity extends BaseActivity {
      */
     public void selectMode() {//
         final AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this);
-        builder.setIcon(R.drawable.play_1);
+        builder.setIcon(R.drawable.play_5);
         builder.setTitle("播放模式");
         final String[] mode = {"顺序播放(默认)", "单曲循环", "随机播放"};
         /*设置一个单项选择框
@@ -614,6 +597,8 @@ public class DisplayActivity extends BaseActivity {
         builder.show();
     }
 
+    /**
+     * 向用户请求权限*/
     public void requestPermissionByHand() {
         //判断当前系统的版本
         if (Build.VERSION.SDK_INT >= 23) {
@@ -630,6 +615,8 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 向用户请求权限后的回调*/
     @Override
     public void onRequestPermissionsResult(int requestCode, final String[] permissions, int[] grantResults) {
         switch (requestCode) {
@@ -647,7 +634,8 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
-    /*在onDestroy()方法中通过调用unregisterReceiver()方法来取消耳机广播接收器的注册*/
+    /**
+     * 在onDestroy()方法中通过调用unregisterReceiver()方法来取消耳机广播接收器的注册*/
     @Override
     protected void onDestroy() {
         super.onDestroy();

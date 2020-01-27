@@ -12,7 +12,7 @@
         android:id="@+id/toolbar_activity_search_detail"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/menu_gray"
+        app:navigationIcon="@drawable/back"
         android:background="@color/black_color"
         app:title="@string/title_toolbar"
         app:titleTextColor="@color/white_color"/>
@@ -88,7 +88,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/dp_20"
                 android:layout_toStartOf="@+id/btn_next"
-                android:background="@drawable/play_2"
+                android:background="@drawable/play_5"
                 tools:ignore="ContentDescription" /><!--layout_toStartOf本元素从某个元素开始-->
 
             <ImageButton
@@ -98,7 +98,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/dp_15"
                 android:layout_toStartOf="@+id/btn_history_menu"
-                android:background="@drawable/next_2"
+                android:background="@drawable/next_5"
                 tools:ignore="ContentDescription" />
 
             <ImageButton

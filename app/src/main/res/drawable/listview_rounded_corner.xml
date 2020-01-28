@@ -10,7 +10,7 @@
         android:color="@color/black_color" />
     <!-- 渐变 -->
     <gradient
-        android:startColor="#FFFFFF"
+        android:startColor="#D5CFCF"
         android:endColor="#D5CFCF"/>
 <!--    内部边距-->
     <padding

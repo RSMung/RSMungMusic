@@ -59,7 +59,7 @@
                 android:layout_toEndOf="@+id/image_music"
                 android:orientation="vertical"
                 tools:ignore="RelativeOverlap">
-
+<!-- android:ellipsize=”marquee”–以横向滚动方式显示(需获得当前焦点时)-->
                 <TextView
                     android:id="@+id/buttom_textview_songname"
                     android:layout_width="wrap_content"

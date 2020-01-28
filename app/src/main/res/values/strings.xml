@@ -22,6 +22,8 @@
     <!--DisplayActivity-->
     <string name="title_toolbar">本地音乐</string>
     <string name="share">分享</string>
+    <string name="about_mung">Developer:   RuanSong</string>
+    <string name="email_mung">Email:   rs249310509@163.com</string>
     <!--LoginActivity-->
     <string name="username_hint">用户名</string>
     <string name="userpassword_hint">密码</string>

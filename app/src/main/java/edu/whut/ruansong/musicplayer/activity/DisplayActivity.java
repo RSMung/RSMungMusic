@@ -3,8 +3,6 @@ package edu.whut.ruansong.musicplayer.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -12,19 +10,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,9 +37,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -90,6 +85,9 @@ public class DisplayActivity extends BaseActivity {
     private ListView view_list_all_song = null;//歌曲列表
     private SongAdapter adapter_view_list_song = null;
 
+    private DrawerLayout drawerlayout = null;
+    private ActionBarDrawerToggle drawerToggle = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +111,7 @@ public class DisplayActivity extends BaseActivity {
         requestPermissionByHand();//请求权限
         if (song_total_number == 0)
             load_Songs_data();//加载歌曲数据
+        toolbar.setTitle(getResources().getString(R.string.title_toolbar)+"(共"+song_total_number+"首歌)");
         config_listViewAdapter();
 
         /*统一处理点击事件*/
@@ -120,6 +119,67 @@ public class DisplayActivity extends BaseActivity {
 
         /*启动广播接收器*/
         bindStatusChangedReceiver();
+
+        /*侧滑菜单界面*/
+        config_DrawerLayout();
+    }
+
+    /**侧滑菜单界面*/
+    public void config_DrawerLayout(){
+        drawerlayout = findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerlayout, toolbar, R.string.app_name, R.string.app_name) {
+            @Override
+            public void onDrawerOpened(View drawerView) {//完全打开时触发
+                super.onDrawerOpened(drawerView);
+                //Toast.makeText(DisplayActivity.this,"onDrawerOpened",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {//完全关闭时触发
+                super.onDrawerClosed(drawerView);
+                //Toast.makeText(DisplayActivity.this,"onDrawerClosed",Toast.LENGTH_SHORT).show();
+            }
+
+            /**
+             * 当抽屉被滑动的时候调用此方法
+             * slideOffset表示 滑动的幅度（0-1）
+             */
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, slideOffset);
+            }
+
+            /**
+             * 当抽屉滑动状态改变的时候被调用
+             * 状态值是STATE_IDLE（闲置--0）, STATE_DRAGGING（拖拽的--1）, STATE_SETTLING（固定--2）中之一。
+             *具体状态可以慢慢调试
+             */
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                super.onDrawerStateChanged(newState);
+            }
+        };
+        //通过下面这句实现toolbar和Drawer的联动：如果没有这行代码，箭头是不会随着侧滑菜单的开关而变换的（或者没有箭头），
+        // 可以尝试一下，不影响正常侧滑
+        //drawerToggle.syncState();
+
+        drawerlayout.setDrawerListener(drawerToggle);
+
+        //去掉侧滑的默认图标（动画箭头图标），也可以选择不去，
+        //不去的话把这一行注释掉或者改成true，然后把toolbar.setNavigationIcon注释掉就行了
+        //drawerToggle.setDrawerIndicatorEnabled(false);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (drawerlayout.isDrawerOpen(GravityCompat.START)){
+                    Log.w("DisplayActivity", "closeDrawer");
+                    drawerlayout.closeDrawer(GravityCompat.START);
+                } else {
+                    Log.w("DisplayActivity", "openDrawer");
+                    drawerlayout.openDrawer(GravityCompat.START);
+                }
+            }
+        });
     }
 
     /**配置歌曲列表*/

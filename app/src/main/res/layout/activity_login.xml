@@ -43,7 +43,7 @@
                 android:id="@+id/login_edit_text_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/edit_text"
+                android:background="@drawable/btn_rounded_corner_shape"
                 android:hint="@string/username_hint"
                 android:padding="@dimen/dp_10"
                 android:paddingStart="@dimen/dp_40"
@@ -70,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_5"
-                android:background="@drawable/edit_text"
+                android:background="@drawable/btn_rounded_corner_shape"
                 android:hint="@string/userpassword_hint"
                 android:inputType="numberPassword"
                 android:padding="@dimen/dp_10"
@@ -120,7 +120,7 @@
                 android:id="@+id/button_login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/shape"
+                android:background="@drawable/btn_rounded_corner_shape"
                 android:text="@string/button_login"
                 android:textColor="@color/white_color" />
             <Button
@@ -129,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/shape"
+                android:background="@drawable/btn_rounded_corner_shape"
                 android:text="@string/button_reg"
                 android:textColor="@color/white_color"
                 tools:ignore="RelativeOverlap" />

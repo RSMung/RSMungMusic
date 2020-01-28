@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
  * Time: 21:16
  * 使用socket与本机进行通信实现密码验证
  */
-public class socketLogin extends Thread{
+public class SocketLogin extends Thread{
     private String user,password;
     private String ip = "112.124.66.85";
     //本地服务器ip  192.168.31.174
@@ -22,7 +22,7 @@ public class socketLogin extends Thread{
     private int port = 1998;
     private String return_state_string;//用于保存主机返回的密码验证状态
     private int respond_state_int = -1;
-    public socketLogin(String user,String password){
+    public SocketLogin(String user, String password){
         this.user = user;
         this.password = password;
     }
@@ -66,9 +66,9 @@ public class socketLogin extends Thread{
             int length = 0;
             while(true) {
                 //获取数据的长度
-//                Log.w("socketLogin", "read上");
+//                Log.w("SocketLogin", "read上");
                 L1 = inputStream.read();//先读第一个字节
-//                Log.w("socketLogin", "read下");
+//                Log.w("SocketLogin", "read下");
                 if (L1 == -1)
                     break;
                 L2 = inputStream.read();
@@ -79,15 +79,15 @@ public class socketLogin extends Thread{
                 //读取该长度的信息
                 inputStream.read(bytes);
                 return_state_string = new String(bytes, StandardCharsets.UTF_8);
-                Log.w("socketLogin","return_state_string is "+ return_state_string);
+                Log.w("SocketLogin","return_state_string is "+ return_state_string);
                 if(return_state_string.equals("true"))
                     respond_state_int = 1;
                 else if(return_state_string.equals("false"))
                     respond_state_int = 0;
-                Log.w("socketLogin","state is "+ respond_state_int);
+                Log.w("SocketLogin","state is "+ respond_state_int);
             }
         }catch (Exception e){
-            Log.w("socketLogin",e);
+            Log.w("SocketLogin",e);
         }finally {
             try {//关闭资源
                 if(outputStream != null)
@@ -95,7 +95,7 @@ public class socketLogin extends Thread{
                 if(socket != null)
                     socket.close();
             }catch (Exception e){
-                Log.w("socketLogin",e);
+                Log.w("SocketLogin",e);
             }
         }
     }

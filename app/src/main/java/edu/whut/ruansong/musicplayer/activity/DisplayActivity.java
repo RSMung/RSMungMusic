@@ -76,7 +76,7 @@ public class DisplayActivity extends BaseActivity {
     private int playMode = PLAY_MODE_ORDER;//播放模式,默认顺序播放
 
     private int current_music_list_number = 1;//当前正在播放的歌曲
-    private int status;//播放状态默认为停止
+    private int status = MusicService.STATUS_STOPPED;//播放状态默认为停止
     private View view_history;//历史播放记录控件
     private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
     private ImageButton image_btn_play;//底部的图片播放按钮
@@ -85,7 +85,6 @@ public class DisplayActivity extends BaseActivity {
     private AlertDialog dialog;//定时停止播放得对话框
 
     private ImageView image_music;
-    private int headSet_flag = 0;
     private final int REQ_READ_EXTERNAL_STORAGE = 1;//权限请求码,1代表外部存储权限
     private int login_state = 0;//0是未登录,1是已登陆
     private ListView view_list_all_song = null;//歌曲列表
@@ -93,6 +92,7 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.w("DisplayActivity","进入onCreate");
         //解决软键盘弹起时，底部控件被顶上去的问题
 //        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         /*设定布局*/
@@ -130,6 +130,7 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.w("DisplayActivity","进入onStart");
     }
 
     /**
@@ -138,8 +139,8 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.w("DisplayActivity","进入onResume");
         sendBroadcastOnCommand(MusicService.COMMAND_CHECK_IS_PLAYING);
-        headSet_flag = 1;
     }
 
     /**
@@ -148,6 +149,7 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.w("DisplayActivity","进入onPause");
     }
 
     /**
@@ -156,6 +158,7 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        Log.w("DisplayActivity","进入onStop");
     }
 
     /**
@@ -164,6 +167,7 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.w("DisplayActivity","进入onDestroy");
         if (headsetReceiver != null)
             unregisterReceiver(headsetReceiver);//取消耳机广播接收器的注册
         unregisterReceiver(statusChangedReceiver);
@@ -228,20 +232,23 @@ public class DisplayActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             try {
                 //耳机相关广播
-                if ("android.intent.action.HEADSET_PLUG".equalsIgnoreCase(intent.getAction()))
+                if ("android.intent.action.HEADSET_PLUG".equalsIgnoreCase(intent.getAction())){
+                    Log.w("DisplayActivity", "耳机相关广播");
                     //有状态信息
-                    if (intent.hasExtra("state"))
+                    if (intent.hasExtra("state")){
+                        Log.w("DisplayActivity", "有状态信息");
                         //耳机断开
-                        if (intent.getIntExtra("state", 0) != 1)
+                        if (intent.getIntExtra("state", 0) != 1){
+                            Log.w("DisplayActivity", "耳机断开");
                             //音乐正在播放
-                            if (status == MusicService.STATUS_PLAYING)
-                                if (headSet_flag == 0) {//在onResume方法中此标志被置1
-                                    //音乐暂停
-                                    Log.w("DisplayActivity", "耳机断开，歌曲正在播放，即将暂停");
-                                    sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
-                                } else
-                                    //打开App后首次插入耳机会置0
-                                    headSet_flag = 0;
+                            if (status == MusicService.STATUS_PLAYING){
+                                Log.w("DisplayActivity", "音乐正在播放");
+                                //音乐暂停
+                                sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
+                            }
+                        }
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -455,7 +462,9 @@ public class DisplayActivity extends BaseActivity {
 
     /*一些工具方法类*************************************/
 
-    /**设置底部的一栏左侧的歌曲名和歌手以及专辑图片***/
+    /**
+     * 设置底部的一栏左侧的歌曲名和歌手以及专辑图片
+     ***/
     public void initBottomMes(int position) {//
         Song song = songsList.get(position);//获取点击位置的song对象
         TextView songName = findViewById(R.id.buttom_textview_songname);
@@ -575,7 +584,9 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-    /**选择播放模式*/
+    /**
+     * 选择播放模式
+     */
     public void selectMode() {//
         final AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this);
         builder.setIcon(R.drawable.play_5);
@@ -616,7 +627,9 @@ public class DisplayActivity extends BaseActivity {
         builder.show();
     }
 
-    /**向用户请求权限*/
+    /**
+     * 向用户请求权限
+     */
     public void requestPermissionByHand() {
         //判断当前系统的版本
         if (Build.VERSION.SDK_INT >= 23) {
@@ -633,7 +646,9 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
-    /**向用户请求权限后的回调*/
+    /**
+     * 向用户请求权限后的回调
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, final String[] permissions, int[] grantResults) {
         switch (requestCode) {

@@ -89,13 +89,11 @@ public class MusicService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.w("MusicService", "服务进入onCreate");
         //绑定广播接收器
         commandReceiver = new CommandReceiver();
         IntentFilter intentFilter = new IntentFilter(BROADCAST_MUSICSERVICE_CONTROL);
         registerReceiver(commandReceiver, intentFilter);
-
-        Log.w("MusicService", "服务的onCreate被执行了");
-
         //监听播放是否完成
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -111,7 +109,8 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        Log.w("MusicService", "服务进入onStartCommand");
+        //创建为前台服务,免得被系统杀掉进程
         String channel_id = "musicService_channel_id";
         CharSequence name = "musicService_channel_name";
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -138,6 +137,17 @@ public class MusicService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @Override
+    public void onDestroy() {
+        Log.w("MusicService", "服务进入onDestroy");
+        super.onDestroy();
+        if (player != null) {
+            player.release();
+        }
+        unregisterReceiver(commandReceiver);
+        stopForeground(true);
+    }
+
     /**内部类，接受广播命令并执行操作*/
     class CommandReceiver extends BroadcastReceiver {
         @Override
@@ -145,35 +155,37 @@ public class MusicService extends Service {
             //获取命令
             //COMMAND_UNKNOWN是默认值
             int command = intent.getIntExtra("command", COMMAND_UNKNOWN);
-            Log.w("MusicService", "获取到了命令广播" + "+" + command);
+            Log.w("MusicService", "命令: " + command);
             //执行命令
             switch (command) {
                 case COMMAND_PLAY:
+                    Log.w("MusicService", "COMMAND_PLAY");
                     next_number = intent.getIntExtra("number", 0);//获取点击位置
                     play_pause();
                     break;
                 case COMMAND_RESUME:
+                    Log.w("MusicService", "COMMAND_RESUME");
                     next_number = intent.getIntExtra("number", 0);//获取点击位置
                     resume();
                     break;
                 case COMMAND_PREVIOUS:
-                    Log.w("MusicService", "上一首");
+                    Log.w("MusicService", "COMMAND_PREVIOUS");
                     moveNumberToPrevious();
                     break;
                 case COMMAND_NEXT:
-                    Log.w("MusicService", "下一首");
+                    Log.w("MusicService", "COMMAND_NEXT");
                     nextMusic_update_number();
                     break;
                 case COMMAND_PAUSE:
-                    Log.w("MusicService", "暂停");
+                    Log.w("MusicService", "COMMAND_PAUSE");
                     pause();
                     break;
                 case COMMAND_STOP:
-                    Log.w("MusicService", "停止");
+                    Log.w("MusicService", "COMMAND_STOP");
                     stop();
                     break;
                 case COMMAND_CHECK_IS_PLAYING:
-                    Log.w("MusicService", "状态查询中");
+                    Log.w("MusicService", "COMMAND_CHECK_IS_PLAYING");
                     if (player != null && player.isPlaying())
                         sendBroadcastOnStatusChange(MusicService.STATUS_PLAYING);
                     else if(current_number==-1)
@@ -182,18 +194,22 @@ public class MusicService extends Service {
                         sendBroadcastOnStatusChange(MusicService.STATUS_PAUSED);
                     break;
                 case PLAY_MODE_ORDER://顺序播放
+                    Log.w("MusicService", "PLAY_MODE_ORDER");
                     current_PlayMode = PLAY_MODE_ORDER;
                     sendBroadcastOnStatusChange(MusicService.PLAY_MODE_ORDER);
                     break;
                 case PLAY_MODE_LOOP://单曲循环
+                    Log.w("MusicService", "PLAY_MODE_LOOP");
                     current_PlayMode = PLAY_MODE_LOOP;
                     sendBroadcastOnStatusChange(MusicService.PLAY_MODE_LOOP);
                     break;
                 case PLAY_MODE_RANDOM://随机播放
+                    Log.w("MusicService", "PLAY_MODE_RANDOM");
                     current_PlayMode = PLAY_MODE_RANDOM;
                     sendBroadcastOnStatusChange(MusicService.PLAY_MODE_RANDOM);
                     break;
                 case COMMAND_UNKNOWN:
+                    Log.w("MusicService", "COMMAND_UNKNOWN");
                     break;
                 default:
                     break;
@@ -278,18 +294,6 @@ public class MusicService extends Service {
             Log.w("MusicService", "没有在播放歌曲，直接播放" + next_number);
             play();
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d("MusicService", "onDestroy executed");
-        if (player != null) {
-            player.release();
-        }
-        Log.w("MusicService", "命令接收器已经被取消注册，服务被销毁");
-        unregisterReceiver(commandReceiver);
-        stopForeground(true);
     }
 
     private void moveNumberToPrevious() {

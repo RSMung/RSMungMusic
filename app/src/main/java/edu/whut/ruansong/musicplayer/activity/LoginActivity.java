@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -13,7 +12,7 @@ import android.widget.Toast;
 
 import edu.whut.ruansong.musicplayer.tool.BaseActivity;
 import edu.whut.ruansong.musicplayer.R;
-import edu.whut.ruansong.musicplayer.tool.socketLogin;
+import edu.whut.ruansong.musicplayer.tool.SocketLogin;
 
 public class LoginActivity extends BaseActivity {
 
@@ -38,6 +37,12 @@ public class LoginActivity extends BaseActivity {
             jumpToNextActivity();
         }
     }
+    //onStart      <-----
+    //onResume          |
+    //                 onRestart
+    //onPause           |
+    //onStop         ---
+    //onDestroy
 
     public void jumpToNextActivity() {
         Intent intent = new Intent(LoginActivity.this, DisplayActivity.class);
@@ -77,16 +82,16 @@ public class LoginActivity extends BaseActivity {
 
                     /******使用socket与主机通信验证密码*****/
 //                    Log.w("LoginActivity", "使用的信息是" + userStr+""+passwordStr);
-                    final socketLogin s1 = new socketLogin(userStr, passwordStr);
+                    final SocketLogin s1 = new SocketLogin(userStr, passwordStr);
                     s1.start();
 
                     new Handler().postDelayed(new Runnable() {//延时1000ms后获取主机返回的验证状态
                         @Override
                         public void run() {
                             int login_state = s1.getRespond_state_int();//获取主机验证后返回的信息
-                            Log.w("LoginActivity", "state is " + login_state);
+//                            Log.w("LoginActivity", "state is " + login_state);
                             if(login_state == -1){
-                                Toast.makeText(LoginActivity.this, "服务器未响应！", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "服务器未响应或网络不好！", Toast.LENGTH_SHORT).show();
                             }else if (login_state == 1) {//验证成功
                                 jumpToNextActivity();
                                 login_status = 1;
@@ -97,13 +102,11 @@ public class LoginActivity extends BaseActivity {
                     }, 1000);
 
                 } else {
-                    Toast.makeText(LoginActivity.this,
-                            "账号、密码不能为空！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "账号、密码不能为空！", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
-
 
     public void loadDefaultMsg() {//加载默认用户名和密码
 
@@ -125,7 +128,6 @@ public class LoginActivity extends BaseActivity {
             login_pas.setText(default_password);
         }
     }
-
 
     public static void setLogin_status(int login_status) {//后台服务MusicService中有用到
         LoginActivity.login_status = login_status;

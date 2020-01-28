@@ -75,7 +75,7 @@ public class DisplayActivity extends BaseActivity {
     public static final int PLAY_MODE_RANDOM = 10;//随机播放
     private int playMode = PLAY_MODE_ORDER;//播放模式,默认顺序播放
 
-    private int current_music_list_number = 1;//当前正在播放的歌曲
+    private int current_music_list_number = 0;//当前正在播放的歌曲
     private int status = MusicService.STATUS_STOPPED;//播放状态默认为停止
     private View view_history;//历史播放记录控件
     private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
@@ -88,6 +88,7 @@ public class DisplayActivity extends BaseActivity {
     private final int REQ_READ_EXTERNAL_STORAGE = 1;//权限请求码,1代表外部存储权限
     private int login_state = 0;//0是未登录,1是已登陆
     private ListView view_list_all_song = null;//歌曲列表
+    private SongAdapter adapter_view_list_song = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,16 +113,20 @@ public class DisplayActivity extends BaseActivity {
         requestPermissionByHand();//请求权限
         if (song_total_number == 0)
             load_Songs_data();//加载歌曲数据
-        //配置歌曲列表
-        SongAdapter adapter_view_list_song = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, songsList);
-        view_list_all_song = findViewById(R.id.view_list_all_song);
-        view_list_all_song.setAdapter(adapter_view_list_song);
+        config_listViewAdapter();
 
         /*统一处理点击事件*/
         dealClick();
 
         /*启动广播接收器*/
         bindStatusChangedReceiver();
+    }
+
+    /**配置歌曲列表*/
+    public void config_listViewAdapter(){
+        adapter_view_list_song = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, songsList);
+        view_list_all_song = findViewById(R.id.view_list_all_song);
+        view_list_all_song.setAdapter(adapter_view_list_song);
     }
 
     /**
@@ -233,16 +238,16 @@ public class DisplayActivity extends BaseActivity {
             try {
                 //耳机相关广播
                 if ("android.intent.action.HEADSET_PLUG".equalsIgnoreCase(intent.getAction())){
-                    Log.w("DisplayActivity", "耳机相关广播");
+                    //Log.w("DisplayActivity", "耳机相关广播");
                     //有状态信息
                     if (intent.hasExtra("state")){
-                        Log.w("DisplayActivity", "有状态信息");
+                        //Log.w("DisplayActivity", "有状态信息");
                         //耳机断开
                         if (intent.getIntExtra("state", 0) != 1){
-                            Log.w("DisplayActivity", "耳机断开");
+                            //Log.w("DisplayActivity", "耳机断开");
                             //音乐正在播放
                             if (status == MusicService.STATUS_PLAYING){
-                                Log.w("DisplayActivity", "音乐正在播放");
+                                //Log.w("DisplayActivity", "音乐正在播放");
                                 //音乐暂停
                                 sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
                             }
@@ -338,6 +343,8 @@ public class DisplayActivity extends BaseActivity {
         btn_next_music.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //旧的歌曲图标修改为默认
+                songsList.get(current_music_list_number).setSong_item_picture(R.drawable.song_item_picture);
                 sendBroadcastOnCommand(MusicService.COMMAND_NEXT);
             }
         });
@@ -354,6 +361,8 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
+                //旧的歌曲图标修改为默认
+                songsList.get(current_music_list_number).setSong_item_picture(R.drawable.song_item_picture);
                 current_music_list_number = position;
                 if (status == MusicService.STATUS_STOPPED || status == MusicService.STATUS_PLAYING) {
                     //在musicService服务中有逻辑控制到底是播放还是暂停   play_pause()函数
@@ -427,6 +436,10 @@ public class DisplayActivity extends BaseActivity {
                     current_music_list_number = MusicService.getCurrent_number();//更改存储的当前播放歌曲序号
                     //加载歌名和歌手,设置专辑图片
                     initBottomMes(current_music_list_number);
+                    //新的歌曲图标修改为正在播放
+                    songsList.get(current_music_list_number).setSong_item_picture(R.drawable.playing_grass_green);
+                    //通知适配器数据变化
+                    adapter_view_list_song.notifyDataSetChanged();
                     break;
 
                 //播放器状态更改为暂停
@@ -434,6 +447,10 @@ public class DisplayActivity extends BaseActivity {
                     Log.w("DisplayActivity", "暂停状态，将改变播放图标.");
                     image_btn_play = findViewById(R.id.btn_play);
                     image_btn_play.setBackground(getDrawable(R.drawable.play_5));//把底部播放按钮的图标改变
+                    //新的歌曲图标修改为默认图标
+                    songsList.get(current_music_list_number).setSong_item_picture(R.drawable.song_item_picture);
+                    //通知适配器数据变化
+                    adapter_view_list_song.notifyDataSetChanged();
                     break;
 
                 //播放器状态更改为停止

@@ -31,6 +31,7 @@ public class SocketLogin extends Thread{
     }
     @Override
     public void run(){
+        Log.w("SocketLogin", "进入run方法");
         Socket socket = null;
         OutputStream outputStream = null;
         InputStream inputStream = null;

@@ -249,7 +249,7 @@ public class MusicService extends Service {
         //顺序播放时可能序号越界
         if (next_number == (DisplayActivity.getSong_total_number())) {
             Toast.makeText(MusicService.this, "已经达到了列表底部!", Toast.LENGTH_SHORT).show();
-            next_number--;
+            next_number = 0;//恢复到初始位置
             play();
         }else
             play();//不越界则直接播放

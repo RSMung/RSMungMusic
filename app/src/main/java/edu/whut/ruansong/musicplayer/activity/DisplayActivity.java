@@ -124,71 +124,6 @@ public class DisplayActivity extends BaseActivity {
         config_DrawerLayout();
     }
 
-    /**侧滑菜单界面*/
-    public void config_DrawerLayout(){
-        drawerlayout = findViewById(R.id.drawer_layout);
-        drawerToggle = new ActionBarDrawerToggle(this, drawerlayout, toolbar, R.string.app_name, R.string.app_name) {
-            @Override
-            public void onDrawerOpened(View drawerView) {//完全打开时触发
-                super.onDrawerOpened(drawerView);
-                //Toast.makeText(DisplayActivity.this,"onDrawerOpened",Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {//完全关闭时触发
-                super.onDrawerClosed(drawerView);
-                //Toast.makeText(DisplayActivity.this,"onDrawerClosed",Toast.LENGTH_SHORT).show();
-            }
-
-            /**
-             * 当抽屉被滑动的时候调用此方法
-             * slideOffset表示 滑动的幅度（0-1）
-             */
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-                super.onDrawerSlide(drawerView, slideOffset);
-            }
-
-            /**
-             * 当抽屉滑动状态改变的时候被调用
-             * 状态值是STATE_IDLE（闲置--0）, STATE_DRAGGING（拖拽的--1）, STATE_SETTLING（固定--2）中之一。
-             *具体状态可以慢慢调试
-             */
-            @Override
-            public void onDrawerStateChanged(int newState) {
-                super.onDrawerStateChanged(newState);
-            }
-        };
-        //通过下面这句实现toolbar和Drawer的联动：如果没有这行代码，箭头是不会随着侧滑菜单的开关而变换的（或者没有箭头），
-        // 可以尝试一下，不影响正常侧滑
-        //drawerToggle.syncState();
-
-        drawerlayout.setDrawerListener(drawerToggle);
-
-        //去掉侧滑的默认图标（动画箭头图标），也可以选择不去，
-        //不去的话把这一行注释掉或者改成true，然后把toolbar.setNavigationIcon注释掉就行了
-        //drawerToggle.setDrawerIndicatorEnabled(false);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (drawerlayout.isDrawerOpen(GravityCompat.START)){
-                    Log.w("DisplayActivity", "closeDrawer");
-                    drawerlayout.closeDrawer(GravityCompat.START);
-                } else {
-                    Log.w("DisplayActivity", "openDrawer");
-                    drawerlayout.openDrawer(GravityCompat.START);
-                }
-            }
-        });
-    }
-
-    /**配置歌曲列表*/
-    public void config_listViewAdapter(){
-        adapter_view_list_song = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, songsList);
-        view_list_all_song = findViewById(R.id.view_list_all_song);
-        view_list_all_song.setAdapter(adapter_view_list_song);
-    }
-
     /**
      * 由不可见变为可见的时候调用
      */
@@ -453,6 +388,63 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
+    /**侧滑菜单界面*/
+    public void config_DrawerLayout(){
+        drawerlayout = findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerlayout, toolbar, R.string.app_name, R.string.app_name) {
+            @Override
+            public void onDrawerOpened(View drawerView) {//完全打开时触发
+                super.onDrawerOpened(drawerView);
+                //Toast.makeText(DisplayActivity.this,"onDrawerOpened",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {//完全关闭时触发
+                super.onDrawerClosed(drawerView);
+                //Toast.makeText(DisplayActivity.this,"onDrawerClosed",Toast.LENGTH_SHORT).show();
+            }
+
+            /**
+             * 当抽屉被滑动的时候调用此方法
+             * slideOffset表示 滑动的幅度（0-1）
+             */
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, slideOffset);
+            }
+
+            /**
+             * 当抽屉滑动状态改变的时候被调用
+             * 状态值是STATE_IDLE（闲置--0）, STATE_DRAGGING（拖拽的--1）, STATE_SETTLING（固定--2）中之一。
+             *具体状态可以慢慢调试
+             */
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                super.onDrawerStateChanged(newState);
+            }
+        };
+        drawerlayout.setDrawerListener(drawerToggle);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (drawerlayout.isDrawerOpen(GravityCompat.START)){
+                    Log.w("DisplayActivity", "closeDrawer");
+                    drawerlayout.closeDrawer(GravityCompat.START);
+                } else {
+                    Log.w("DisplayActivity", "openDrawer");
+                    drawerlayout.openDrawer(GravityCompat.START);
+                }
+            }
+        });
+    }
+
+    /**配置歌曲列表*/
+    public void config_listViewAdapter(){
+        adapter_view_list_song = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, songsList);
+        view_list_all_song = findViewById(R.id.view_list_all_song);
+        view_list_all_song.setAdapter(adapter_view_list_song);
+    }
+
     /*******绑定广播接收器,接收来自服务的播放器状态更新消息*/
     private void bindStatusChangedReceiver() {
         statusChangedReceiver = new StatusChangedReceiver();
@@ -490,7 +482,7 @@ public class DisplayActivity extends BaseActivity {
                 //播放器状态更改为正在播放
                 case MusicService.STATUS_PLAYING:
                     //把底部播放按钮的图标改变,列表中正在播放的歌曲的颜色改变
-                    Log.w("DisplayActivity", "播放状态，改变播放图标.");
+                    Log.w("DisplayActivity", "STATUS_PLAYING");
                     image_btn_play = findViewById(R.id.btn_play);//获取控件
                     image_btn_play.setBackground(getDrawable(R.drawable.pause_5));//改变图标
                     current_music_list_number = MusicService.getCurrent_number();//更改存储的当前播放歌曲序号
@@ -504,10 +496,10 @@ public class DisplayActivity extends BaseActivity {
 
                 //播放器状态更改为暂停
                 case MusicService.STATUS_PAUSED:
-                    Log.w("DisplayActivity", "暂停状态，将改变播放图标.");
+                    Log.w("DisplayActivity", "STATUS_PAUSED");
                     image_btn_play = findViewById(R.id.btn_play);
                     image_btn_play.setBackground(getDrawable(R.drawable.play_5));//把底部播放按钮的图标改变
-                    //新的歌曲图标修改为默认图标
+                    //歌曲图标修改为默认图标
                     songsList.get(current_music_list_number).setSong_item_picture(R.drawable.song_item_picture);
                     //通知适配器数据变化
                     adapter_view_list_song.notifyDataSetChanged();
@@ -515,12 +507,14 @@ public class DisplayActivity extends BaseActivity {
 
                 //播放器状态更改为停止
                 case MusicService.STATUS_STOPPED:
-                    Log.w("DisplayActivity", "停止状态");
+                    Log.w("DisplayActivity", "STATUS_STOPPED");
                     break;
 
                 //播放器状态更改为播放完成
                 case MusicService.STATUS_COMPLETED:
-                    Log.w("DisplayActivity", "已经播放完毕，播放下一首!");
+                    //歌曲图标修改为默认图标
+                    songsList.get(current_music_list_number).setSong_item_picture(R.drawable.song_item_picture);
+                    Log.w("DisplayActivity", "STATUS_COMPLETED");
                     break;
 
                 case MusicService.PLAY_MODE_LOOP://单曲循环模式

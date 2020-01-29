@@ -56,15 +56,16 @@ public class SongAdapter extends ArrayAdapter<Song> {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag(); // 重新获取ViewHolder
         }
-        //传入具体信息
-        viewHolder.songImage.setImageResource(song.getSong_item_picture());//列表每一项的图标
-        viewHolder.songName.setText(song.getTitle());//歌名
-        viewHolder.songAuthor.setText(song.getArtist());//歌手
+        if(song!=null && viewHolder!=null){
+            //传入具体信息
+            viewHolder.songImage.setImageResource(song.getSong_item_picture());//列表每一项的图标
+            viewHolder.songName.setText(song.getTitle());//歌名
+            viewHolder.songAuthor.setText(song.getArtist());//歌手
 
-        //设置两个文本的字体style
-        viewHolder.songName.setTypeface(Typeface.DEFAULT_BOLD);
-        viewHolder.songAuthor.setTypeface(Typeface.DEFAULT_BOLD);
-
+            //设置两个文本的字体style
+            viewHolder.songName.setTypeface(Typeface.DEFAULT_BOLD);
+            viewHolder.songAuthor.setTypeface(Typeface.DEFAULT_BOLD);
+        }
         return view;
     }
 }

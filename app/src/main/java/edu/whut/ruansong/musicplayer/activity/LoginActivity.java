@@ -100,7 +100,6 @@ public class LoginActivity extends BaseActivity {
                             }
                         }
                     }, 1000);
-
                 } else {
                     Toast.makeText(LoginActivity.this, "账号、密码不能为空！", Toast.LENGTH_SHORT).show();
                 }

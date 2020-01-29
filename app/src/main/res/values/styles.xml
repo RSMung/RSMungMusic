@@ -12,8 +12,8 @@
         <!--各个控制控件的默认颜色-->
 <!--        <item name="android:colorControlNormal">@color/white_color</item>-->
 
-        <!--一般控件的选中效果默认采用该颜色-->
-<!--        <item name="colorAccent">@color/black_color</item>-->
+        <!--一般控件默认颜色-->
+        <item name="colorAccent">@color/colorAccent</item>
 
         <!--设置menu中item的图标颜色-->
         <item name="android:textColorSecondary">@color/white_color</item>

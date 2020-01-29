@@ -38,7 +38,16 @@
                 android:scrollbarThumbVertical="@drawable/scrollbars"
                 android:scrollbarTrackVertical="@drawable/scrollbar_track"
                 android:background="@drawable/listview_rounded_corner"
-                android:layout_above="@+id/play_bar_bottom" />
+                android:layout_above="@+id/progressBar_displayActivity" />
+            <ProgressBar
+                android:id="@+id/progressBar_displayActivity"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:max="100"
+                android:progress="30"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_above="@+id/play_bar_bottom"
+                android:background="@color/violet_color"/>
 
             <RelativeLayout
                 android:id="@+id/play_bar_bottom"

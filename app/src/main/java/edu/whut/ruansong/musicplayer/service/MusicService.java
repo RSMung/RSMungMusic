@@ -130,6 +130,7 @@ public class MusicService extends Service {
         //notification.defaults = Notification.DEFAULT_SOUND; //设置为默认的声音
         // notificationManager.notify(1, notification);把通知显示出来
         startForeground(1,notification);//前台通知(会一直显示在通知栏)
+        //id用0就不会显示通知
         return super.onStartCommand(intent, flags, startId);
     }
 

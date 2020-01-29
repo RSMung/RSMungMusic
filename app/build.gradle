@@ -4,10 +4,10 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "edu.whut.ruansong.musicplayer"
-        minSdkVersion 22
+        minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
-        versionName "1.1"
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -20,7 +20,7 @@ android {
     android.applicationVariants.all { variant ->
         variant.outputs.all {
             //在这里修改apk文件名，引号内的字符串都可以随便定义
-            outputFileName = "MungMusicPlayer-${variant.name}-v${variant.versionName}.apk"
+            outputFileName = "Mung音乐播放器-${variant.name}-v${variant.versionName}.apk"
         }
     }
 

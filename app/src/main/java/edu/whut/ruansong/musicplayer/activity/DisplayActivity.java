@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -96,7 +97,7 @@ public class DisplayActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         Log.w("DisplayActivity","进入onCreate");
         //解决软键盘弹起时，底部控件被顶上去的问题
-//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         /*设定布局*/
         setContentView(R.layout.activity_display);
 
@@ -406,6 +407,7 @@ public class DisplayActivity extends BaseActivity {
                         Intent stop_service_intent = new Intent(DisplayActivity.this, MusicService.class);
                         stopService(stop_service_intent);
                         ActivityCollector.finishAll();
+                        System.exit(0);
                         break;
                      default:
                          break;
@@ -754,6 +756,7 @@ public class DisplayActivity extends BaseActivity {
                     // 权限被授予了
                     if (song_total_number == 0)
                         load_Songs_data();//加载歌曲数据
+                    adapter_view_list_song.notifyDataSetChanged();
                 } else {
                     Toast.makeText(DisplayActivity.this, "申请权限失败", Toast.LENGTH_SHORT).show();
                 }

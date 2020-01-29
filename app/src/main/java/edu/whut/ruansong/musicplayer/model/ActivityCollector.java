@@ -30,6 +30,5 @@ public class ActivityCollector {
                 activity.finish();
             }
         }
-        System.exit(0);
     }
 }

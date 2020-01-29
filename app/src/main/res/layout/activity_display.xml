@@ -143,8 +143,7 @@
                 <ListView
                     android:id="@+id/list_playhistory"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/listview_rounded_corner"/>
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>
@@ -177,5 +176,11 @@
             android:textIsSelectable="true"
             android:text="@string/email_mung"
             android:textSize="@dimen/sp_20"/>
+        <ListView
+            android:id="@+id/drawer_layout_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/listview_rounded_corner"
+            android:layout_margin="@dimen/dp_10"/>
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>

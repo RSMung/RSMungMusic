@@ -10,7 +10,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import edu.whut.ruansong.musicplayer.tool.BaseActivity;
+import edu.whut.ruansong.musicplayer.model.BaseActivity;
 import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.tool.SocketLogin;
 

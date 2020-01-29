@@ -42,12 +42,14 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import edu.whut.ruansong.musicplayer.tool.ActivityCollector;
-import edu.whut.ruansong.musicplayer.tool.BaseActivity;
+import edu.whut.ruansong.musicplayer.model.ActivityCollector;
+import edu.whut.ruansong.musicplayer.model.BaseActivity;
+import edu.whut.ruansong.musicplayer.model.DrawerLayoutListViewItem;
 import edu.whut.ruansong.musicplayer.service.MusicService;
-import edu.whut.ruansong.musicplayer.tool.PlayHistory;
+import edu.whut.ruansong.musicplayer.model.PlayHistory;
 import edu.whut.ruansong.musicplayer.R;
-import edu.whut.ruansong.musicplayer.tool.Song;
+import edu.whut.ruansong.musicplayer.model.Song;
+import edu.whut.ruansong.musicplayer.tool.DrawerLayoutListViewAdapter;
 import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
 /**
@@ -102,7 +104,8 @@ public class DisplayActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         /*启动后台服务*/
-        startService();
+        Intent intentService = new Intent(DisplayActivity.this, MusicService.class);
+        startService(intentService);
 
         /*初始化耳机监听*/
         initHeadset();
@@ -122,6 +125,15 @@ public class DisplayActivity extends BaseActivity {
 
         /*侧滑菜单界面*/
         config_DrawerLayout();
+        //配置侧滑界面listView
+        List<DrawerLayoutListViewItem> drawer_list_view_content = new ArrayList<>();
+        DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time,"定时停止播放");
+        DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit,"退出");
+        drawer_list_view_content.add(stopWithTime);
+        drawer_list_view_content.add(exit);
+        DrawerLayoutListViewAdapter drawer_list_view_adapter = new DrawerLayoutListViewAdapter(DisplayActivity.this,R.layout.drawer_layout_list_item,drawer_list_view_content);
+        ListView drawer_layout_list = findViewById(R.id.drawer_layout_list);
+        drawer_layout_list.setAdapter(drawer_list_view_adapter);
     }
 
     /**
@@ -208,12 +220,6 @@ public class DisplayActivity extends BaseActivity {
                 break;
         }
         return true;
-    }
-
-    /***启动音乐播放服务*/
-    public void startService() {
-        Intent intentService = new Intent(DisplayActivity.this, MusicService.class);
-        startService(intentService);
     }
 
     /**

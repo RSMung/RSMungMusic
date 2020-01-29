@@ -18,8 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.whut.ruansong.musicplayer.R;
-import edu.whut.ruansong.musicplayer.tool.ActivityCollector;
-import edu.whut.ruansong.musicplayer.tool.Song;
+import edu.whut.ruansong.musicplayer.model.Song;
 import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 import edu.whut.ruansong.musicplayer.service.MusicService;
 

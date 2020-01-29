@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import edu.whut.ruansong.musicplayer.R;
-import edu.whut.ruansong.musicplayer.tool.Song;
+import edu.whut.ruansong.musicplayer.model.Song;
 
 /**
  * Created by 阮 on 2018/11/17.

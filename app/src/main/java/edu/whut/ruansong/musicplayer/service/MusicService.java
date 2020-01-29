@@ -3,31 +3,27 @@ package edu.whut.ruansong.musicplayer.service;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Random;
 
 import edu.whut.ruansong.musicplayer.R;
-import edu.whut.ruansong.musicplayer.tool.PlayHistory;
-import edu.whut.ruansong.musicplayer.tool.Song;
+import edu.whut.ruansong.musicplayer.model.PlayHistory;
+import edu.whut.ruansong.musicplayer.model.Song;
 import edu.whut.ruansong.musicplayer.activity.DisplayActivity;
 import edu.whut.ruansong.musicplayer.activity.LoginActivity;
 
 import static android.app.PendingIntent.getActivity;
-import static android.content.Intent.ACTION_DELETE;
 
 /**
  * Created by 阮 on 2018/11/18.

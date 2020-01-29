@@ -45,8 +45,10 @@ public class DrawerLayoutListViewAdapter extends ArrayAdapter<DrawerLayoutListVi
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
-        viewHolder.itemImage.setImageResource(item.getItem_picture());
-        viewHolder.itemTitle.setText(item.getItem_title());
+        if(item != null && viewHolder!= null){
+            viewHolder.itemImage.setImageResource(item.getItem_picture());
+            viewHolder.itemTitle.setText(item.getItem_title());
+        }
         return view;
     }
 }

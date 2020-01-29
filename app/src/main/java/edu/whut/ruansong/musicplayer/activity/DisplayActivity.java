@@ -74,17 +74,18 @@ public class DisplayActivity extends BaseActivity {
 
     private int current_music_list_number = 0;//当前正在播放的歌曲
     private int status = MusicService.STATUS_STOPPED;//播放状态默认为停止
-    private View view_history;//历史播放记录控件
+    private View view_history = null;//历史播放记录控件
     private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
-    private ImageButton image_btn_play;//底部的图片播放按钮
+    private ImageButton image_btn_play = null;//底部的图片播放按钮
     private int input_time = 0;
     private Timer sleepTimer = null;
-    private AlertDialog dialog;//定时停止播放得对话框
+    private AlertDialog dialog = null;//定时停止播放得对话框
 
-    private ImageView image_music;
+    private ImageView image_music = null;
     private final int REQ_READ_EXTERNAL_STORAGE = 1;//权限请求码,1代表外部存储权限
     private int login_state = 0;//0是未登录,1是已登陆
     private ListView view_list_all_song = null;//歌曲列表
+    private ListView drawer_layout_list = null;//侧滑栏的listView
     private SongAdapter adapter_view_list_song = null;
 
     private DrawerLayout drawerlayout = null;
@@ -117,9 +118,6 @@ public class DisplayActivity extends BaseActivity {
         toolbar.setTitle(getResources().getString(R.string.title_toolbar)+"(共"+song_total_number+"首歌)");
         config_listViewAdapter();
 
-        /*统一处理点击事件*/
-        dealClick();
-
         /*启动广播接收器*/
         bindStatusChangedReceiver();
 
@@ -132,8 +130,11 @@ public class DisplayActivity extends BaseActivity {
         drawer_list_view_content.add(stopWithTime);
         drawer_list_view_content.add(exit);
         DrawerLayoutListViewAdapter drawer_list_view_adapter = new DrawerLayoutListViewAdapter(DisplayActivity.this,R.layout.drawer_layout_list_item,drawer_list_view_content);
-        ListView drawer_layout_list = findViewById(R.id.drawer_layout_list);
+        drawer_layout_list = findViewById(R.id.drawer_layout_list);
         drawer_layout_list.setAdapter(drawer_list_view_adapter);
+
+        /*统一处理点击事件*/
+        dealClick();
     }
 
     /**
@@ -392,6 +393,25 @@ public class DisplayActivity extends BaseActivity {
 
             }
         });
+        /*设置侧滑栏listView的item点击事件*/
+        drawer_layout_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                switch(position){
+                    case 0://定时停止播放
+                        timePausePlay();
+                        drawerlayout.closeDrawer(GravityCompat.START);
+                        break;
+                    case 1://退出
+                        Intent stop_service_intent = new Intent(DisplayActivity.this, MusicService.class);
+                        stopService(stop_service_intent);
+                        ActivityCollector.finishAll();
+                        break;
+                     default:
+                         break;
+                }
+            }
+        });
     }
 
     /**侧滑菜单界面*/
@@ -434,10 +454,10 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 if (drawerlayout.isDrawerOpen(GravityCompat.START)){
-                    Log.w("DisplayActivity", "closeDrawer");
+                    //Log.w("DisplayActivity", "closeDrawer");
                     drawerlayout.closeDrawer(GravityCompat.START);
                 } else {
-                    Log.w("DisplayActivity", "openDrawer");
+                    //Log.w("DisplayActivity", "openDrawer");
                     drawerlayout.openDrawer(GravityCompat.START);
                 }
             }
@@ -621,8 +641,7 @@ public class DisplayActivity extends BaseActivity {
 
     /*** 定时停止播放*/
     public void timePausePlay() {
-        final AlertDialog.Builder customizeDialog =
-                new AlertDialog.Builder(DisplayActivity.this);
+        final AlertDialog.Builder customizeDialog = new AlertDialog.Builder(DisplayActivity.this);
         @SuppressLint("InflateParams") final View dialogView = LayoutInflater.from(DisplayActivity.this)
                 .inflate(R.layout.dialog, null);
         customizeDialog.setView(dialogView);
@@ -655,8 +674,7 @@ public class DisplayActivity extends BaseActivity {
                     sleepTimer.cancel();
                 }
                 dialog.dismiss();
-                Toast.makeText(DisplayActivity.this, "任务已经取消",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(DisplayActivity.this, "任务已经取消", Toast.LENGTH_SHORT).show();
             }
         });
     }

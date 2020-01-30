@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,13 +29,14 @@ public class SearchDetailActivity extends AppCompatActivity {
     private List<Song> songsList = null;
     private int num_songs = 0;
     private List<Song> search_list = new ArrayList<>();//用来装查询结果
-    private int current_music_list_number = -1;//当前正在播放的歌曲
+    private int current_music_list_number = 0;//当前正在播放的歌曲
     private int status;//播放状态默认为停止
     private LinearLayout search_LinearLayout;//搜索结果的整个布局
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_detail);
+        Log.w("SearchDetailActivity","进入onCreate");
         toolbar = findViewById(R.id.toolbar_activity_search_detail);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -45,9 +47,25 @@ public class SearchDetailActivity extends AppCompatActivity {
                 startActivity(intent_back);
             }
         });
-//        current_music_list_number = MusicService.getCurrent_number();
+        current_music_list_number = MusicService.getCurrent_number();
 //        status = MusicService.getCurrent_status();
         search_LinearLayout = findViewById(R.id.search_LinearLayout);
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        Log.w("SearchDetailActivity","进入onStart");
+    }
+    @Override
+    protected void onResume(){
+        super.onResume();
+        Log.w("SearchDetailActivity","进入onResume");
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+        Log.w("SearchDetailActivity","进入onPause");
     }
 
     /**活动不可见时调用*/
@@ -56,6 +74,11 @@ public class SearchDetailActivity extends AppCompatActivity {
         //this.finish();//用toolbar的返回键回退后,再用系统的回退键,不会再退回到搜索界面
         //或者在manifest文件中定义DisplayActivity启动模式为singleTask
         super.onStop();
+    }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        Log.w("SearchDetailActivity","进入onDestroy");
     }
 
     /***********toolbar的menu***********/
@@ -177,8 +200,11 @@ public class SearchDetailActivity extends AppCompatActivity {
             /***设置search_list歌曲item点击事件   以便可以点击搜素结果 播放歌曲*/
             listView_search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        int position, long id) {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    //刷新旧歌曲的item图标
+                    songsList.get(current_music_list_number).setSong_item_picture(R.drawable.song_item_picture);
+                    //把更新过的list传回display_activity,然后在onStart方法中通知了适配器数据变化
+                    DisplayActivity.setSongsList(songsList);
                     current_music_list_number = search_list.get(position).getList_id_display();
                     if (status == MusicService.STATUS_STOPPED || status == MusicService.STATUS_PLAYING) {
                         sendBroadcastOnCommand(MusicService.COMMAND_PLAY);

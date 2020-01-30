@@ -18,6 +18,7 @@ import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -70,11 +71,6 @@ public class DisplayActivity extends BaseActivity {
     private StatusChangedReceiver statusChangedReceiver = null;//状态接收器，接收来自service的播放器状态信息
     private ProgressBarReceiver progressBarReceiver = null;
 
-    public static final int PLAY_MODE_ORDER = 8;//顺序播放(默认是它)
-    public static final int PLAY_MODE_LOOP = 9;//单曲循环
-    public static final int PLAY_MODE_RANDOM = 10;//随机播放
-    private int playMode = PLAY_MODE_ORDER;//播放模式,默认顺序播放
-
     private int current_music_list_number = 0;//当前正在播放的歌曲
     private int player_status = MusicService.STATUS_STOPPED;//播放状态默认为停止
     private View view_history = null;//历史播放记录控件
@@ -86,7 +82,6 @@ public class DisplayActivity extends BaseActivity {
 
     private ImageView image_music = null;
     private final int REQ_READ_EXTERNAL_STORAGE = 1;//权限请求码,1代表外部存储权限
-    private int login_state = 0;//0是未登录,1是已登陆
     private ListView view_list_all_song = null;//歌曲列表
     private ListView drawer_layout_list = null;//侧滑栏的listView
     private SongAdapter adapter_view_list_song = null;
@@ -97,6 +92,7 @@ public class DisplayActivity extends BaseActivity {
     private int duration = 0;
     private int current_progress = 0;
     private int progress_broadcast_content = MusicService.PROGRESS_DURATION;
+    private int default_playMode = 0;//默认播放模式,用于打开单选框时默认选中位置的设置
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +129,7 @@ public class DisplayActivity extends BaseActivity {
         //配置侧滑界面listView
         List<DrawerLayoutListViewItem> drawer_list_view_content = new ArrayList<>();
         DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time, "定时停止播放");
-        DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting,"播放模式");
+        DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting, "播放模式");
         DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit, "退出");
         drawer_list_view_content.add(play_mode_select);
         drawer_list_view_content.add(stopWithTime);
@@ -160,6 +156,7 @@ public class DisplayActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         Log.w("DisplayActivity", "进入onStart");
+        adapter_view_list_song.notifyDataSetChanged();
     }
 
     /**
@@ -198,9 +195,9 @@ public class DisplayActivity extends BaseActivity {
         Log.w("DisplayActivity", "进入onDestroy");
         if (headsetReceiver != null)
             unregisterReceiver(headsetReceiver);//取消广播接收器的注册
-        if(statusChangedReceiver != null)
+        if (statusChangedReceiver != null)
             unregisterReceiver(statusChangedReceiver);
-        if(progressBarReceiver != null)
+        if (progressBarReceiver != null)
             unregisterReceiver(progressBarReceiver);
         if (player_status == MusicService.STATUS_STOPPED) {
             stopService(new Intent(this, MusicService.class));
@@ -283,12 +280,10 @@ public class DisplayActivity extends BaseActivity {
     /**************加载歌曲数据************/
     private void load_Songs_data() {
         if (songsList.size() == 0) {
-            Log.w("DisplayActivity", "歌曲列表为空，需要加载");
+            //Log.w("DisplayActivity", "歌曲列表为空，需要加载");
             ContentResolver contentResolver = getContentResolver();
-            Cursor cursor = null;
-            try {
-                cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        null, null, null, null);
+            try (Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    null, null, null, null)) {
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
                         //是否是音频
@@ -325,16 +320,11 @@ public class DisplayActivity extends BaseActivity {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                if (cursor != null)
-                    cursor.close();
             }
             if (song_total_number == 0) {
                 Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
-                return;//不做下面的事情了(即不用把歌曲信息载入列表,因为根本没有)
+                //不做下面的事情了(即不用把歌曲信息载入列表,因为根本没有)
             }
-        } else {
-            Log.w("DisplayActivity", "歌曲列表不为空，直接载入");
         }
     }
 
@@ -345,18 +335,18 @@ public class DisplayActivity extends BaseActivity {
         btn_Play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.w("DisplayActivity", "btn_Play");
+                //Log.w("DisplayActivity", "btn_Play");
                 switch (player_status) {
                     case MusicService.STATUS_PLAYING:
-                        Log.w("DisplayActivity","STATUS_PLAYING");
+                        Log.w("DisplayActivity", "STATUS_PLAYING");
                         sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
                         break;
                     case MusicService.STATUS_PAUSED:
-                        Log.w("DisplayActivity","STATUS_PAUSED");
+                        Log.w("DisplayActivity", "STATUS_PAUSED");
                         sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
                         break;
                     case MusicService.STATUS_STOPPED:
-                        Log.w("DisplayActivity","STATUS_STOPPED");
+                        Log.w("DisplayActivity", "STATUS_STOPPED");
                         sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
                         break;
                     default:
@@ -444,7 +434,9 @@ public class DisplayActivity extends BaseActivity {
         });
     }
 
-    /**侧滑菜单界面*/
+    /**
+     * 侧滑菜单界面
+     */
     public void config_DrawerLayout() {
         drawerlayout = findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerlayout, toolbar, R.string.app_name, R.string.app_name) {
@@ -512,7 +504,7 @@ public class DisplayActivity extends BaseActivity {
         //进度条相关广播
         progressBarReceiver = new ProgressBarReceiver();
         IntentFilter intentFilter1 = new IntentFilter(MusicService.BROADCAST_MUSICSERVICE_PROGRESS);
-        registerReceiver(progressBarReceiver,intentFilter1);
+        registerReceiver(progressBarReceiver, intentFilter1);
     }
 
     /***发送命令，控制音乐播放，参数定义在MusicService中*/
@@ -526,8 +518,6 @@ public class DisplayActivity extends BaseActivity {
                 intent.putExtra("number", current_music_list_number);//封装歌曲在list中的位置
                 break;
             case MusicService.COMMAND_RESUME:
-                intent.putExtra("number", current_music_list_number);
-                break;
             default:
                 break;
         }
@@ -586,18 +576,20 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
-    /**内部类，接受service广播动态更新progressBar*/
-    class ProgressBarReceiver extends BroadcastReceiver{
+    /**
+     * 内部类，接受service广播动态更新progressBar
+     */
+    class ProgressBarReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent){
-            progress_broadcast_content = intent.getIntExtra("content",0);
-            switch (progress_broadcast_content){
+        public void onReceive(Context context, Intent intent) {
+            progress_broadcast_content = intent.getIntExtra("content", 0);
+            switch (progress_broadcast_content) {
                 case MusicService.PROGRESS_DURATION:
-                    duration = intent.getIntExtra("duration",0);
+                    duration = intent.getIntExtra("duration", 0);
                     progressBar.setMax(duration);
                     break;
                 case MusicService.PROGRESS_UPDATE:
-                    current_progress = intent.getIntExtra("current_progress",0);
+                    current_progress = intent.getIntExtra("current_progress", 0);
                     progressBar.setProgress(current_progress);
                     break;
                 default:
@@ -709,40 +701,37 @@ public class DisplayActivity extends BaseActivity {
         final AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this);
         builder.setIcon(R.drawable.setting);
         builder.setTitle("播放模式");
-        final String[] mode = {"顺序播放(默认)", "单曲循环", "随机播放"};
+        final String[] mode = {"顺序播放", "单曲循环", "随机播放"};
         /*设置一个单项选择框
          * 第一个参数指定要显示的一组下拉单选框的数据集合
          * 第二个参数代表索引，指定默认哪一个单选框被勾选上，0表示默认'顺序播放' 会被勾选上
          * 第三个参数给每一个单选项绑定一个监听器
          */
         final Intent intent_mode = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
-        builder.setSingleChoiceItems(mode, playMode, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(mode, default_playMode, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(DisplayActivity.this,
                         "播放模式为：" + mode[which], Toast.LENGTH_SHORT).show();
-                if (which == 0) {
-                    intent_mode.putExtra("command", MusicService.PLAY_MODE_ORDER);
-                    playMode = MusicService.PLAY_MODE_ORDER;
-                } else if (which == 1) {
-                    intent_mode.putExtra("command", MusicService.PLAY_MODE_LOOP);
-                    playMode = MusicService.PLAY_MODE_LOOP;
-                } else if (which == 2) {
-                    intent_mode.putExtra("command", MusicService.PLAY_MODE_RANDOM);
-                    playMode = MusicService.PLAY_MODE_RANDOM;
+                switch (which) {
+                    case 0:
+                        intent_mode.putExtra("command", MusicService.PLAY_MODE_ORDER);
+                        dialog.cancel();
+                        break;
+                    case 1:
+                        intent_mode.putExtra("command", MusicService.PLAY_MODE_LOOP);
+                        default_playMode = 1;
+                        dialog.cancel();
+                        break;
+                    case 2:
+                        intent_mode.putExtra("command", MusicService.PLAY_MODE_RANDOM);
+                        default_playMode = 2;
+                        dialog.cancel();
+                        break;
+                    default:
+                        break;
                 }
                 sendBroadcast(intent_mode);
-            }
-        });
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
             }
         });
         builder.show();
@@ -772,24 +761,25 @@ public class DisplayActivity extends BaseActivity {
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, final String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQ_READ_EXTERNAL_STORAGE:
-                // 如果请求被取消了，那么结果数组就是空的
-                if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // 权限被授予了
-                    if (song_total_number == 0)
-                        load_Songs_data();//加载歌曲数据
-                    adapter_view_list_song.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(DisplayActivity.this, "申请权限失败", Toast.LENGTH_SHORT).show();
-                }
-                break;
+        if (requestCode == REQ_READ_EXTERNAL_STORAGE) {
+            // 如果请求被取消了，那么结果数组就是空的
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 权限被授予了
+                if (song_total_number == 0)
+                    load_Songs_data();//加载歌曲数据
+                adapter_view_list_song.notifyDataSetChanged();
+            } else {
+                Toast.makeText(DisplayActivity.this, "申请权限失败", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     public static List<Song> getSongsList() {
         return songsList;
+    }
+
+    public static void setSongsList(List<Song> songsList) {
+        DisplayActivity.songsList = songsList;
     }
 
     public static int getSong_total_number() {

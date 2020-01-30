@@ -65,11 +65,11 @@ public class MusicService extends Service {
     //广播接收器内部类
     private CommandReceiver commandReceiver;
     //媒体播放器
-    private MediaPlayer player = new MediaPlayer();
+    private MediaPlayer player = null;
     //当前播放模式
     private int current_PlayMode = PLAY_MODE_ORDER;
     //当前歌曲序号，从0开始
-    private static int current_number = -1;
+    private static int current_number = 0;
     private int duration = 0;//歌曲时长
     private int current_progress = 0;//当前歌曲播放进度
     //下一首歌的序号
@@ -105,11 +105,13 @@ public class MusicService extends Service {
         commandReceiver = new CommandReceiver();
         IntentFilter intentFilter = new IntentFilter(BROADCAST_MUSICSERVICE_CONTROL);
         registerReceiver(commandReceiver, intentFilter);
+        //player实例化
+        player = new MediaPlayer();
         //监听播放是否完成
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                Log.w("DisplayActivity", "已经播放完毕，播放下一首！");
+                Log.w("MusicService", "监听到播放完成");
                 //更新播放器状态
                 sendBroadcast(MusicService.STATUS_COMPLETED);
                 //下一首歌
@@ -225,16 +227,16 @@ public class MusicService extends Service {
      */
     private void sendBroadcast(int content) {
         Intent intent = null;
-        switch (content){
+        switch (content) {
             case PROGRESS_DURATION:
                 intent = new Intent(BROADCAST_MUSICSERVICE_PROGRESS);
                 intent.putExtra("content", content);
-                intent.putExtra("duration",duration);
+                intent.putExtra("duration", duration);
                 break;
             case PROGRESS_UPDATE:
                 intent = new Intent(BROADCAST_MUSICSERVICE_PROGRESS);
                 intent.putExtra("content", content);
-                intent.putExtra("current_progress",current_progress);
+                intent.putExtra("current_progress", current_progress);
                 break;
             case STATUS_PLAYING:
             case STATUS_PAUSED:
@@ -262,15 +264,16 @@ public class MusicService extends Service {
                 break;
             case PLAY_MODE_RANDOM://随机播放
                 //用当前歌曲序号做随机数种子
-                Random random = new Random(current_number);
+                Random random = new Random(System.currentTimeMillis());
                 //产生0-Song_total_number的随机数
                 next_number = random.nextInt(DisplayActivity.getSong_total_number());
                 break;
             default:
                 break;
         }
+        Log.w("MusicService", "nextMusic_update_number : " + next_number);
         //顺序播放时可能序号越界
-        if (next_number == (DisplayActivity.getSong_total_number())) {
+        if (next_number >= (DisplayActivity.getSong_total_number())) {
             Toast.makeText(MusicService.this, "已经达到了列表底部!", Toast.LENGTH_SHORT).show();
             next_number = 0;//恢复到初始位置
             play();
@@ -283,15 +286,19 @@ public class MusicService extends Service {
      * next_number是主界面的current_music_list_number
      */
     private void play_pause() {
-        if (player != null && player.isPlaying()) {
-            if (next_number == current_number) {//点击的正在播放的歌曲
-                pause();
-                Log.w("MusicService", "点击正在播放的歌曲，暂停播放");
-            } else //点击了新歌曲
+        if (player != null) {
+            if (player.isPlaying()) {
+                if (next_number == current_number) {//点击的正在播放的歌曲
+                    pause();
+                    Log.w("MusicService", "点击正在播放的歌曲，暂停播放");
+                }
+                //点击的别的歌曲,重新装载播放
                 play();
-        } else {//没有在播放歌曲，直接播放
-            Log.w("MusicService", "没有在播放歌曲，直接播放" + next_number);
-            play();
+            }
+            //停止状态,装载播放
+            if (current_status == MusicService.STATUS_STOPPED) {
+                play();
+            }
         }
     }
 
@@ -301,28 +308,14 @@ public class MusicService extends Service {
     public void play() {
         Song song = DisplayActivity.getSongsList().get(next_number);//通过序号拿Song对象
         path = song.getDataPath();//获取歌曲文件地址
-        duration = (int) song.getDuration();
+        player_start();//path装载到player后才可以获取时长
         PlayHistory.addSong(song);//加入历史记录列表
-        player_start();
         //更新播放器状态
         current_status = MusicService.STATUS_PLAYING;
-        //通知主界面播放器状态更改
-        sendBroadcast(MusicService.STATUS_PLAYING);
-        //通知activity这首歌曲的duration
-        sendBroadcast(MusicService.PROGRESS_DURATION);
         //更新当前歌曲序号
         current_number = next_number;
-        //定时发送歌曲进度
-        timer = new Timer();
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                if(player !=null)
-                    current_progress = player.getCurrentPosition();
-                sendBroadcast(MusicService.PROGRESS_UPDATE);
-            }
-        };
-        timer.schedule(task, 0, 1000);
+        //通知主界面播放器状态更改
+        sendBroadcast(MusicService.STATUS_PLAYING);
     }
 
     /**
@@ -330,12 +323,33 @@ public class MusicService extends Service {
      */
     public void player_start() {
         try {
-            player.reset();//进入游离态
-            player.setDataSource(path);//进入初始态
-            player.prepare();//进入准备好的状态
-            player.start();//开始播放
+            if (player != null) {
+                player.reset();//进入游离态
+                player.setDataSource(path);//进入初始态
+                player.prepareAsync();//异步准备
+                player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        mediaPlayer.start(); // 准备好了就播放
+                        duration = player.getDuration();
+                        //通知activity这首歌曲的duration
+                        sendBroadcast(MusicService.PROGRESS_DURATION);
+                        //定时发送广播更新歌曲进度
+                        timer = new Timer();
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                if (player != null)
+                                    current_progress = player.getCurrentPosition();
+                                sendBroadcast(MusicService.PROGRESS_UPDATE);
+                            }
+                        };
+                        timer.schedule(task, 0, 1000);
+                    }
+                });
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.w("MusicService", "In player_start() :" + e);
         }
     }
 
@@ -360,7 +374,7 @@ public class MusicService extends Service {
         current_status = MusicService.STATUS_PAUSED;
         sendBroadcast(MusicService.STATUS_PAUSED);
         //取消定时发送歌曲进度的任务
-        if(timer != null)
+        if (timer != null)
             timer.cancel();
     }
 

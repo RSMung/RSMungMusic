@@ -98,6 +98,7 @@ public class LoginActivity extends BaseActivity {
                             } else {//验证失败
                                 Toast.makeText(LoginActivity.this, "账号验证失败，请重试！", Toast.LENGTH_SHORT).show();
                             }
+                            s1.interrupt();
                         }
                     }, 1000);
                 } else {

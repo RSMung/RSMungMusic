@@ -44,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="5dp"
                 android:max="100"
-                android:progress="30"
+                android:progress="0"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_above="@+id/play_bar_bottom"
                 android:background="@color/violet_color"/>
@@ -152,7 +152,7 @@
                 <ListView
                     android:id="@+id/list_playhistory"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="250dp"/>
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>

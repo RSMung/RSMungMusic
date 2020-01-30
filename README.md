@@ -10,6 +10,7 @@ Android端音乐播放器，目前有两个页面。
 5.搜索本地歌曲  
 6.定时停止播放
 7.播放模式选择
+8.进度条显示歌曲播放进度
 #### 截图展示:
 1.`显示本地歌曲`  
 <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/display.png" height = 533 width = 300>  

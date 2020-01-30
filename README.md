@@ -7,17 +7,20 @@ Android端音乐播放器，目前有三个页面。
 4.记录播放历史  
 5.搜索本地歌曲
 #### 截图展示:
-1.`登录界面`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/NewVersion/login.png" height = 533 width = 300>  
+1.`显示本地歌曲`  
+<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/display.png" height = 533 width = 300>  
 
-2.`显示本地歌曲`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/NewVersion/display.png" height = 533 width = 300>  
+2.`记录历史播放歌曲`  
+<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/playHistory.png" height = 533 width = 300>  
 
-3.`播放音乐`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/NewVersion/play_music.png" height = 533 width = 300>  
+3.`搜索本地歌曲`  
+<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/searchMusic.png" height = 533 width = 300>  
 
-4.`记录历史播放歌曲`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/NewVersion/playHistory.png" height = 533 width = 300>  
+4.`设置`  
+<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/setting.png" height = 533 width = 300>  
 
-5.`搜索本地歌曲`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/NewVersion/searchMusic.png" height = 533 width = 300>  
+5.`定时停止播放`  
+<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/automaticStop.png" height = 533 width = 300>  
+
+6.`模式选择`  
+<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/playMode.png" height = 533 width = 300>  

@@ -1,4 +1,4 @@
-## AndroidMusicPlayer
+## MungMusicPlayer
 Android端音乐播放器，目前有两个页面。  
 版本1.3中删除了登录功能,因为我觉得好像没什么用  
 如果有帮助到你,star一个再走!!!

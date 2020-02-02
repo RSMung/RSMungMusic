@@ -15,20 +15,20 @@
         android:id="@+id/root_view_display">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar_activity_search_detail"
+            android:id="@+id/toolbar_activity_display"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/menu_gray"
             android:background="@color/black_color"
             app:title="@string/title_toolbar"
-            app:titleTextColor="@color/white_color"/>
+            app:titleTextColor="@color/white_color" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <ListView
-                android:id="@+id/view_list_all_song"
+                android:id="@+id/main_song_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbars="vertical"
@@ -37,10 +37,9 @@
                 android:fadeScrollbars="true"
                 android:scrollbarThumbVertical="@drawable/scrollbars"
                 android:scrollbarTrackVertical="@drawable/scrollbar_track"
-                android:background="@drawable/listview_rounded_corner"
-                android:layout_above="@+id/progressBar_displayActivity" />
+                android:layout_above="@+id/progressBar_activity_display" />
             <ProgressBar
-                android:id="@+id/progressBar_displayActivity"
+                android:id="@+id/progressBar_activity_display"
                 android:layout_width="match_parent"
                 android:layout_height="5dp"
                 android:max="100"
@@ -57,12 +56,12 @@
                 android:background="@color/violet_color">
 
                 <ImageView
-                    android:id="@+id/image_music"
+                    android:id="@+id/album_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/music1"
+                    android:src="@drawable/default_album_icon"
                     android:contentDescription="@string/music_image_content" />
 
                 <LinearLayout
@@ -70,13 +69,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/dp_10"
                     android:layout_marginEnd="@dimen/dp_10"
-                    android:layout_toStartOf="@id/btn_play"
-                    android:layout_toEndOf="@+id/image_music"
+                    android:layout_toStartOf="@id/play_bar_btn_play"
+                    android:layout_toEndOf="@+id/album_icon"
                     android:orientation="vertical"
                     tools:ignore="RelativeOverlap">
                     <!-- android:ellipsize=”marquee”–以横向滚动方式显示(需获得当前焦点时)-->
                     <TextView
-                        android:id="@+id/buttom_textview_songname"
+                        android:id="@+id/play_bar_song_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black_color"
@@ -89,7 +88,7 @@
                         android:marqueeRepeatLimit="marquee_forever"/>
 
                     <TextView
-                        android:id="@+id/buttom_textview_songauthor"
+                        android:id="@+id/play_bar_song_author"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_10"
@@ -104,17 +103,17 @@
                 </LinearLayout>
 
                 <ImageButton
-                    android:id="@+id/btn_play"
+                    android:id="@+id/play_bar_btn_play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/dp_20"
-                    android:layout_toStartOf="@+id/btn_next"
+                    android:layout_toStartOf="@+id/play_bar_btn_next"
                     android:background="@drawable/play_5"
                     tools:ignore="ContentDescription" /><!--layout_toStartOf本元素从某个元素开始-->
 
                 <ImageButton
-                    android:id="@+id/btn_next"
+                    android:id="@+id/play_bar_btn_next"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -135,12 +134,12 @@
             </RelativeLayout>
 
             <LinearLayout
-                android:id="@+id/view_list_history"
+                android:id="@+id/history_view"
                 android:layout_width="match_parent"
                 android:layout_margin="@dimen/dp_10"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/play_bar_bottom"
-                android:background="@drawable/listview_rounded_corner"
+                android:background="@drawable/list_view_rounded_corner"
                 android:orientation="vertical"
                 android:visibility="gone">
 
@@ -150,7 +149,7 @@
                     android:text="@string/history"/>
 
                 <ListView
-                    android:id="@+id/list_playhistory"
+                    android:id="@+id/history_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="250dp"/>
             </LinearLayout>
@@ -176,20 +175,20 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/dp_10"
             android:textIsSelectable="true"
-            android:text="@string/about_mung"
+            android:text="@string/app_name"
             android:textSize="@dimen/sp_20"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/dp_10"
             android:textIsSelectable="true"
-            android:text="@string/email_mung"
+            android:text="@string/developer"
             android:textSize="@dimen/sp_20"/>
         <ListView
             android:id="@+id/drawer_layout_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/listview_rounded_corner"
+            android:background="@drawable/list_view_rounded_corner"
             android:layout_margin="@dimen/dp_10"/>
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>

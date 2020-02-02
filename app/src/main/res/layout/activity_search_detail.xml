@@ -7,7 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activity.SearchDetailActivity">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar_activity_search_detail"
+        android:id="@+id/toolbar_activity_display"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/black_color"

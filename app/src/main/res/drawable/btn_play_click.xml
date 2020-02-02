@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 点击之后的color -->
+    <item
+        android:drawable="@drawable/pause_5_gray"
+        android:state_pressed="true" />
+    <!-- 未点击或再次点击之后的color -->
+    <item
+        android:drawable="@drawable/play_5_gray"
+        android:state_pressed="false" />
+</selector>

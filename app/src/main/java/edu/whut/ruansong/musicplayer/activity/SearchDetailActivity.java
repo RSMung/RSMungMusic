@@ -29,15 +29,17 @@ public class SearchDetailActivity extends AppCompatActivity {
     private List<Song> songsList = null;
     private int num_songs = 0;
     private List<Song> search_list = new ArrayList<>();//用来装查询结果
-    private int current_music_list_number = 0;//当前正在播放的歌曲
-    private int status;//播放状态默认为停止
+    private int current_number = 0;//当前正在播放的歌曲
+    private int current_status;//播放状态默认为停止
     private LinearLayout search_LinearLayout;//搜索结果的整个布局
+    private int actual_number = 0;//在search_view里面点击的歌曲在display_activity的list里面的位置
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_detail);
-        Log.w("SearchDetailActivity","进入onCreate");
-        toolbar = findViewById(R.id.toolbar_activity_search_detail);
+        Log.w("SearchDetailActivity", "进入onCreate");
+        toolbar = findViewById(R.id.toolbar_activity_display);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,38 +49,43 @@ public class SearchDetailActivity extends AppCompatActivity {
                 startActivity(intent_back);
             }
         });
-        current_music_list_number = MusicService.getCurrent_number();
-//        status = MusicService.getCurrent_status();
+        current_number = MusicService.getCurrent_number();
+        current_status = MusicService.getCurrent_status();
         search_LinearLayout = findViewById(R.id.search_LinearLayout);
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
-        Log.w("SearchDetailActivity","进入onStart");
-    }
-    @Override
-    protected void onResume(){
-        super.onResume();
-        Log.w("SearchDetailActivity","进入onResume");
-    }
-    @Override
-    protected void onPause(){
-        super.onPause();
-        Log.w("SearchDetailActivity","进入onPause");
+        Log.w("SearchDetailActivity", "进入onStart");
     }
 
-    /**活动不可见时调用*/
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.w("SearchDetailActivity", "进入onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.w("SearchDetailActivity", "进入onPause");
+    }
+
+    /**
+     * 活动不可见时调用
+     */
     @Override
     protected void onStop() {
         //this.finish();//用toolbar的返回键回退后,再用系统的回退键,不会再退回到搜索界面
         //或者在manifest文件中定义DisplayActivity启动模式为singleTask
         super.onStop();
     }
+
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
-        Log.w("SearchDetailActivity","进入onDestroy");
+        Log.w("SearchDetailActivity", "进入onDestroy");
     }
 
     /***********toolbar的menu***********/
@@ -86,7 +93,7 @@ public class SearchDetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search_detail_activity, menu);
         MenuItem search_item = menu.getItem(0);
-        SearchView searchView = (SearchView)search_item.getActionView();
+        SearchView searchView = (SearchView) search_item.getActionView();
         searchView.onActionViewExpanded();//展开模式
         //搜索框提示文字
         searchView.setQueryHint(this.getResources().getString(R.string.search_hint));
@@ -111,6 +118,7 @@ public class SearchDetailActivity extends AppCompatActivity {
         });
         return true;
     }
+
     //menu点击事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -121,7 +129,7 @@ public class SearchDetailActivity extends AppCompatActivity {
         return true;
     }
 
-    private void dealSearchAction(String mes){
+    private void dealSearchAction(String mes) {
         //使用  暴力匹配算法（Brute Force Algorithm）
 
         //将输入的字符串转换为字符数组
@@ -130,15 +138,15 @@ public class SearchDetailActivity extends AppCompatActivity {
         //获取本地歌曲列表
         songsList = DisplayActivity.getSongsList();
         num_songs = songsList.size();
-        if(songsList.isEmpty()){
-            Toast.makeText(SearchDetailActivity.this,"No songs in your phone",Toast.LENGTH_SHORT).show();
-            return ;
+        if (songsList.isEmpty()) {
+            Toast.makeText(SearchDetailActivity.this, "No songs in your phone", Toast.LENGTH_SHORT).show();
+            return;
         }
         String current_song_name;
         char[] charArray_current_song_name;
         int cur_name_len;
         float matching_degree = 0;//匹配值
-        float percent_matching_degree ;//百分比匹配度
+        float percent_matching_degree;//百分比匹配度
         for (int i = 0; i < num_songs; i++) {//遍历整个列表  匹配歌曲名
 //            Log.w("SearchDetailActivity","第" + i + "次遍历");
             //获取列表中当前歌曲名
@@ -184,8 +192,8 @@ public class SearchDetailActivity extends AppCompatActivity {
                 }
             }
             //匹配度清零
-            matching_degree=0;
-            percent_matching_degree=0;
+            matching_degree = 0;
+            percent_matching_degree = 0;
         }//for (int i = 0; i < num_songs; i++)到此结束
 
         if (search_list.isEmpty()) {//如果搜索结果为空，提示
@@ -202,14 +210,30 @@ public class SearchDetailActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     //刷新旧歌曲的item图标
-                    songsList.get(current_music_list_number).setSong_item_picture(R.drawable.song_item_picture);
+                    songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
                     //把更新过的list传回display_activity,然后在onStart方法中通知了适配器数据变化
                     DisplayActivity.setSongsList(songsList);
-                    current_music_list_number = search_list.get(position).getList_id_display();
-                    if (status == MusicService.STATUS_STOPPED || status == MusicService.STATUS_PLAYING) {
+                    //播放控制逻辑
+                    actual_number = search_list.get(position).getList_id_display();
+                    if(current_status == MusicService.STATUS_PLAYING){//播放状态
+                        if(current_number == actual_number){//点击的正在播放的歌曲
+                            sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);//暂停
+                        }else{//点击的别的歌曲
+                            current_number = actual_number;
+                            sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
+                        }
+                    }else if(current_status == MusicService.STATUS_PAUSED){//暂停状态
+                        if(current_number == actual_number){
+                            //应恢复播放
+                            sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
+                        }else{
+                            //点击的别的歌曲
+                            current_number = actual_number;
+                            sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
+                        }
+                    }else {//停止状态
+                        current_number = actual_number;
                         sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
-                    } else if (status == MusicService.STATUS_PAUSED) {
-                        sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
                     }
                 }
             });
@@ -234,11 +258,10 @@ public class SearchDetailActivity extends AppCompatActivity {
         intent.putExtra("command", command);
         switch (command) {
             case MusicService.COMMAND_PLAY:
-                intent.putExtra("number", current_music_list_number);//封装歌曲在list中的位置
+                intent.putExtra("number", current_number);//封装歌曲在list中的位置
                 break;
-            case MusicService.COMMAND_RESUME://不是多余的,接到这两种命令后Service中的处理不一样
-                intent.putExtra("number", current_music_list_number);
-                break;
+            case MusicService.COMMAND_RESUME:
+            case MusicService.COMMAND_PAUSE:
             default:
                 break;
         }

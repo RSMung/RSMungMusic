@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/notification_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/notification_album_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/default_album_icon_gray"
+        android:contentDescription="@string/music_image_content" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginEnd="@dimen/dp_10"
+        android:layout_toStartOf="@id/notification_btn_play"
+        android:layout_toEndOf="@+id/notification_album_icon"
+        android:orientation="vertical"
+        tools:ignore="RelativeOverlap">
+        <!-- android:ellipsize=”marquee”–以横向滚动方式显示(需获得当前焦点时)-->
+        <TextView
+            android:id="@+id/notification_text_song_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white_color"
+            android:textSize="15sp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever"/>
+
+        <TextView
+            android:id="@+id/notification_text_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:textColor="@color/white_color"
+            android:textSize="15sp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/notification_btn_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="25dp"
+        android:layout_toStartOf="@+id/notification_btn_next"
+        android:background="@drawable/play_5_gray"
+        tools:ignore="ContentDescription"/>
+    <!--layout_toStartOf本元素从某个元素开始-->
+    <ImageView
+        android:id="@+id/notification_btn_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="25dp"
+        android:src="@drawable/next_5_gray"
+        android:layout_toStartOf="@+id/notification_close" />
+    <ImageView
+        android:id="@+id/notification_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/close_gray"
+        android:layout_marginEnd="@dimen/dp_30"/>
+</RelativeLayout>

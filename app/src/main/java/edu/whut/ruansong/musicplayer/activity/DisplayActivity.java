@@ -136,6 +136,24 @@ public class DisplayActivity extends BaseActivity {
         super.onStart();
         Log.w("DisplayActivity", "进入onStart");
         adapter_main_song_list_view.notifyDataSetChanged();
+        //广播接收器重新注册
+        if(headsetReceiver == null && progressBarReceiver == null){
+            bindBroadcastReceiver();
+        }
+        //重新加载底部栏的歌名,歌手,专辑图片,播放按钮UI
+        current_number = MusicService.getCurrent_number();
+        current_status = MusicService.getCurrent_status();
+        if(song_total_number != 0){//避免空引用错误
+            play_bar_song_name.setText(songsList.get(current_number).getTitle());
+            play_bar_song_author.setText(songsList.get(current_number).getArtist());
+            album_icon.setImageBitmap(getAlbumPicture(songsList.get(current_number).getDataPath()));
+            if(current_status == MusicService.STATUS_PLAYING){
+                //正在播放
+                play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_5));
+            }else{
+                play_bar_btn_play.setBackground(getDrawable(R.drawable.play_5));
+            }
+        }
     }
 
     /**
@@ -145,6 +163,7 @@ public class DisplayActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         Log.w("DisplayActivity", "进入onResume");
+        sendBroadcastOnCommand(MusicService.COMMAND_REQUEST_DURATION);
     }
 
     /**
@@ -183,6 +202,10 @@ public class DisplayActivity extends BaseActivity {
             if (sleepTimer != null) {
                 sleepTimer.cancel();//撤销定时器防止崩溃
             }
+        }
+        if(current_status != MusicService.STATUS_PLAYING){
+            Intent intentService = new Intent(DisplayActivity.this, MusicService.class);
+            stopService(intentService);
         }
     }
 
@@ -289,7 +312,7 @@ public class DisplayActivity extends BaseActivity {
                         long duration = cursor.getLong(
                                 cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
                         //是音乐并且时长大于3分钟
-                        if (isMusic != 0 && duration >= 3 * 60 * 1000) {
+                        if (isMusic != 0 && duration >= 2 * 60 * 1000) {
                             //歌名
                             String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
                             //歌手
@@ -497,10 +520,10 @@ public class DisplayActivity extends BaseActivity {
         });
         //配置侧滑界面listView
         List<DrawerLayoutListViewItem> drawer_list_view_content = new ArrayList<>();
-        DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time, "定时停止播放");
-        DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting, "播放模式");
-        DrawerLayoutListViewItem feedback_suggestions = new DrawerLayoutListViewItem(R.drawable.feedback_suggestions,"反馈与建议");
-        DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit, "退出");
+        DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time_2, "定时停止播放");
+        DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting_2, "播放模式");
+        DrawerLayoutListViewItem feedback_suggestions = new DrawerLayoutListViewItem(R.drawable.about_2,"关于");
+        DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit_2, "退出");
         drawer_list_view_content.add(play_mode_select);
         drawer_list_view_content.add(stopWithTime);
         drawer_list_view_content.add(feedback_suggestions);
@@ -541,6 +564,7 @@ public class DisplayActivity extends BaseActivity {
                 break;
             case MusicService.COMMAND_RESUME:
             case MusicService.COMMAND_PAUSE:
+            case MusicService.COMMAND_REQUEST_DURATION:
             default:
                 break;
         }
@@ -579,9 +603,10 @@ public class DisplayActivity extends BaseActivity {
                     adapter_main_song_list_view.notifyDataSetChanged();
                     break;
 
-                //播放器状态更改为停止
+                //音乐播放服务已停止
                 case MusicService.STATUS_STOPPED:
                     Log.w("DisplayActivity", "STATUS_STOPPED");
+                    ActivityCollector.finishAll();
                     break;
 
                 //播放器状态更改为播放完成
@@ -590,7 +615,6 @@ public class DisplayActivity extends BaseActivity {
                     songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
                     Log.w("DisplayActivity", "STATUS_COMPLETED");
                     break;
-
                 default:
                     break;
             }
@@ -606,11 +630,13 @@ public class DisplayActivity extends BaseActivity {
             progress_broadcast_content = intent.getIntExtra("content", 0);
             switch (progress_broadcast_content) {
                 case MusicService.PROGRESS_DURATION:
+                    //Log.w("DisplayActivity","PROGRESS_DURATION");
                     duration = intent.getIntExtra("duration", 0);
                     progressBar_activity_display.setMax(duration);
                     break;
                 case MusicService.PROGRESS_UPDATE:
                     current_progress = intent.getIntExtra("current_progress", 0);
+                    //Log.w("DisplayActivity","PROGRESS_UPDATE"+current_progress);
                     progressBar_activity_display.setProgress(current_progress);
                     break;
                 default:
@@ -759,8 +785,8 @@ public class DisplayActivity extends BaseActivity {
      * 反馈与建议*/
     public void feedbackAndSuggesttions(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle("反馈与建议")
-                .setIcon(R.drawable.feedback_suggestions)
+                .setTitle(getResources().getString(R.string.about))
+                .setIcon(R.drawable.about)
                 .setView(R.layout.dialog_feedback);
         builder.create().show();
     }

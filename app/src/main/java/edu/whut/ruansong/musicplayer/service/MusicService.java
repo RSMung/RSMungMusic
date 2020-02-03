@@ -45,6 +45,7 @@ public class MusicService extends Service {
     public static final int COMMAND_RESUME = 3;
     //    public static final int COMMAND_PREVIOUS = 4;
     public static final int COMMAND_NEXT = 5;
+    public static final int COMMAND_REQUEST_DURATION = 6;//请求当前歌曲的总时长
     //播放顺序命令
     public static final int PLAY_MODE_ORDER = 8;//顺序播放(默认是它)
     public static final int PLAY_MODE_LOOP = 9;//单曲循环
@@ -113,6 +114,9 @@ public class MusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.w("MusicService", "进入onStartCommand");
+        //恢复更新进度条
+        //可能因为activity被消灭又重新启动
+        //update_progress();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -134,6 +138,8 @@ public class MusicService extends Service {
         }
         unregisterReceiver(commandReceiver);
         myNotification.stopNotify(this);
+        //发送广播,音乐服务已停止
+        sendServiceBroadcast(MusicService.STATUS_STOPPED);
     }
 
     /**
@@ -187,6 +193,10 @@ public class MusicService extends Service {
                 case PLAY_MODE_RANDOM://随机播放
                     Log.w("MusicService", "PLAY_MODE_RANDOM");
                     current_PlayMode = PLAY_MODE_RANDOM;
+                    break;
+                case COMMAND_REQUEST_DURATION://广播当前歌曲时长
+                    Log.w("MusicService", "COMMAND_REQUEST_DURATION");
+                    sendServiceBroadcast(PROGRESS_DURATION);
                     break;
                 case COMMAND_UNKNOWN:
                     Log.w("MusicService", "COMMAND_UNKNOWN");
@@ -251,7 +261,7 @@ public class MusicService extends Service {
         Log.w("MusicService", "nextMusic_update_number : " + next_number);
         //顺序播放时可能序号越界
         if (next_number >= (DisplayActivity.getSong_total_number())) {
-            Toast.makeText(MusicService.this, "已经达到了列表底部!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MusicService.this, "已经达到了列表底部!", Toast.LENGTH_SHORT).show();
             next_number = 0;//恢复到初始位置
             play();
         } else if(next_number != current_number){
@@ -357,9 +367,10 @@ public class MusicService extends Service {
                         if (player != null && player.isPlaying())
                             current_progress = player.getCurrentPosition();
                         sendServiceBroadcast(MusicService.PROGRESS_UPDATE);
+                        //Log.w("MusicService","Timer运行中");
                     }
                 };
-                timer.schedule(task, 1000, 1000);
+                timer.schedule(task, 500, 1000);
             }
         });
         update_progress_thread.start();

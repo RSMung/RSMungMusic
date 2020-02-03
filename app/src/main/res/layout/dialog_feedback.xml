@@ -5,10 +5,52 @@
     android:layout_height="match_parent"
     android:gravity="center">
     <TextView
+        android:id="@+id/player_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/player_info"
+        android:textSize="20sp"
+        android:textIsSelectable="true"
+        android:layout_marginStart="@dimen/dp_20"/>
+    <TextView
+        android:id="@+id/developer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/player_info"
+        android:text="@string/developer"
+        android:textSize="20sp"
+        android:textIsSelectable="true"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_10"/>
+    <TextView
+        android:id="@+id/email_feedback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/developer"
         android:text="@string/email"
-        android:textSize="15sp"
-        android:textIsSelectable="true"/>
+        android:textSize="20sp"
+        android:textIsSelectable="true"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_10"/>
+    <TextView
+        android:id="@+id/privacy_policy_feedback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/email_feedback"
+        android:text="@string/privacy_policy"
+        android:textSize="20sp"
+        android:textIsSelectable="true"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_10"/>
+    <TextView
+        android:id="@+id/encourage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/privacy_policy_feedback"
+        android:text="@string/encourage"
+        android:textSize="20sp"
+        android:textIsSelectable="true"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_10"/>
 
 </RelativeLayout>

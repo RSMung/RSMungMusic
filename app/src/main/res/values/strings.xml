@@ -12,7 +12,8 @@
     <string name="input_time">请输入时间</string>
     <string name="mode_play">播放模式</string>
     <string name="search">搜索</string>
-    <string name="time_select">请输入时间(单位:分钟)</string>
+    <string name="time_hint">请输入时间(单位:分钟)</string>
+    <string name="rest_of_time">剩余时间(单位:分钟)</string>
     <string name="task_ok">建立任务</string>
     <string name="task_cancel">取消任务</string>
     <string name="search_hint">搜索本地歌曲</string>
@@ -23,7 +24,7 @@
     <string name="title_toolbar">本地音乐</string>
     <string name="share">分享</string>
     <string name="about">关于</string>
-    <string name="player_info">1.Mung音乐播放器_版本1.3.0</string>
+    <string name="player_info">1.Mung音乐播放器_版本1.3.1</string>
     <string name="developer">2.Developer: RSMung(绿豆)</string>
     <string name="email">3.Email: \n rs249310509@163.com</string>
     <string name="privacy_policy">4.隐私政策: \n   https://blog.csdn.net/lvdoujack/article/details/104106734</string>

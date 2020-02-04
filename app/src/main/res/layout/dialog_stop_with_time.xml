@@ -5,47 +5,46 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/time_select"
+        android:id="@+id/rest_of_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dp_10"
-        android:padding="@dimen/dp_10"
-        android:text="@string/time_select"
-        android:textColor="@color/black_color"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/rest_of_time"
         android:textSize="@dimen/sp_20" />
 
     <EditText
         android:id="@+id/input_time"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:padding="@dimen/dp_10"
         android:layout_margin="@dimen/dp_10"
-        android:background="@drawable/layout_edittext"
+        android:background="@drawable/btn_rounded_corner_black_stroke"
         android:inputType="number"
-        android:padding="@dimen/dp_10" />
+        android:hint="@string/time_hint"/>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/dp_20">
 
         <Button
-            android:id="@+id/b_time_cancel"
+            android:id="@+id/btn_time_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/dp_10"
-            android:text="@string/task_cancel"
-            android:layout_alignParentLeft="true"
-            android:layout_margin="@dimen/dp_20"/>
-
-        <Button
-            android:id="@+id/b_time_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:padding="@dimen/dp_10"
             android:text="@string/task_ok"
-            android:layout_alignParentRight="true"
-            android:layout_margin="@dimen/dp_20"/>
+            android:background="@drawable/btn_rounded_corner_black_stroke"/>
+
+        <Button
+            android:id="@+id/btn_time_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/btn_time_ok"
+            android:layout_marginStart="@dimen/dp_20"
+            android:text="@string/task_cancel"
+            android:background="@drawable/btn_rounded_corner_black_stroke"/>
     </RelativeLayout>
 
 </LinearLayout>

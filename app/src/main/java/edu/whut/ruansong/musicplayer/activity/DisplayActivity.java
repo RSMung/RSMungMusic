@@ -17,6 +17,7 @@ import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -39,10 +40,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import edu.whut.ruansong.musicplayer.model.ActivityCollector;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
@@ -56,7 +57,7 @@ import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
 /**
  * Created by 阮 on 2018/11/17.
- * 处理UI变化
+ * main activity
  */
 
 public class DisplayActivity extends BaseActivity {
@@ -78,6 +79,7 @@ public class DisplayActivity extends BaseActivity {
     private AlertDialog dialog = null;//定时停止播放得对话框
     private DrawerLayout drawerlayout = null;//侧滑栏
     private ActionBarDrawerToggle drawerToggle = null;
+    private TextView tv_intput = null;//定时停止播放的输入框
     /*用于存储*/
     private int duration = 0;//当前的歌曲的总时长
     private int current_progress = 0;//当前的歌曲播放进度
@@ -86,7 +88,9 @@ public class DisplayActivity extends BaseActivity {
     private int current_number = 0;//当前正在播放的歌曲
     private int current_status = MusicService.STATUS_STOPPED;//播放状态默认为停止
     private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
-    private int input_time = 0;
+    private int input_time = 0;//用于存储定时停止播放输入的时间
+    private boolean pause_task_flag = false;//是否有定时停止任务的标志
+    private double rest_of_time = 0;//用于存储定时停止播放任务的剩余时间
     private int progress_broadcast_content = MusicService.PROGRESS_DURATION;//进度条的广播命令
     private final int REQ_READ_EXTERNAL_STORAGE = 1;//权限请求码,1代表外部存储权限
     private int default_playMode = 0;//默认播放模式,用于打开单选框时默认选中位置的设置
@@ -95,7 +99,7 @@ public class DisplayActivity extends BaseActivity {
     private StatusChangedReceiver statusChangedReceiver = null;//状态接收器，接收来自service的播放器状态信息
     private ProgressBarReceiver progressBarReceiver = null;
     /*其它*/
-    private Timer sleepTimer = null;//定时停止播放
+    private CountDownTimer countDownTimer = null;//倒计时,用于定时停止播放
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,13 +203,9 @@ public class DisplayActivity extends BaseActivity {
             unregisterReceiver(progressBarReceiver);
         if (current_status == MusicService.STATUS_STOPPED) {
             stopService(new Intent(this, MusicService.class));
-            if (sleepTimer != null) {
-                sleepTimer.cancel();//撤销定时器防止崩溃
+            if (countDownTimer != null) {
+                countDownTimer.cancel();//撤销定时器防止崩溃
             }
-        }
-        if(current_status != MusicService.STATUS_PLAYING){
-            Intent intentService = new Intent(DisplayActivity.this, MusicService.class);
-            stopService(intentService);
         }
     }
 
@@ -521,7 +521,7 @@ public class DisplayActivity extends BaseActivity {
         //配置侧滑界面listView
         List<DrawerLayoutListViewItem> drawer_list_view_content = new ArrayList<>();
         DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time_2, "定时停止播放");
-        DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting_2, "播放模式");
+        DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting, "播放模式");
         DrawerLayoutListViewItem feedback_suggestions = new DrawerLayoutListViewItem(R.drawable.about_2,"关于");
         DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit_2, "退出");
         drawer_list_view_content.add(play_mode_select);
@@ -701,38 +701,58 @@ public class DisplayActivity extends BaseActivity {
     /*** 定时停止播放*/
     public void timePausePlay() {
         final AlertDialog.Builder customizeDialog = new AlertDialog.Builder(DisplayActivity.this);
-        @SuppressLint("InflateParams") final View dialogView = LayoutInflater.from(DisplayActivity.this)
-                .inflate(R.layout.dialog_stop_with_time, null);
+        @SuppressLint("InflateParams")
+        final View dialogView = LayoutInflater.from(DisplayActivity.this).inflate(R.layout.dialog_stop_with_time, null);
         customizeDialog.setView(dialogView);
-        dialog = customizeDialog.show();
-        Button b_ok = dialogView.findViewById(R.id.b_time_ok);
-        Button b_cancel = dialogView.findViewById(R.id.b_time_cancel);
+        customizeDialog.setIcon(R.drawable.stop_with_time_2);
+        customizeDialog.setTitle("定时停止播放");
+        Button b_ok = dialogView.findViewById(R.id.btn_time_ok);
+        Button b_cancel = dialogView.findViewById(R.id.btn_time_cancel);
+        final TextView tv_rest_of_time = dialogView.findViewById(R.id.rest_of_time);
+        tv_intput = dialogView.findViewById(R.id.input_time);
+        if(!pause_task_flag){//无任务
+            b_cancel.setVisibility(View.INVISIBLE);//取消按钮不可见
+            tv_rest_of_time.setVisibility(View.INVISIBLE);//剩余时间文本框不可见
+        }else{//有任务
+            b_ok.setVisibility(View.INVISIBLE);//建立任务按钮不可见
+            tv_intput.setVisibility(View.INVISIBLE);
+            DecimalFormat df =  new  DecimalFormat(  "0.00 " );
+            StringBuilder rest = new StringBuilder("剩余: "+df.format(rest_of_time)+"分钟");
+            tv_rest_of_time.setText(rest);
+        }
+        dialog = customizeDialog.show();//实例化dialog
         b_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sleepTimer = new Timer();
-                TextView tv = dialogView.findViewById(R.id.input_time);
-                input_time = Integer.parseInt(tv.getText().toString());//获取输入的时间
-                //启动任务
-                Toast.makeText(DisplayActivity.this, "歌曲将在" + input_time + "分钟后停止播放",
-                        Toast.LENGTH_SHORT).show();
-                sleepTimer.schedule(new TimerTask() {
+                input_time = Integer.parseInt(tv_intput.getText().toString());//获取输入的时间
+                Toast.makeText(DisplayActivity.this, input_time + "分钟后若有歌曲在播放则停止", Toast.LENGTH_SHORT).show();
+                //倒计时任务
+                countDownTimer = new CountDownTimer(input_time*60*1000, 1000) {
                     @Override
-                    public void run() {
+                    public void onTick(long millisUntilFinished) {
+//                        Log.w("DisplayActivity","millisUntilFinished:"+millisUntilFinished);
+                        rest_of_time =  (double)millisUntilFinished / 1000.0 / 60.0;
+                    }
+
+                    @Override
+                    public void onFinish() {
                         sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
                     }
-                }, input_time * 60 * 1000);//delay参数的单位是毫秒
+                };
+                countDownTimer.start();
                 //关闭对话框
                 dialog.dismiss();
+                pause_task_flag = true;
             }
         });
         b_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (sleepTimer != null) {
-                    sleepTimer.cancel();
+                if (countDownTimer != null) {
+                    countDownTimer.cancel();
                 }
                 dialog.dismiss();
+                pause_task_flag = false;
                 Toast.makeText(DisplayActivity.this, "任务已经取消", Toast.LENGTH_SHORT).show();
             }
         });

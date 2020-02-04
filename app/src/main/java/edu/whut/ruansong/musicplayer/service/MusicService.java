@@ -264,8 +264,10 @@ public class MusicService extends Service {
             //Toast.makeText(MusicService.this, "已经达到了列表底部!", Toast.LENGTH_SHORT).show();
             next_number = 0;//恢复到初始位置
             play();
-        } else if(next_number != current_number){
-            play();//不越界并且不是当前歌曲才播放
+        } else if(next_number != current_number || current_PlayMode == PLAY_MODE_LOOP){
+            //不越界并且不是当前歌曲才播放
+            //或者不越界的同时处于循环模式也播放
+            play();
             //取消定时发送歌曲进度的任务
             if(update_progress_thread != null && update_progress_thread.isAlive())
                 update_progress_thread.destroy();

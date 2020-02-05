@@ -42,10 +42,10 @@
                 android:id="@+id/progressBar_activity_display"
                 android:layout_width="match_parent"
                 android:layout_height="5dp"
+                android:layout_above="@+id/play_bar_bottom"
                 android:max="100"
                 android:progress="0"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_above="@+id/play_bar_bottom"
                 android:background="@color/violet_color"/>
 
             <RelativeLayout
@@ -61,6 +61,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_5"
                     android:src="@drawable/default_album_icon"
                     android:contentDescription="@string/music_image_content" />
 

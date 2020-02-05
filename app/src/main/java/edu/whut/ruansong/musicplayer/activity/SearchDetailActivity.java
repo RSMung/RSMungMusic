@@ -1,6 +1,7 @@
 package edu.whut.ruansong.musicplayer.activity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
@@ -138,10 +139,11 @@ public class SearchDetailActivity extends AppCompatActivity {
         //获取本地歌曲列表
         songsList = DisplayActivity.getSongsList();
         num_songs = songsList.size();
-        if (songsList.isEmpty()) {
-            Toast.makeText(SearchDetailActivity.this, "No songs in your phone", Toast.LENGTH_SHORT).show();
+        if (songsList.isEmpty() || !(DisplayActivity.getSong_total_number()>0)  ) {
+            Toast.makeText(SearchDetailActivity.this, "本机无歌曲,请下载", Toast.LENGTH_SHORT).show();
             return;
         }
+        Log.w("SearchDetailActivity","搜索正在执行");
         String current_song_name;
         char[] charArray_current_song_name;
         int cur_name_len;
@@ -267,5 +269,18 @@ public class SearchDetailActivity extends AppCompatActivity {
         }
         //3.发送广播
         sendBroadcast(intent);
+    }
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        int orientation = newConfig.orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //竖屏操作
+            Log.w("SearchDetailActivity","竖屏");
+        }
+        else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //横屏操作
+            Log.w("SearchDetailActivity","横屏");
+        }
     }
 }

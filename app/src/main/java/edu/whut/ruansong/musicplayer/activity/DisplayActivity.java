@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -357,21 +358,25 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 //Log.w("DisplayActivity", "btn_Play");
-                switch (current_status) {
-                    case MusicService.STATUS_PLAYING:
-                        //Log.w("DisplayActivity", "STATUS_PLAYING");
-                        sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
-                        break;
-                    case MusicService.STATUS_PAUSED:
-                        //Log.w("DisplayActivity", "STATUS_PAUSED");
-                        sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
-                        break;
-                    case MusicService.STATUS_STOPPED:
-                        //Log.w("DisplayActivity", "STATUS_STOPPED");
-                        sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
-                        break;
-                    default:
-                        break;
+                if(song_total_number != 0){
+                    switch (current_status) {
+                        case MusicService.STATUS_PLAYING:
+                            //Log.w("DisplayActivity", "STATUS_PLAYING");
+                            sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
+                            break;
+                        case MusicService.STATUS_PAUSED:
+                            //Log.w("DisplayActivity", "STATUS_PAUSED");
+                            sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
+                            break;
+                        case MusicService.STATUS_STOPPED:
+                            //Log.w("DisplayActivity", "STATUS_STOPPED");
+                            sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
+                            break;
+                        default:
+                            break;
+                    }
+                }else{
+                    Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -379,9 +384,13 @@ public class DisplayActivity extends BaseActivity {
         play_bar_btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //旧的歌曲图标修改为默认
-                songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
-                sendBroadcastOnCommand(MusicService.COMMAND_NEXT);
+                if(song_total_number != 0){
+                    //旧的歌曲图标修改为默认
+                    songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
+                    sendBroadcastOnCommand(MusicService.COMMAND_NEXT);
+                }else{
+                    Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         /*点击底部一栏的事件*/
@@ -443,12 +452,20 @@ public class DisplayActivity extends BaseActivity {
                 switch (position) {
                     case 0:
                         //播放模式选择
-                        selectMode();
-                        drawerlayout.closeDrawer(GravityCompat.START);
+                        if(song_total_number!=0){
+                            selectMode();
+                            drawerlayout.closeDrawer(GravityCompat.START);
+                        }else{
+                            Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
+                        }
                         break;
                     case 1://定时停止播放
-                        timePausePlay();
-                        drawerlayout.closeDrawer(GravityCompat.START);
+                        if(song_total_number!=0){
+                            timePausePlay();
+                            drawerlayout.closeDrawer(GravityCompat.START);
+                        }else{
+                            Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
+                        }
                         break;
                     case 2://反馈与建议
                         feedbackAndSuggesttions();
@@ -715,7 +732,7 @@ public class DisplayActivity extends BaseActivity {
             tv_rest_of_time.setVisibility(View.INVISIBLE);//剩余时间文本框不可见
         }else{//有任务
             b_ok.setVisibility(View.INVISIBLE);//建立任务按钮不可见
-            tv_intput.setVisibility(View.INVISIBLE);
+            tv_intput.setVisibility(View.INVISIBLE);//输入框不可见
             DecimalFormat df =  new  DecimalFormat(  "0.00 " );
             StringBuilder rest = new StringBuilder("剩余: "+df.format(rest_of_time)+"分钟");
             tv_rest_of_time.setText(rest);
@@ -845,6 +862,20 @@ public class DisplayActivity extends BaseActivity {
             } else {
                 Toast.makeText(DisplayActivity.this, "申请权限失败", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        int orientation = newConfig.orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //竖屏操作
+            Log.w("DisplayActivity","竖屏");
+        }
+        else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //横屏操作
+            Log.w("DisplayActivity","横屏");
         }
     }
 

@@ -741,6 +741,11 @@ public class DisplayActivity extends BaseActivity {
         b_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(tv_intput.getText().toString().equals("")){
+                    //Log.w("DisplayActivity","输入时间为空");
+                    Toast.makeText(DisplayActivity.this, "请输入时间!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 input_time = Integer.parseInt(tv_intput.getText().toString());//获取输入的时间
                 Toast.makeText(DisplayActivity.this, input_time + "分钟后若有歌曲在播放则停止", Toast.LENGTH_SHORT).show();
                 //倒计时任务

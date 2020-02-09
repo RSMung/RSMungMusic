@@ -2,6 +2,7 @@ package edu.whut.ruansong.musicplayer.activity;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
@@ -211,8 +212,6 @@ public class SearchDetailActivity extends AppCompatActivity {
             listView_search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    //刷新旧歌曲的item图标
-                    songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
                     //把更新过的list传回display_activity,然后在onStart方法中通知了适配器数据变化
                     DisplayActivity.setSongsList(songsList);
                     //播放控制逻辑

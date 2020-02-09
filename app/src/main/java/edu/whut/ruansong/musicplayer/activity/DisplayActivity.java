@@ -44,7 +44,6 @@ import android.widget.Toast;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 
 import edu.whut.ruansong.musicplayer.model.ActivityCollector;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
@@ -151,7 +150,9 @@ public class DisplayActivity extends BaseActivity {
         if(song_total_number != 0){//避免空引用错误
             play_bar_song_name.setText(songsList.get(current_number).getTitle());
             play_bar_song_author.setText(songsList.get(current_number).getArtist());
-            album_icon.setImageBitmap(getAlbumPicture(songsList.get(current_number).getDataPath()));
+            album_icon.setImageBitmap(
+                    getAlbumPicture(
+                            songsList.get(current_number).getDataPath(),120,120   )  );
             if(current_status == MusicService.STATUS_PLAYING){
                 //正在播放
                 play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_5));
@@ -329,7 +330,7 @@ public class DisplayActivity extends BaseActivity {
                                     artist,
                                     duration,
                                     albumId,
-                                    R.drawable.song_item_picture,
+                                    getAlbumPicture(dataPath,96,96),
                                     dataPath,
                                     song_total_number
                             );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
@@ -346,7 +347,7 @@ public class DisplayActivity extends BaseActivity {
                 //不做下面的事情了(即不用把歌曲信息载入列表,因为根本没有)
             }
             //更新toolbar的标题
-            toolbar.setTitle(getResources().getString(R.string.title_toolbar) + "(总数:" + song_total_number + ")");
+            toolbar.setTitle(getResources().getString(R.string.title_toolbar));
         }
     }
 
@@ -385,8 +386,6 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 if(song_total_number != 0){
-                    //旧的歌曲图标修改为默认
-                    songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
                     sendBroadcastOnCommand(MusicService.COMMAND_NEXT);
                 }else{
                     Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
@@ -405,8 +404,6 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                //旧的歌曲图标修改为默认
-                songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
                 if(current_status == MusicService.STATUS_PLAYING){//播放状态
                     if(current_number == position){//点击的正在播放的歌曲
                         sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);//暂停
@@ -604,8 +601,6 @@ public class DisplayActivity extends BaseActivity {
                     current_number = MusicService.getCurrent_number();//更改存储的当前播放歌曲序号
                     //加载歌名和歌手,设置专辑图片
                     initBottomMes(current_number);
-                    //新的歌曲图标修改为正在播放
-                    songsList.get(current_number).setSong_item_picture(R.drawable.playing_grass_green);
                     //通知适配器数据变化
                     adapter_main_song_list_view.notifyDataSetChanged();
                     break;
@@ -614,8 +609,6 @@ public class DisplayActivity extends BaseActivity {
                 case MusicService.STATUS_PAUSED:
                     Log.w("DisplayActivity", "STATUS_PAUSED");
                     play_bar_btn_play.setBackground(getDrawable(R.drawable.play_5));//把底部播放按钮的图标改变
-                    //歌曲图标修改为默认图标
-                    songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
                     //通知适配器数据变化
                     adapter_main_song_list_view.notifyDataSetChanged();
                     break;
@@ -628,8 +621,6 @@ public class DisplayActivity extends BaseActivity {
 
                 //播放器状态更改为播放完成
                 case MusicService.STATUS_COMPLETED:
-                    //歌曲图标修改为默认图标
-                    songsList.get(current_number).setSong_item_picture(R.drawable.song_item_picture);
                     Log.w("DisplayActivity", "STATUS_COMPLETED");
                     break;
                 default:
@@ -671,11 +662,11 @@ public class DisplayActivity extends BaseActivity {
         play_bar_song_author.setText(song.getArtist());
         //设置专辑图片
         //album_icon.setImageDrawable(getImage(songsList.get(current_number).getAlbum_id()));
-        album_icon.setImageBitmap(getAlbumPicture(songsList.get(current_number).getDataPath()));
+        album_icon.setImageBitmap(getAlbumPicture(songsList.get(current_number).getDataPath(),120,120));
     }
 
     /**********获取歌曲专辑图片*************/
-    public Bitmap getAlbumPicture(String dataPath) {
+    public Bitmap getAlbumPicture(String dataPath,int scale_length,int scale_width) {
         android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         mmr.setDataSource(dataPath);
         byte[] data = mmr.getEmbeddedPicture();
@@ -690,8 +681,8 @@ public class DisplayActivity extends BaseActivity {
             // 创建操作图片用的Matrix对象
             Matrix matrix = new Matrix();
             // 计算缩放比例
-            float sx = ((float) 120 / width);
-            float sy = ((float) 120 / height);
+            float sx = ((float) scale_length / width);
+            float sy = ((float) scale_width / height);
             // 设置缩放比例
             matrix.postScale(sx, sy);
             // 建立新的bitmap，其内容是对原bitmap的缩放后的图
@@ -705,8 +696,8 @@ public class DisplayActivity extends BaseActivity {
             // 创建操作图片用的Matrix对象
             Matrix matrix = new Matrix();
             // 计算缩放比例
-            float sx = ((float) 120 / width);
-            float sy = ((float) 120 / height);
+            float sx = ((float) scale_length / width);
+            float sy = ((float) scale_width / height);
             // 设置缩放比例
             matrix.postScale(sx, sy);
             // 建立新的bitmap，其内容是对原bitmap的缩放后的图

@@ -1,5 +1,7 @@
 package edu.whut.ruansong.musicplayer.model;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by 阮 on 2018/11/17.
  */
@@ -9,7 +11,7 @@ public class Song {
     private String artist;//  歌手
     private long duration;//时长
     private long album_id;//专辑id
-    private int song_item_picture;//列表每一项的图标，为了好看加上的
+    private Bitmap album_picture;//专辑图片
     private String dataPath;//歌曲文件路径
     private int list_id_display;
 
@@ -19,7 +21,7 @@ public class Song {
             String artist,
             long duration,
             long album_id,
-            int song_item_picture,
+            Bitmap album_picture,
             String dataPath,
             int list_id_display
             )
@@ -28,7 +30,7 @@ public class Song {
         this.artist = artist;
         this.duration = duration;
         this.album_id = album_id;
-        this.song_item_picture = song_item_picture;
+        this.album_picture = album_picture;
         this.dataPath = dataPath;
         this.list_id_display = list_id_display;
     }
@@ -41,7 +43,7 @@ public class Song {
 
     public void setAlbum_id(long album_id) { this.album_id = album_id; }
 
-    public void setSong_item_picture(int song_item_picture) { this.song_item_picture = song_item_picture; }
+    public void setAlbum_picture(Bitmap album_picture) { this.album_picture = album_picture; }
 
     public void setDataPath(String dataPath) { this.dataPath = dataPath; }
 
@@ -56,7 +58,7 @@ public class Song {
 
     public long getAlbum_id() {return album_id;}
 
-    public int getSong_item_picture() { return song_item_picture; }
+    public Bitmap getAlbum_picture() { return album_picture; }
 
     public String getDataPath() { return dataPath; }
 

@@ -21,7 +21,7 @@
 
     <string name="music_image_content">这首音乐的专辑图片</string>
     <!--DisplayActivity-->
-    <string name="title_toolbar">本地音乐</string>
+    <string name="title_toolbar">我的音乐</string>
     <string name="share">分享</string>
     <string name="about">关于</string>
     <string name="player_info">1.Mung音乐播放器_版本1.3.2</string>

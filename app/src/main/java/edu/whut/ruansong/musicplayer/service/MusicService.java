@@ -335,16 +335,18 @@ public class MusicService extends Service {
      * 暂停播放
      */
     private void pause() {
-        //播放器暂停
-        player.pause();
-        //更新播放器状态
-        current_status = MusicService.STATUS_PAUSED;
-        sendServiceBroadcast(MusicService.STATUS_PAUSED);
-        //取消定时发送歌曲进度的任务
-        if(update_progress_thread != null && update_progress_thread.isAlive())
-            update_progress_thread.destroy();
-        //更新通知
-        myNotification.notifyPause(this);
+        if(player != null && current_status==STATUS_PLAYING){
+            //播放器暂停
+            player.pause();
+            //更新播放器状态
+            current_status = MusicService.STATUS_PAUSED;
+            sendServiceBroadcast(MusicService.STATUS_PAUSED);
+            //取消定时发送歌曲进度的任务
+            if(update_progress_thread != null && update_progress_thread.isAlive())
+                update_progress_thread.destroy();
+            //更新通知
+            myNotification.notifyPause(this);
+        }
     }
 
     private void resume() {//暂停后的恢复播放

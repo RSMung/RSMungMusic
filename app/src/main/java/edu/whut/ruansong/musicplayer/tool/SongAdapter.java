@@ -58,7 +58,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
         }
         if(song!=null && viewHolder!=null){
             //传入具体信息
-            viewHolder.songImage.setImageResource(song.getSong_item_picture());//列表每一项的图标
+            viewHolder.songImage.setImageBitmap(song.getAlbum_picture());//列表每一项的图标
             viewHolder.songName.setText(song.getTitle());//歌名
             viewHolder.songAuthor.setText(song.getArtist());//歌手
 

@@ -25,6 +25,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
@@ -122,8 +125,10 @@ public class ShareActivity extends BaseActivity implements View.OnClickListener 
         Canvas canvas = new Canvas(bitmap);
         main_share_picture.draw(canvas);
         //保存到本地
-        String picture_name = getIntent().getStringExtra("title") + "-"+getIntent().getStringExtra("artist")+".png";
-        File share_picture_path = new File(Environment.getExternalStorageDirectory().getPath()+"/MungMusic/share_picture");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.getDefault());
+        Date date = new Date(System.currentTimeMillis());
+        String picture_name = format.format(date)+".png";
+        File share_picture_path = new File(Environment.getExternalStorageDirectory().getPath()+"/MungMusic/share_picture/");
         if (!share_picture_path.exists()) {//这个目录不存在则创建
             boolean flag = share_picture_path.mkdirs();
             if(!flag){//创建失败
@@ -162,7 +167,9 @@ public class ShareActivity extends BaseActivity implements View.OnClickListener 
                 ActivityCompat.requestPermissions(
                         ShareActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQ_WRITE_EXTERNAL_STORAGE);
-//                Log.w("ShareActivity","写存储权限,正在请求");
+                Log.w("ShareActivity","写存储权限,正在请求");
+            }else{//已有权限
+                flag_write_storage = true;
             }
         }
     }
@@ -175,6 +182,7 @@ public class ShareActivity extends BaseActivity implements View.OnClickListener 
             // 如果请求被取消了，那么结果数组就是空的
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 flag_write_storage = true;
+                Toast.makeText(ShareActivity.this, "写存储权限申请成功", Toast.LENGTH_SHORT).show();
             }else{
                 Toast.makeText(ShareActivity.this, "写存储权限申请失败", Toast.LENGTH_SHORT).show();
             }

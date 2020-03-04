@@ -120,7 +120,7 @@ public class DisplayActivity extends BaseActivity {
         initHeadset();
         /*请求权限*/
         requestPermissionByHand();
-        if (song_total_number == 0)
+        if (song_total_number != 0)
             load_Songs_data();//加载歌曲数据
         /*配置歌曲列表*/
         config_listViewAdapter();

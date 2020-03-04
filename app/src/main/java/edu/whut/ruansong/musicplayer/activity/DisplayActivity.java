@@ -64,7 +64,8 @@ public class DisplayActivity extends BaseActivity {
     /*控件*/
     private Toolbar toolbar = null;//toolbar
     private ListView main_song_list_view = null;//歌曲列表
-    private SongAdapter adapter_main_song_list_view , adapter_history;//歌曲列表的适配器
+    private SongAdapter adapter_main_song_list_view ;
+    private SongAdapter adapter_history;//歌曲列表的适配器
     private ProgressBar progressBar_activity_display = null;//播放进度条
     private View play_bar_bottom = null;//底部播放控制栏
     private ImageView album_icon = null;//专辑图片
@@ -120,8 +121,6 @@ public class DisplayActivity extends BaseActivity {
         initHeadset();
         /*请求权限*/
         requestPermissionByHand();
-        if (song_total_number != 0)
-            load_Songs_data();//加载歌曲数据
         /*配置歌曲列表*/
         config_listViewAdapter();
         /*启动广播接收器*/
@@ -139,7 +138,7 @@ public class DisplayActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         Log.w("DisplayActivity", "进入onStart");
-        adapter_main_song_list_view.notifyDataSetChanged();
+//        adapter_main_song_list_view.notifyDataSetChanged();
         //广播接收器重新注册
         if (headsetReceiver == null && progressBarReceiver == null) {
             bindBroadcastReceiver();
@@ -869,6 +868,8 @@ public class DisplayActivity extends BaseActivity {
                         DisplayActivity.this, new String[]{
                                 Manifest.permission.READ_EXTERNAL_STORAGE
                         }, REQ_READ_EXTERNAL_STORAGE);
+            }else{//已有权限,加载歌曲
+                load_Songs_data();
             }
         }
     }

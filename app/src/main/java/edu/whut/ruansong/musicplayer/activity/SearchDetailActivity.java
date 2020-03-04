@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +36,8 @@ public class SearchDetailActivity extends AppCompatActivity {
     private int current_status;//播放状态默认为停止
     private LinearLayout search_LinearLayout;//搜索结果的整个布局
     private int actual_number = 0;//在search_view里面点击的歌曲在display_activity的list里面的位置
+    private SongAdapter adapter_search;
+    private ListView listView_search ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,47 @@ public class SearchDetailActivity extends AppCompatActivity {
         current_number = MusicService.getCurrent_number();
         current_status = MusicService.getCurrent_status();
         search_LinearLayout = findViewById(R.id.search_LinearLayout);
+        listView_search = findViewById(R.id.list_search);
+        /***设置search_list歌曲item点击事件   以便可以点击搜素结果 播放歌曲*/
+        listView_search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //把更新过的list传回display_activity,然后在onStart方法中通知了适配器数据变化
+//                    DisplayActivity.setSongsList(songsList);
+                //播放控制逻辑
+                actual_number = search_list.get(position).getList_id_display();
+                if(current_status == MusicService.STATUS_PLAYING){//播放状态
+                    if(current_number == actual_number){//点击的正在播放的歌曲
+                        sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);//暂停
+                    }else{//点击的别的歌曲
+                        current_number = actual_number;
+                        sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
+                    }
+                }else if(current_status == MusicService.STATUS_PAUSED){//暂停状态
+                    if(current_number == actual_number){
+                        //应恢复播放
+                        sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
+                    }else{
+                        //点击的别的歌曲
+                        current_number = actual_number;
+                        sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
+                    }
+                }else {//停止状态
+                    current_number = actual_number;
+                    sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
+                }
+            }
+        });
+        ImageView close_search = findViewById(R.id.image_close_search);//x 按钮 关闭搜索结果
+        close_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                search_LinearLayout.setVisibility(View.GONE);
+                search_list.clear();//清除搜索结果
+            }
+        });
+        //用search_list配置歌曲信息，加载进入控件
+        adapter_search = new SongAdapter(SearchDetailActivity.this, R.layout.song_list_item, search_list);
     }
 
     @Override
@@ -105,18 +149,21 @@ public class SearchDetailActivity extends AppCompatActivity {
         SearchView.SearchAutoComplete searchAutoComplete = searchView.findViewById(R.id.search_src_text);
         searchAutoComplete.setTextColor(this.getResources().getColor(R.color.white_color));
         searchAutoComplete.setHintTextColor(this.getResources().getColor(R.color.white_color));
-        searchView.setSubmitButtonEnabled(true);//提交按钮  显示
+//        searchView.setSubmitButtonEnabled(true);//提交按钮  显示
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                search_LinearLayout.setVisibility(View.GONE);
-                search_list.clear();//清除搜索结果
-                dealSearchAction(query);
                 return false;
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
+            public boolean onQueryTextChange(String query) {
+                if(!TextUtils.isEmpty(query)){//注意判空
+                    search_list.clear();
+                    adapter_search.notifyDataSetChanged();
+                    listView_search.deferNotifyDataSetChanged();
+                    dealSearchAction(query);
+                }
                 return false;
             }
         });
@@ -205,51 +252,16 @@ public class SearchDetailActivity extends AppCompatActivity {
             Toast.makeText(SearchDetailActivity.this, "搜索结果为空", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(SearchDetailActivity.this, "搜索完毕，显示结果", Toast.LENGTH_SHORT).show();
-            //用search_list配置歌曲信息，加载进入控件
-            SongAdapter adapter_search = new SongAdapter(SearchDetailActivity.this, R.layout.song_list_item, search_list);
-            ListView listView_search = findViewById(R.id.list_search);
-            listView_search.setAdapter(adapter_search);
+            try{
+                adapter_search.notifyDataSetChanged();
+                listView_search.setAdapter(adapter_search);
+            }catch (Exception e){
+                Log.w("SearchDetailActivity",e);
+            }
 
-            /***设置search_list歌曲item点击事件   以便可以点击搜素结果 播放歌曲*/
-            listView_search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    //把更新过的list传回display_activity,然后在onStart方法中通知了适配器数据变化
-                    DisplayActivity.setSongsList(songsList);
-                    //播放控制逻辑
-                    actual_number = search_list.get(position).getList_id_display();
-                    if(current_status == MusicService.STATUS_PLAYING){//播放状态
-                        if(current_number == actual_number){//点击的正在播放的歌曲
-                            sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);//暂停
-                        }else{//点击的别的歌曲
-                            current_number = actual_number;
-                            sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
-                        }
-                    }else if(current_status == MusicService.STATUS_PAUSED){//暂停状态
-                        if(current_number == actual_number){
-                            //应恢复播放
-                            sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
-                        }else{
-                            //点击的别的歌曲
-                            current_number = actual_number;
-                            sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
-                        }
-                    }else {//停止状态
-                        current_number = actual_number;
-                        sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
-                    }
-                }
-            });
-
-            search_LinearLayout.setVisibility(View.VISIBLE);//显示搜素结果
-            ImageView close_search = findViewById(R.id.image_close_search);//x 按钮 关闭搜索结果
-            close_search.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    search_LinearLayout.setVisibility(View.GONE);
-                    search_list.clear();//清除搜索结果
-                }
-            });
+            if(!search_list.isEmpty()){//搜索结果不为空
+                search_LinearLayout.setVisibility(View.VISIBLE);//显示搜素结果
+            }
         }
     }
 

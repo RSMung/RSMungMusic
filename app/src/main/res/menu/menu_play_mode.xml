@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/order_mode"
+        android:icon="@drawable/order_32"
+        android:title="@string/order_mode"/>
+    <item
+        android:id="@+id/cycle_mode"
+        android:icon="@drawable/cycle_32"
+        android:title="@string/cycle_mode"/>
+    <item
+        android:id="@+id/random_mode"
+        android:icon="@drawable/random_32"
+        android:title="@string/random_mode"/>
+</menu>

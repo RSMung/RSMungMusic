@@ -14,7 +14,9 @@ public class Song {
     private Bitmap album_picture;//专辑图片
     private String dataPath;//歌曲文件路径
     private int list_id_display;
+    private boolean isLove;//是否是喜爱的歌曲
 
+    public Song(){}
     //歌名，歌手，时长，专辑，图标资源id,歌曲文件路径,在DisplayActivity中的listview的位置
     public Song(
             String title,
@@ -23,7 +25,8 @@ public class Song {
             long album_id,
             Bitmap album_picture,
             String dataPath,
-            int list_id_display
+            int list_id_display,
+            boolean isLove
             )
     {
         this.title = title;
@@ -33,6 +36,11 @@ public class Song {
         this.album_picture = album_picture;
         this.dataPath = dataPath;
         this.list_id_display = list_id_display;
+        this.isLove = isLove;
+    }
+
+    public void setLove(boolean love) {
+        isLove = love;
     }
 
     public void setTitle(String str) { this.title = str; }
@@ -63,5 +71,9 @@ public class Song {
     public String getDataPath() { return dataPath; }
 
     public int getList_id_display() { return list_id_display; }
+
+    public boolean isLove() {
+        return isLove;
+    }
 
 }

@@ -88,6 +88,8 @@ public class SearchDetailActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.w("SearchDetailActivity", "进入onDestroy");
+        search_list = null;//防止内存泄露
+        songsList = null;
     }
 
     /***********toolbar的menu***********/

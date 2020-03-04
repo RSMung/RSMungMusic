@@ -64,7 +64,7 @@ public class DisplayActivity extends BaseActivity {
     /*控件*/
     private Toolbar toolbar = null;//toolbar
     private ListView main_song_list_view = null;//歌曲列表
-    private SongAdapter adapter_main_song_list_view = null;//歌曲列表的适配器
+    private SongAdapter adapter_main_song_list_view , adapter_history;//歌曲列表的适配器
     private ProgressBar progressBar_activity_display = null;//播放进度条
     private View play_bar_bottom = null;//底部播放控制栏
     private ImageView album_icon = null;//专辑图片
@@ -141,22 +141,22 @@ public class DisplayActivity extends BaseActivity {
         Log.w("DisplayActivity", "进入onStart");
         adapter_main_song_list_view.notifyDataSetChanged();
         //广播接收器重新注册
-        if(headsetReceiver == null && progressBarReceiver == null){
+        if (headsetReceiver == null && progressBarReceiver == null) {
             bindBroadcastReceiver();
         }
         //重新加载底部栏的歌名,歌手,专辑图片,播放按钮UI
         current_number = MusicService.getCurrent_number();
         current_status = MusicService.getCurrent_status();
-        if(song_total_number != 0){//避免空引用错误
+        if (song_total_number != 0) {//避免空引用错误
             play_bar_song_name.setText(songsList.get(current_number).getTitle());
             play_bar_song_author.setText(songsList.get(current_number).getArtist());
             album_icon.setImageBitmap(
                     getAlbumPicture(
-                            songsList.get(current_number).getDataPath(),120,120   )  );
-            if(current_status == MusicService.STATUS_PLAYING){
+                            songsList.get(current_number).getDataPath(), 120, 120));
+            if (current_status == MusicService.STATUS_PLAYING) {
                 //正在播放
                 play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_5));
-            }else{
+            } else {
                 play_bar_btn_play.setBackground(getDrawable(R.drawable.play_5));
             }
         }
@@ -220,12 +220,14 @@ public class DisplayActivity extends BaseActivity {
         ActivityCollector.finishAll();
     }
 
-    /**加载控件*/
-    public void loadWidget(){
+    /**
+     * 加载控件
+     */
+    public void loadWidget() {
         toolbar = findViewById(R.id.toolbar_activity_display);
         main_song_list_view = findViewById(R.id.main_song_list_view);
         progressBar_activity_display = findViewById(R.id.progressBar_activity_display);
-        play_bar_bottom =  findViewById(R.id.play_bar_bottom);
+        play_bar_bottom = findViewById(R.id.play_bar_bottom);
         album_icon = findViewById(R.id.album_icon);
         play_bar_song_name = findViewById(R.id.play_bar_song_name);
         play_bar_song_author = findViewById(R.id.play_bar_song_author);
@@ -237,14 +239,18 @@ public class DisplayActivity extends BaseActivity {
         drawer_layout_list_view = findViewById(R.id.drawer_layout_list);
     }
 
-    /**toolbar的menu加载*/
+    /**
+     * toolbar的menu加载
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_display, menu);
         return true;
     }
 
-    /**toolbar的menu点击事件*/
+    /**
+     * toolbar的menu点击事件
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -330,9 +336,10 @@ public class DisplayActivity extends BaseActivity {
                                     artist,
                                     duration,
                                     albumId,
-                                    getAlbumPicture(dataPath,96,96),
+                                    getAlbumPicture(dataPath, 96, 96),
                                     dataPath,
-                                    song_total_number
+                                    song_total_number,
+                                    false
                             );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
                             songsList.add(song);
                             song_total_number++;
@@ -359,7 +366,7 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 //Log.w("DisplayActivity", "btn_Play");
-                if(song_total_number != 0){
+                if (song_total_number != 0) {
                     switch (current_status) {
                         case MusicService.STATUS_PLAYING:
                             //Log.w("DisplayActivity", "STATUS_PLAYING");
@@ -376,7 +383,7 @@ public class DisplayActivity extends BaseActivity {
                         default:
                             break;
                     }
-                }else{
+                } else {
                     Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -385,9 +392,9 @@ public class DisplayActivity extends BaseActivity {
         play_bar_btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(song_total_number != 0){
+                if (song_total_number != 0) {
                     sendBroadcastOnCommand(MusicService.COMMAND_NEXT);
-                }else{
+                } else {
                     Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -395,8 +402,17 @@ public class DisplayActivity extends BaseActivity {
         /*点击底部一栏的事件*/
         play_bar_bottom.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Toast.makeText(DisplayActivity.this, "歌曲详情页待实现！", Toast.LENGTH_SHORT).show();
+            public void onClick(View view) {//跳转到歌曲详情页
+                if (song_total_number != 0) {
+                    Intent intent = new Intent(DisplayActivity.this, SongDetailActivity.class);
+                    intent.putExtra("current_number", current_number);
+                    intent.putExtra("current_status", current_status);
+                    intent.putExtra("duration", duration);
+                    intent.putExtra("current_progress", current_progress);
+                    intent.putExtra("current_PlayMode",default_playMode);
+                    startActivity(intent);
+                } else
+                    Toast.makeText(DisplayActivity.this, "别点啦,我们不会有结果的", Toast.LENGTH_SHORT).show();
             }
         });
         /*设置歌曲列表item点击事件*/
@@ -404,23 +420,23 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                if(current_status == MusicService.STATUS_PLAYING){//播放状态
-                    if(current_number == position){//点击的正在播放的歌曲
+                if (current_status == MusicService.STATUS_PLAYING) {//播放状态
+                    if (current_number == position) {//点击的正在播放的歌曲
                         sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);//暂停
-                    }else{//点击的别的歌曲
+                    } else {//点击的别的歌曲
                         current_number = position;
                         sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
                     }
-                }else if(current_status == MusicService.STATUS_PAUSED){//暂停状态
-                    if(current_number == position){
+                } else if (current_status == MusicService.STATUS_PAUSED) {//暂停状态
+                    if (current_number == position) {
                         //应恢复播放
                         sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
-                    }else{
+                    } else {
                         //点击的别的歌曲
                         current_number = position;
                         sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
                     }
-                }else {//停止状态
+                } else {//停止状态
                     current_number = position;
                     sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
                 }
@@ -431,8 +447,7 @@ public class DisplayActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 if (view_history_Flag == 0) {
-                    SongAdapter adapter_his = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.songs);
-                    history_list_view.setAdapter(adapter_his);
+                    history_list_view.setAdapter(adapter_history);
                     history_view.setVisibility(View.VISIBLE);
                     view_history_Flag = 1;
                 } else {
@@ -448,27 +463,33 @@ public class DisplayActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 switch (position) {
                     case 0:
+                        //我喜爱的歌曲
+                        drawerlayout.closeDrawer(GravityCompat.START);
+                        Intent intent = new Intent(DisplayActivity.this, MyLoveSongsActivity.class);
+                        startActivity(intent);
+                        break;
+                    case 1:
                         //播放模式选择
-                        if(song_total_number!=0){
+                        if (song_total_number != 0) {
                             selectMode();
                             drawerlayout.closeDrawer(GravityCompat.START);
-                        }else{
+                        } else {
                             Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
                         }
                         break;
-                    case 1://定时停止播放
-                        if(song_total_number!=0){
+                    case 2://定时停止播放
+                        if (song_total_number != 0) {
                             timePausePlay();
                             drawerlayout.closeDrawer(GravityCompat.START);
-                        }else{
+                        } else {
                             Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
                         }
                         break;
-                    case 2://反馈与建议
+                    case 3://反馈与建议
                         feedbackAndSuggesttions();
                         drawerlayout.closeDrawer(GravityCompat.START);
                         break;
-                    case 3://退出
+                    case 4://退出
                         Intent stop_service_intent = new Intent(DisplayActivity.this, MusicService.class);
                         stopService(stop_service_intent);
                         ActivityCollector.finishAll();
@@ -534,10 +555,12 @@ public class DisplayActivity extends BaseActivity {
         });
         //配置侧滑界面listView
         List<DrawerLayoutListViewItem> drawer_list_view_content = new ArrayList<>();
+        DrawerLayoutListViewItem myLoveSongs = new DrawerLayoutListViewItem(R.drawable.love, "我喜欢的音乐");
         DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time_2, "定时停止播放");
         DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting, "播放模式");
-        DrawerLayoutListViewItem feedback_suggestions = new DrawerLayoutListViewItem(R.drawable.about_2,"关于");
+        DrawerLayoutListViewItem feedback_suggestions = new DrawerLayoutListViewItem(R.drawable.about_2, "关于");
         DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit_2, "退出");
+        drawer_list_view_content.add(myLoveSongs);
         drawer_list_view_content.add(play_mode_select);
         drawer_list_view_content.add(stopWithTime);
         drawer_list_view_content.add(feedback_suggestions);
@@ -551,6 +574,7 @@ public class DisplayActivity extends BaseActivity {
      */
     public void config_listViewAdapter() {
         adapter_main_song_list_view = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, songsList);
+        adapter_history = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.getSongs());
         main_song_list_view.setAdapter(adapter_main_song_list_view);
     }
 
@@ -603,6 +627,7 @@ public class DisplayActivity extends BaseActivity {
                     initBottomMes(current_number);
                     //通知适配器数据变化
                     adapter_main_song_list_view.notifyDataSetChanged();
+                    adapter_history.notifyDataSetChanged();
                     break;
 
                 //播放器状态更改为暂停
@@ -622,6 +647,11 @@ public class DisplayActivity extends BaseActivity {
                 //播放器状态更改为播放完成
                 case MusicService.STATUS_COMPLETED:
                     Log.w("DisplayActivity", "STATUS_COMPLETED");
+                    break;
+                case MusicService.PLAY_MODE_UPDATE:
+                    //顺序,单曲,随机 --->  8,9,10
+                    //在弹窗中位置分别是0,1,2
+                    default_playMode = intent.getIntExtra("playMode",MusicService.PLAY_MODE_ORDER) - 8;
                     break;
                 default:
                     break;
@@ -662,11 +692,11 @@ public class DisplayActivity extends BaseActivity {
         play_bar_song_author.setText(song.getArtist());
         //设置专辑图片
         //album_icon.setImageDrawable(getImage(songsList.get(current_number).getAlbum_id()));
-        album_icon.setImageBitmap(getAlbumPicture(songsList.get(current_number).getDataPath(),120,120));
+        album_icon.setImageBitmap(getAlbumPicture(songsList.get(current_number).getDataPath(), 120, 120));
     }
 
     /**********获取歌曲专辑图片*************/
-    public Bitmap getAlbumPicture(String dataPath,int scale_length,int scale_width) {
+    public Bitmap getAlbumPicture(String dataPath, int scale_length, int scale_width) {
         android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         mmr.setDataSource(dataPath);
         byte[] data = mmr.getEmbeddedPicture();
@@ -709,8 +739,7 @@ public class DisplayActivity extends BaseActivity {
     /*** 定时停止播放*/
     public void timePausePlay() {
         final AlertDialog.Builder customizeDialog = new AlertDialog.Builder(DisplayActivity.this);
-        @SuppressLint("InflateParams")
-        final View dialogView = LayoutInflater.from(DisplayActivity.this).inflate(R.layout.dialog_stop_with_time, null);
+        @SuppressLint("InflateParams") final View dialogView = LayoutInflater.from(DisplayActivity.this).inflate(R.layout.dialog_stop_with_time, null);
         customizeDialog.setView(dialogView);
         customizeDialog.setIcon(R.drawable.stop_with_time_2);
         customizeDialog.setTitle("定时停止播放");
@@ -718,21 +747,21 @@ public class DisplayActivity extends BaseActivity {
         Button b_cancel = dialogView.findViewById(R.id.btn_time_cancel);
         final TextView tv_rest_of_time = dialogView.findViewById(R.id.rest_of_time);
         tv_intput = dialogView.findViewById(R.id.input_time);
-        if(!pause_task_flag){//无任务
+        if (!pause_task_flag) {//无任务
             b_cancel.setVisibility(View.INVISIBLE);//取消按钮不可见
             tv_rest_of_time.setVisibility(View.INVISIBLE);//剩余时间文本框不可见
-        }else{//有任务
+        } else {//有任务
             b_ok.setVisibility(View.INVISIBLE);//建立任务按钮不可见
             tv_intput.setVisibility(View.INVISIBLE);//输入框不可见
-            DecimalFormat df =  new  DecimalFormat(  "0.00 " );
-            StringBuilder rest = new StringBuilder("剩余: "+df.format(rest_of_time)+"分钟");
+            DecimalFormat df = new DecimalFormat("0.00 ");
+            StringBuilder rest = new StringBuilder("剩余: " + df.format(rest_of_time) + "分钟");
             tv_rest_of_time.setText(rest);
         }
         dialog = customizeDialog.show();//实例化dialog
         b_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(tv_intput.getText().toString().equals("")){
+                if (tv_intput.getText().toString().equals("")) {
                     //Log.w("DisplayActivity","输入时间为空");
                     Toast.makeText(DisplayActivity.this, "请输入时间!", Toast.LENGTH_SHORT).show();
                     return;
@@ -740,11 +769,11 @@ public class DisplayActivity extends BaseActivity {
                 input_time = Integer.parseInt(tv_intput.getText().toString());//获取输入的时间
                 Toast.makeText(DisplayActivity.this, input_time + "分钟后若有歌曲在播放则停止", Toast.LENGTH_SHORT).show();
                 //倒计时任务
-                countDownTimer = new CountDownTimer(input_time*60*1000, 1000) {
+                countDownTimer = new CountDownTimer(input_time * 60 * 1000, 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
 //                        Log.w("DisplayActivity","millisUntilFinished:"+millisUntilFinished);
-                        rest_of_time =  (double)millisUntilFinished / 1000.0 / 60.0;
+                        rest_of_time = (double) millisUntilFinished / 1000.0 / 60.0;
                     }
 
                     @Override
@@ -815,8 +844,9 @@ public class DisplayActivity extends BaseActivity {
     }
 
     /**
-     * 反馈与建议*/
-    public void feedbackAndSuggesttions(){
+     * 反馈与建议
+     */
+    public void feedbackAndSuggesttions() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle(getResources().getString(R.string.about))
                 .setIcon(R.drawable.about)
@@ -867,11 +897,10 @@ public class DisplayActivity extends BaseActivity {
         int orientation = newConfig.orientation;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             //竖屏操作
-            Log.w("DisplayActivity","竖屏");
-        }
-        else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Log.w("DisplayActivity", "竖屏");
+        } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             //横屏操作
-            Log.w("DisplayActivity","横屏");
+            Log.w("DisplayActivity", "横屏");
         }
     }
 

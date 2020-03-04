@@ -14,4 +14,8 @@
     <color name="red_color">#eb0b0b</color>
     <color name="blue_color">#0630d8</color>
     <color name="gray_color">#ebeded</color>
+    <color name="shallow_violet_color">#dcd6f7</color>
+    <color name="shallow_blue_color">#a6b1e1</color>
+    <color name="shallow_green_color">#edffea</color>
+    <color name="brown_color">#d1cebd</color>
 </resources>

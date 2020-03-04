@@ -34,22 +34,26 @@ public class MusicService extends Service {
     public static final int STATUS_PAUSED = 1;
     public static final int STATUS_STOPPED = 2;
     public static final int STATUS_COMPLETED = 3;
+//    public static final int STATUS_PREVIOUS = 4;
     //progressBar相关
     public static final int PROGRESS_UPDATE = 4;
     public static final int PROGRESS_DURATION = 5;
+    //播放模式已更新
+    public static final int PLAY_MODE_UPDATE = 6;
     //播放控制命令
     public static final int COMMAND_UNKNOWN = -1;
     public static final int COMMAND_PLAY = 0;
     public static final int COMMAND_PAUSE = 1;
     //    public static final int COMMAND_STOP = 2;
     public static final int COMMAND_RESUME = 3;
-    //    public static final int COMMAND_PREVIOUS = 4;
+    public static final int COMMAND_PREVIOUS = 4;
     public static final int COMMAND_NEXT = 5;
     public static final int COMMAND_REQUEST_DURATION = 6;//请求当前歌曲的总时长
     //播放顺序命令
     public static final int PLAY_MODE_ORDER = 8;//顺序播放(默认是它)
     public static final int PLAY_MODE_LOOP = 9;//单曲循环
     public static final int PLAY_MODE_RANDOM = 10;//随机播放
+    public static final int COMMAND_SEEK_TO = 11;//seekTo控制播放命令
     //广播接收器
     private CommandReceiver commandReceiver;
     //媒体播放器
@@ -166,10 +170,10 @@ public class MusicService extends Service {
                     Log.w("MusicService", "number: "+next_number);
                     resume();
                     break;
-//                case COMMAND_PREVIOUS:
-//                    Log.w("MusicService", "COMMAND_PREVIOUS");
-//                    moveNumberToPrevious();
-//                    break;
+                case COMMAND_PREVIOUS:
+                    Log.w("MusicService", "COMMAND_PREVIOUS");
+                    moveNumberToPrevious();
+                    break;
                 case COMMAND_NEXT:
                     Log.w("MusicService", "COMMAND_NEXT");
                     nextMusic_update_number();
@@ -183,20 +187,19 @@ public class MusicService extends Service {
 //                    stop();
 //                    break;
                 case PLAY_MODE_ORDER://顺序播放
-                    Log.w("MusicService", "PLAY_MODE_ORDER");
-                    current_PlayMode = PLAY_MODE_ORDER;
-                    break;
                 case PLAY_MODE_LOOP://单曲循环
-                    Log.w("MusicService", "PLAY_MODE_LOOP");
-                    current_PlayMode = PLAY_MODE_LOOP;
-                    break;
                 case PLAY_MODE_RANDOM://随机播放
-                    Log.w("MusicService", "PLAY_MODE_RANDOM");
-                    current_PlayMode = PLAY_MODE_RANDOM;
+                    current_PlayMode = command;
+                    sendServiceBroadcast(PLAY_MODE_UPDATE);
                     break;
                 case COMMAND_REQUEST_DURATION://广播当前歌曲时长
                     Log.w("MusicService", "COMMAND_REQUEST_DURATION");
                     sendServiceBroadcast(PROGRESS_DURATION);
+                    break;
+                case COMMAND_SEEK_TO://seekTo播放命令
+                    Log.w("MusicService","COMMAND_SEEK_TO");
+                    int seekBar_progress = intent.getIntExtra("seekBar_progress",0);
+                    dealSeekTo(seekBar_progress);
                     break;
                 case COMMAND_UNKNOWN:
                     Log.w("MusicService", "COMMAND_UNKNOWN");
@@ -229,6 +232,11 @@ public class MusicService extends Service {
             case STATUS_COMPLETED:
                 intent = new Intent(BROADCAST_MUSICSERVICE_UPDATE_STATUS);
                 intent.putExtra("status", content);
+                break;
+            case PLAY_MODE_UPDATE:
+                intent = new Intent(BROADCAST_MUSICSERVICE_UPDATE_STATUS);
+                intent.putExtra("status", content);
+                intent.putExtra("playMode",current_PlayMode);
                 break;
         }
         if(intent != null){
@@ -380,6 +388,14 @@ public class MusicService extends Service {
         update_progress_thread.start();
     }
     /**
+     * 处理seekTo播放命令*/
+    public void dealSeekTo(int seekBar_progress){
+        if(player == null)
+            return;
+        player.seekTo(seekBar_progress);
+        player.start();
+    }
+    /**
      * 收到COMMAND_PLAY后的动作
      * next_number是主界面的current_music_list_number
      */
@@ -410,14 +426,9 @@ public class MusicService extends Service {
 //        }
 //    }
     /**上一首*/
-//    private void moveNumberToPrevious() {
-//        next_number = next_number - 1;
-//        //判断是否到达顶端
-//        if (next_number == 0) {
-//            Toast.makeText(MusicService.this, "已经达到了列表顶部!", Toast.LENGTH_SHORT).show();
-//        } else {
-//            next_number = next_number + 1;
-//            play_pause();
-//        }
-//    }
+    private void moveNumberToPrevious() {
+        if(current_number - 1 >= 0)
+            next_number = current_number - 1;
+        play();
+    }
 }

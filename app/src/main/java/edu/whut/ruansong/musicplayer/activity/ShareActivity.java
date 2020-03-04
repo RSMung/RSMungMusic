@@ -1,13 +1,19 @@
 package edu.whut.ruansong.musicplayer.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -24,6 +30,8 @@ import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
 
 public class ShareActivity extends BaseActivity implements View.OnClickListener {
+    private final int REQ_WRITE_EXTERNAL_STORAGE = 2;//权限请求码,1代表读取外部存储权限,2代表写存储
+    private boolean flag_write_storage = false;
     @Override
     protected void onCreate(Bundle savedInstanceStated){
         super.onCreate(savedInstanceStated);
@@ -44,6 +52,8 @@ public class ShareActivity extends BaseActivity implements View.OnClickListener 
         //保存按钮
         LinearLayout save_view = findViewById(R.id.save_share_activity);
         save_view.setOnClickListener(this);
+        //请求写存储权限
+        requestPermissionByHand();
     }
 
     @Override
@@ -55,7 +65,11 @@ public class ShareActivity extends BaseActivity implements View.OnClickListener 
                 finish();
                 break;
             case R.id.save_share_activity:
-                saveSharePicture();
+                if(flag_write_storage){
+                    saveSharePicture();
+                }else{
+                    Toast.makeText(ShareActivity.this,"请手动打开写存储权限",Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }
@@ -127,9 +141,43 @@ public class ShareActivity extends BaseActivity implements View.OnClickListener 
             bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.flush();
             out.close();
-            Toast.makeText(ShareActivity.this,"海报已经保存到本地,快去分享吧",Toast.LENGTH_SHORT).show();
+            Toast.makeText(ShareActivity.this,"海报已经保存到"+picture_path+",快去分享吧",Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        // 通知图库更新
+        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + picture_path)));
+    }
+    /**
+     * 向用户请求权限
+     */
+    public void requestPermissionByHand() {
+        //判断当前系统的版本
+        if (Build.VERSION.SDK_INT >= 23) {
+            Log.w("ShareActivity","检查写存储权限");
+            int checkWriteStoragePermission = ContextCompat.checkSelfPermission(
+                    ShareActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            //如果写入没有被授予
+            if (checkWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        ShareActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQ_WRITE_EXTERNAL_STORAGE);
+//                Log.w("ShareActivity","写存储权限,正在请求");
+            }
+        }
+    }
+    /**
+     * 向用户请求权限后的回调
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, final String[] permissions, int[] grantResults) {
+        if (requestCode == REQ_WRITE_EXTERNAL_STORAGE) {
+            // 如果请求被取消了，那么结果数组就是空的
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                flag_write_storage = true;
+            }else{
+                Toast.makeText(ShareActivity.this, "写存储权限申请失败", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

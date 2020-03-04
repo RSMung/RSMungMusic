@@ -92,7 +92,7 @@ public class DisplayActivity extends BaseActivity {
     private boolean pause_task_flag = false;//是否有定时停止任务的标志
     private double rest_of_time = 0;//用于存储定时停止播放任务的剩余时间
     private int progress_broadcast_content = MusicService.PROGRESS_DURATION;//进度条的广播命令
-    private final int REQ_READ_EXTERNAL_STORAGE = 1;//权限请求码,1代表外部存储权限
+    private final int REQ_READ_EXTERNAL_STORAGE = 1;//权限请求码,1代表读取外部存储权限,2代表写存储
     private int default_playMode = 0;//默认播放模式,用于打开单选框时默认选中位置的设置
     /*广播接收器*/
     private HeadsetPlugReceiver headsetReceiver = null;//耳机监听
@@ -860,10 +860,10 @@ public class DisplayActivity extends BaseActivity {
     public void requestPermissionByHand() {
         //判断当前系统的版本
         if (Build.VERSION.SDK_INT >= 23) {
-            int checkWriteStoragePermission = ContextCompat.checkSelfPermission(
+            int checkReadStoragePermission = ContextCompat.checkSelfPermission(
                     DisplayActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
-            //如果没有被授予
-            if (checkWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            //如果读取没有被授予
+            if (checkReadStoragePermission != PackageManager.PERMISSION_GRANTED) {
                 //请求权限,此处可以同时申请多个权限
                 ActivityCompat.requestPermissions(
                         DisplayActivity.this, new String[]{
@@ -882,11 +882,13 @@ public class DisplayActivity extends BaseActivity {
             // 如果请求被取消了，那么结果数组就是空的
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // 权限被授予了
-                if (song_total_number == 0)
+                if (song_total_number == 0){
                     load_Songs_data();//加载歌曲数据
+                    initBottomMes(current_number);
+                }
                 adapter_main_song_list_view.notifyDataSetChanged();
             } else {
-                Toast.makeText(DisplayActivity.this, "申请权限失败", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DisplayActivity.this, "读存储权限申请失败", Toast.LENGTH_SHORT).show();
             }
         }
     }

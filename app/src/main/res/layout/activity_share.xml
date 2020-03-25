@@ -9,9 +9,10 @@
         android:id="@+id/close_share"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_20"
         android:layout_gravity="end"
-        android:src="@drawable/close_gray"/>
+        android:src="@drawable/close_black_32"/>
     <LinearLayout
         android:id="@+id/main_share_picture"
         android:layout_width="match_parent"

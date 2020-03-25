@@ -7,13 +7,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.drawable.VectorDrawable;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,26 +32,30 @@ import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.ActivityCollector;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
 import edu.whut.ruansong.musicplayer.model.Song;
+import edu.whut.ruansong.musicplayer.myView.GramophoneView;
 import edu.whut.ruansong.musicplayer.service.MusicService;
 import edu.whut.ruansong.musicplayer.tool.MyDbFunctions;
+import edu.whut.ruansong.musicplayer.tool.PictureDealHelper;
 
 public class SongDetailActivity extends BaseActivity implements View.OnClickListener {
     //当前播放的歌曲,播放状态,播放进度,当前的歌曲的总时长,当前播放模式
     private int current_number,current_status,current_progress,duration,current_PlayMode;
     private Song current_song;
     private List<Song> songsList ,myLoveSongs;//歌曲列表
-    private ImageView album_view;
+//    private ImageView album_view;
     private TextView song_name,song_artist,duration_text,current_progress_text;
     private ImageView play_pause_action,pre_action,next_action,playMode;
     private SeekBar seekBar;
     private ProgressBarReceiver progressBarReceiver ;
     private StatusChangedReceiver statusChangedReceiver;
     private MyDbFunctions myDbFunctions;
+    private Toolbar toolbar;
+    private GramophoneView gramophoneView;
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         setContentView(R.layout.activity_song_detail);
-        Toolbar toolbar = findViewById(R.id.toolbar_detail_activity);//toolbar栏
+        toolbar = findViewById(R.id.toolbar_detail_activity);//toolbar栏
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {//toolbar回退键
             @Override
@@ -68,16 +75,19 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         songsList = DisplayActivity.getSongsList();
         current_song = songsList.get(current_number);
         //更新专辑图片
-        Bitmap album_icon = getAlbumPicture(current_song.getDataPath(),450,450);
-        album_view = findViewById(R.id.album_icon_detail_activity);
-        album_view.setImageBitmap(album_icon);
+        Bitmap album_icon = PictureDealHelper.getAlbumPicture(this,current_song.getDataPath(),450,450);
+//        album_view = findViewById(R.id.album_icon_detail_activity);
+//        album_view.setImageBitmap(album_icon);
+        gramophoneView = findViewById(R.id.gramophone_view);
+        gramophoneView.setPictureRes(album_icon);
+        if(current_status == MusicService.STATUS_PLAYING){
+            gramophoneView.setPlaying(true);
+        }
         //更改歌曲名字,歌手
         String title = current_song.getTitle();
-        song_name = findViewById(R.id.detail_activity_name);
-        song_name.setText(title);
+        toolbar.setTitle(title);
         String artist = current_song.getArtist();
-        song_artist = findViewById(R.id.detail_activity_author);
-        song_artist.setText(artist);
+        toolbar.setSubtitle(artist);
         //播放_暂停按钮
         play_pause_action = findViewById(R.id.play_pause_action);
         if(current_status == MusicService.STATUS_PLAYING){
@@ -151,9 +161,6 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                 playMode.setImageDrawable(getDrawable(R.drawable.random_32));
                 break;
         }
-        //分享
-        ImageView share_action = findViewById(R.id.share_detail_activity);
-        share_action.setOnClickListener(this);
     }
     /**
      * Activity即将销毁,做一些最终的资源回收
@@ -213,12 +220,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
             case R.id.playMode_detail_activity:
                 showPopupMenu(playMode);
                 break;
-            case R.id.share_detail_activity:
-                Intent intent = new Intent(SongDetailActivity.this,ShareActivity.class);
-                intent.putExtra("dataPath",current_song.getDataPath());
-                intent.putExtra("title",current_song.getTitle());
-                intent.putExtra("artist",current_song.getArtist());
-                startActivity(intent);
+            default:
                 break;
         }
     }
@@ -253,46 +255,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         int second = duration_second % 60;//求得不满一分钟的秒数
         return minute+":"+second;
     }
-    /**********获取歌曲专辑图片*************/
-    public Bitmap getAlbumPicture(String dataPath, int scale_length, int scale_width) {
-        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        mmr.setDataSource(dataPath);
-        byte[] data = mmr.getEmbeddedPicture();
-        Bitmap albumPicture;
-        if (data != null) {
-            //获取bitmap对象
-            albumPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
-            //获取宽高
-            int width = albumPicture.getWidth();
-            int height = albumPicture.getHeight();
-            //Log.w("DisplayActivity","width = "+width+" height = "+height);
-            // 创建操作图片用的Matrix对象
-            Matrix matrix = new Matrix();
-            // 计算缩放比例
-            float sx = ((float) scale_length / width);
-            float sy = ((float) scale_width / height);
-            // 设置缩放比例
-            matrix.postScale(sx, sy);
-            // 建立新的bitmap，其内容是对原bitmap的缩放后的图
-            albumPicture = Bitmap.createBitmap(albumPicture, 0, 0, width, height, matrix, false);
-            return albumPicture;
-        } else {
-            albumPicture = BitmapFactory.decodeResource(getResources(), R.drawable.default_album_icon);
-            int width = albumPicture.getWidth();
-            int height = albumPicture.getHeight();
-            //Log.w("DisplayActivity", "width = " + width + " height = " + height);
-            // 创建操作图片用的Matrix对象
-            Matrix matrix = new Matrix();
-            // 计算缩放比例
-            float sx = ((float) scale_length / width);
-            float sy = ((float) scale_width / height);
-            // 设置缩放比例
-            matrix.postScale(sx, sy);
-            // 建立新的bitmap，其内容是对原bitmap的缩放后的图
-            albumPicture = Bitmap.createBitmap(albumPicture, 0, 0, width, height, matrix, false);
-            return albumPicture;
-        }
-    }
+
     /***发送命令，控制音乐播放，参数定义在MusicService中*/
     private void sendBroadcastOnCommand(int command) {
         //1.创建intent,控制命令
@@ -328,21 +291,25 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                     play_pause_action.setImageDrawable(getDrawable(R.drawable.pause_black_64));//改变图标
                     seekBar.setMax(duration);
                     duration_text.setText(durationToString(duration));
-                    album_view.setImageBitmap(getAlbumPicture(current_song.getDataPath(),450,450));
-                    song_name.setText(current_song.getTitle());
-                    song_artist.setText(current_song.getArtist());
+//                    album_view.setImageBitmap();
+                    gramophoneView.setPictureRes(PictureDealHelper.getAlbumPicture(context,current_song.getDataPath(),450,450));
+                    toolbar.setTitle(current_song.getTitle());
+                    toolbar.setSubtitle(current_song.getArtist());
                     //更新状态
                     current_status = MusicService.STATUS_PLAYING;
+                    gramophoneView.setPlaying(true);
                     break;
                 //播放器状态更改为暂停
                 case MusicService.STATUS_PAUSED:
                     play_pause_action.setImageDrawable(getDrawable(R.drawable.play_black_64));
                     current_status = MusicService.STATUS_PAUSED;
+                    gramophoneView.setPlaying(false);
                     break;
                 //音乐播放服务已停止
                 case MusicService.STATUS_STOPPED:
                     ActivityCollector.finishAll();
                     current_status = MusicService.STATUS_STOPPED;
+                    gramophoneView.setPlaying(false);
                     break;
                 //播放器状态更改为播放完成
                 case MusicService.STATUS_COMPLETED:
@@ -400,5 +367,28 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    /*toolbar的menu加载*/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_song_detail_activity,menu);
+        return true;
+    }
+    /*menu的点击事件*/
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.song_detail_toolbar_menu_share:
+                Intent intent = new Intent(SongDetailActivity.this,ShareActivity.class);
+                intent.putExtra("dataPath",current_song.getDataPath());
+                intent.putExtra("title",current_song.getTitle());
+                intent.putExtra("artist",current_song.getArtist());
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 }

@@ -14,7 +14,9 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.drawable.VectorDrawable;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,6 +55,7 @@ import edu.whut.ruansong.musicplayer.model.PlayHistory;
 import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.Song;
 import edu.whut.ruansong.musicplayer.tool.DrawerLayoutListViewAdapter;
+import edu.whut.ruansong.musicplayer.tool.PictureDealHelper;
 import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
 /**
@@ -105,7 +108,6 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.w("DisplayActivity", "进入onCreate");
         /*解决软键盘弹起时，底部控件被顶上去的问题*/
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         /*设定布局*/
@@ -137,7 +139,6 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.w("DisplayActivity", "进入onStart");
 //        adapter_main_song_list_view.notifyDataSetChanged();
         //广播接收器重新注册
         if (headsetReceiver == null && progressBarReceiver == null) {
@@ -150,13 +151,12 @@ public class DisplayActivity extends BaseActivity {
             play_bar_song_name.setText(songsList.get(current_number).getTitle());
             play_bar_song_author.setText(songsList.get(current_number).getArtist());
             album_icon.setImageBitmap(
-                    getAlbumPicture(
-                            songsList.get(current_number).getDataPath(), 120, 120));
+                    PictureDealHelper.getAlbumPicture(this,songsList.get(current_number).getDataPath(), 120, 120));
             if (current_status == MusicService.STATUS_PLAYING) {
                 //正在播放
-                play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_5));
+                play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_32));
             } else {
-                play_bar_btn_play.setBackground(getDrawable(R.drawable.play_5));
+                play_bar_btn_play.setBackground(getDrawable(R.drawable.play_32));
             }
         }
     }
@@ -167,7 +167,6 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.w("DisplayActivity", "进入onResume");
         sendBroadcastOnCommand(MusicService.COMMAND_REQUEST_DURATION);
     }
 
@@ -177,7 +176,6 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.w("DisplayActivity", "进入onPause");
     }
 
     /**
@@ -186,7 +184,6 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.w("DisplayActivity", "进入onStop");
     }
 
     /**
@@ -195,7 +192,6 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.w("DisplayActivity", "进入onDestroy");
         if (headsetReceiver != null)
             unregisterReceiver(headsetReceiver);//取消广播接收器的注册
         if (statusChangedReceiver != null)
@@ -335,7 +331,7 @@ public class DisplayActivity extends BaseActivity {
                                     artist,
                                     duration,
                                     albumId,
-                                    getAlbumPicture(dataPath, 96, 96),
+                                    PictureDealHelper.getAlbumPicture(this,dataPath, 96, 96),
                                     dataPath,
                                     song_total_number,
                                     false
@@ -555,9 +551,9 @@ public class DisplayActivity extends BaseActivity {
         //配置侧滑界面listView
         List<DrawerLayoutListViewItem> drawer_list_view_content = new ArrayList<>();
         DrawerLayoutListViewItem myLoveSongs = new DrawerLayoutListViewItem(R.drawable.love, "我喜欢的音乐");
-        DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time_2, "定时停止播放");
+        DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time, "定时停止播放");
         DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting, "播放模式");
-        DrawerLayoutListViewItem feedback_suggestions = new DrawerLayoutListViewItem(R.drawable.about_2, "关于");
+        DrawerLayoutListViewItem feedback_suggestions = new DrawerLayoutListViewItem(R.drawable.about, "关于");
         DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit_2, "退出");
         drawer_list_view_content.add(myLoveSongs);
         drawer_list_view_content.add(play_mode_select);
@@ -620,7 +616,7 @@ public class DisplayActivity extends BaseActivity {
                 case MusicService.STATUS_PLAYING:
                     //把底部播放按钮的图标改变,列表中正在播放的歌曲的颜色改变
                     Log.w("DisplayActivity", "STATUS_PLAYING");
-                    play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_5));//改变图标
+                    play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_32));//改变图标
                     current_number = MusicService.getCurrent_number();//更改存储的当前播放歌曲序号
                     //加载歌名和歌手,设置专辑图片
                     initBottomMes(current_number);
@@ -632,7 +628,7 @@ public class DisplayActivity extends BaseActivity {
                 //播放器状态更改为暂停
                 case MusicService.STATUS_PAUSED:
                     Log.w("DisplayActivity", "STATUS_PAUSED");
-                    play_bar_btn_play.setBackground(getDrawable(R.drawable.play_5));//把底部播放按钮的图标改变
+                    play_bar_btn_play.setBackground(getDrawable(R.drawable.play_32));//把底部播放按钮的图标改变
                     //通知适配器数据变化
                     adapter_main_song_list_view.notifyDataSetChanged();
                     break;
@@ -691,48 +687,7 @@ public class DisplayActivity extends BaseActivity {
         play_bar_song_author.setText(song.getArtist());
         //设置专辑图片
         //album_icon.setImageDrawable(getImage(songsList.get(current_number).getAlbum_id()));
-        album_icon.setImageBitmap(getAlbumPicture(songsList.get(current_number).getDataPath(), 120, 120));
-    }
-
-    /**********获取歌曲专辑图片*************/
-    public Bitmap getAlbumPicture(String dataPath, int scale_length, int scale_width) {
-        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        mmr.setDataSource(dataPath);
-        byte[] data = mmr.getEmbeddedPicture();
-        Bitmap albumPicture;
-        if (data != null) {
-            //获取bitmap对象
-            albumPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
-            //获取宽高
-            int width = albumPicture.getWidth();
-            int height = albumPicture.getHeight();
-            //Log.w("DisplayActivity","width = "+width+" height = "+height);
-            // 创建操作图片用的Matrix对象
-            Matrix matrix = new Matrix();
-            // 计算缩放比例
-            float sx = ((float) scale_length / width);
-            float sy = ((float) scale_width / height);
-            // 设置缩放比例
-            matrix.postScale(sx, sy);
-            // 建立新的bitmap，其内容是对原bitmap的缩放后的图
-            albumPicture = Bitmap.createBitmap(albumPicture, 0, 0, width, height, matrix, false);
-            return albumPicture;
-        } else {
-            albumPicture = BitmapFactory.decodeResource(getResources(), R.drawable.default_album_icon);
-            int width = albumPicture.getWidth();
-            int height = albumPicture.getHeight();
-            //Log.w("DisplayActivity", "width = " + width + " height = " + height);
-            // 创建操作图片用的Matrix对象
-            Matrix matrix = new Matrix();
-            // 计算缩放比例
-            float sx = ((float) scale_length / width);
-            float sy = ((float) scale_width / height);
-            // 设置缩放比例
-            matrix.postScale(sx, sy);
-            // 建立新的bitmap，其内容是对原bitmap的缩放后的图
-            albumPicture = Bitmap.createBitmap(albumPicture, 0, 0, width, height, matrix, false);
-            return albumPicture;
-        }
+        album_icon.setImageBitmap(PictureDealHelper.getAlbumPicture(this,songsList.get(current_number).getDataPath(), 120, 120));
     }
 
     /*** 定时停止播放*/
@@ -740,7 +695,7 @@ public class DisplayActivity extends BaseActivity {
         final AlertDialog.Builder customizeDialog = new AlertDialog.Builder(DisplayActivity.this);
         @SuppressLint("InflateParams") final View dialogView = LayoutInflater.from(DisplayActivity.this).inflate(R.layout.dialog_stop_with_time, null);
         customizeDialog.setView(dialogView);
-        customizeDialog.setIcon(R.drawable.stop_with_time_2);
+        customizeDialog.setIcon(R.drawable.stop_with_time);
         customizeDialog.setTitle("定时停止播放");
         Button b_ok = dialogView.findViewById(R.id.btn_time_ok);
         Button b_cancel = dialogView.findViewById(R.id.btn_time_cancel);

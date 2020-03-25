@@ -49,8 +49,7 @@ public class SearchDetailActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent_back = new Intent(SearchDetailActivity.this,
-                        DisplayActivity.class);
+                Intent intent_back = new Intent(SearchDetailActivity.this, DisplayActivity.class);
                 startActivity(intent_back);
             }
         });

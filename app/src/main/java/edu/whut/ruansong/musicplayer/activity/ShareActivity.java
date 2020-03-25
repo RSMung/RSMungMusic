@@ -31,6 +31,7 @@ import java.util.Locale;
 
 import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
+import edu.whut.ruansong.musicplayer.tool.PictureDealHelper;
 
 public class ShareActivity extends BaseActivity implements View.OnClickListener {
     private final int REQ_WRITE_EXTERNAL_STORAGE = 2;//权限请求码,1代表读取外部存储权限,2代表写存储
@@ -48,7 +49,7 @@ public class ShareActivity extends BaseActivity implements View.OnClickListener 
         String title = my_intent.getStringExtra("title");
         String artist = my_intent.getStringExtra("artist");
         ImageView album_icon = findViewById(R.id.share_album_icon);//专辑图片
-        album_icon.setImageBitmap(getAlbumPicture(dataPath,450,450));
+        album_icon.setImageBitmap(PictureDealHelper.getAlbumPicture(this,dataPath,450,450));
         TextView title_view = findViewById(R.id.share_title),artist_view = findViewById(R.id.share_artist);//歌曲名字和歌手
         title_view.setText(title);
         artist_view.setText(artist);
@@ -74,46 +75,6 @@ public class ShareActivity extends BaseActivity implements View.OnClickListener 
                     Toast.makeText(ShareActivity.this,"请手动打开写存储权限",Toast.LENGTH_SHORT).show();
                 }
                 break;
-        }
-    }
-    /**********获取歌曲专辑图片*************/
-    public Bitmap getAlbumPicture(String dataPath, int scale_length, int scale_width) {
-        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        mmr.setDataSource(dataPath);
-        byte[] data = mmr.getEmbeddedPicture();
-        Bitmap albumPicture;
-        if (data != null) {
-            //获取bitmap对象
-            albumPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
-            //获取宽高
-            int width = albumPicture.getWidth();
-            int height = albumPicture.getHeight();
-            //Log.w("DisplayActivity","width = "+width+" height = "+height);
-            // 创建操作图片用的Matrix对象
-            Matrix matrix = new Matrix();
-            // 计算缩放比例
-            float sx = ((float) scale_length / width);
-            float sy = ((float) scale_width / height);
-            // 设置缩放比例
-            matrix.postScale(sx, sy);
-            // 建立新的bitmap，其内容是对原bitmap的缩放后的图
-            albumPicture = Bitmap.createBitmap(albumPicture, 0, 0, width, height, matrix, false);
-            return albumPicture;
-        } else {
-            albumPicture = BitmapFactory.decodeResource(getResources(), R.drawable.default_album_icon);
-            int width = albumPicture.getWidth();
-            int height = albumPicture.getHeight();
-            //Log.w("DisplayActivity", "width = " + width + " height = " + height);
-            // 创建操作图片用的Matrix对象
-            Matrix matrix = new Matrix();
-            // 计算缩放比例
-            float sx = ((float) scale_length / width);
-            float sy = ((float) scale_width / height);
-            // 设置缩放比例
-            matrix.postScale(sx, sy);
-            // 建立新的bitmap，其内容是对原bitmap的缩放后的图
-            albumPicture = Bitmap.createBitmap(albumPicture, 0, 0, width, height, matrix, false);
-            return albumPicture;
         }
     }
     /**

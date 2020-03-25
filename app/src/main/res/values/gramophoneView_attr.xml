@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--TickView（打钩小动画）的属性-->
+    <declare-styleable name="TickView">
+        <!--选中时圆的颜色-->
+        <attr name="checked_color" format="color"/>
+        <!--是否选中-->
+        <attr name="checked" format="boolean"/>
+        <!--圆半径-->
+        <attr name="radius" format="dimension"/>
+    </declare-styleable>
+
+    <!--GramophoneView（唱片机）属性-->
+    <declare-styleable name="GramophoneView">
+        <!--图片半径-->
+        <attr name="picture_radius" format="dimension"/>
+        <!--图片资源id-->
+        <attr name="src" format="reference"/>
+        <!--唱片旋转速度-->
+        <attr name="disk_rotate_speed" format="float"/>
+    </declare-styleable>
+</resources>

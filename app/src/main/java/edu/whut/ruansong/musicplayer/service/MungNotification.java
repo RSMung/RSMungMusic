@@ -83,10 +83,10 @@ public class MungNotification {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){//适配Android8及以上
             NotificationChannel myChannel = new NotificationChannel(channelId,channelName,NotificationManager.IMPORTANCE_DEFAULT);
             myChannel.setDescription("Mung音乐播放器");
-            myChannel.enableLights(false);
-            myChannel.enableVibration(false);
-            myChannel.setVibrationPattern(new long[]{0});
-            myChannel.setSound(null, null);
+            myChannel.enableLights(false);//呼吸灯
+            myChannel.enableVibration(false);//震动
+            myChannel.setVibrationPattern(new long[]{0});//1000,500,2000---->震动1s停止0.5s再震动2s
+            myChannel.setSound(null, null);//声音
             mNotificationManager.createNotificationChannel(myChannel);
         }
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);

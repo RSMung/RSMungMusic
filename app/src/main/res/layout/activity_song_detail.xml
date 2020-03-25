@@ -1,55 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
     android:background="@drawable/background_gradient">
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar_detail_activity"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:navigationIcon="@drawable/back_detail_activity"
-        app:title=" "
-        app:titleTextColor="@color/white_color"/>
+        app:title="演员"
+        app:subtitle="薛之谦"
+        app:subtitleTextColor="@color/black_color" />
     <RelativeLayout
+        android:id="@+id/rv_album_icon_song_detail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar_detail_activity"
         android:gravity="center">
-        <ImageView
-            android:id="@+id/album_icon_detail_activity"
+<!--        <ImageView-->
+<!--            android:id="@+id/album_icon_detail_activity"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="@dimen/dp_20"-->
+<!--            android:src="@drawable/album_icon_test"/>-->
+        <edu.whut.ruansong.musicplayer.myView.GramophoneView
+            android:id="@+id/gramophone_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/dp_20"
-            android:src="@drawable/album_icon_test"/>
+            android:layout_gravity="center_horizontal"
+            app:picture_radius="100dp"
+            app:disk_rotate_speed="0.2"
+            app:src="@drawable/album_svg_32"/>
     </RelativeLayout>
-    <TextView
-        android:id="@+id/detail_activity_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="演员"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
-    <TextView
-        android:id="@+id/detail_activity_author"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_10"
-        android:text="薛之谦"
-        android:textSize="15sp"/>
-
-    <ImageView
-        android:id="@+id/love_song_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_10"
-        android:src="@drawable/love" />
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/otherFunctions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_20">
+        android:layout_above="@+id/lv_seekBar"
+        android:layout_marginBottom="@dimen/dp_20">
+        <ImageView
+            android:id="@+id/love_song_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/love" />
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/lv_seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/rv_control"
+        android:layout_marginBottom="@dimen/dp_20">
         <TextView
             android:id="@+id/current_progress_text"
             android:layout_width="wrap_content"
@@ -60,9 +63,10 @@
         <SeekBar
             android:id="@+id/seekBar"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:background="@color/gray_color"/>
+            android:background="@color/lucid_white_color"/>
         <TextView
             android:id="@+id/duration_text"
             android:layout_width="wrap_content"
@@ -71,49 +75,47 @@
             android:text="3:50"
             android:textSize="@dimen/sp_15"/>
     </LinearLayout>
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/rv_control"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_30">
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/dp_20">
+        <ImageView
+            android:id="@+id/playMode_detail_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:src="@drawable/order_32"/>
         <ImageView
             android:id="@+id/pre_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/dp_30"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             android:src="@drawable/pre_black_48"/>
         <ImageView
             android:id="@+id/play_pause_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             android:src="@drawable/play_black_64"/>
         <ImageView
             android:id="@+id/next_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="@dimen/dp_30"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             android:src="@drawable/next_black_48"/>
-    </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_30">
         <ImageView
-            android:id="@+id/playMode_detail_activity"
+            android:id="@+id/history_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dp_40"
-            android:src="@drawable/order_32"/>
-        <ImageView
-            android:id="@+id/share_detail_activity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="@dimen/dp_40"
-            android:src="@drawable/share_detail_activity"/>
-    </RelativeLayout>
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:src="@drawable/history_32"/>
+    </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

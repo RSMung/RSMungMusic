@@ -22,7 +22,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dp_20"
-                android:src="@drawable/head"
+                android:src="@drawable/head_login_80"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
 
@@ -35,7 +35,7 @@
                 android:id="@+id/user_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/user_white"
+                android:src="@drawable/user_white_login_25"
                 android:layout_centerVertical="true"
                 android:paddingStart="@dimen/dp_10"/>
 
@@ -61,7 +61,7 @@
                 android:id="@+id/pas_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/password_white"
+                android:src="@drawable/password_white_login_25"
                 android:layout_centerVertical="true"
                 android:paddingStart="@dimen/dp_15"/>
 

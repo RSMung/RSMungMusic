@@ -6,12 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.drawable.VectorDrawable;
-import android.media.MediaMetadataRetriever;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.graphics.Palette;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -20,10 +18,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -32,6 +29,7 @@ import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.ActivityCollector;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
 import edu.whut.ruansong.musicplayer.model.Song;
+import edu.whut.ruansong.musicplayer.model.SongsCollector;
 import edu.whut.ruansong.musicplayer.myView.GramophoneView;
 import edu.whut.ruansong.musicplayer.service.MusicService;
 import edu.whut.ruansong.musicplayer.tool.MyDbFunctions;
@@ -41,8 +39,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
     //当前播放的歌曲,播放状态,播放进度,当前的歌曲的总时长,当前播放模式
     private int current_number,current_status,current_progress,duration,current_PlayMode;
     private Song current_song;
-    private List<Song> songsList ,myLoveSongs;//歌曲列表
-//    private ImageView album_view;
+    private List<Song> myLoveSongs;//歌曲列表
     private TextView song_name,song_artist,duration_text,current_progress_text;
     private ImageView play_pause_action,pre_action,next_action,playMode;
     private SeekBar seekBar;
@@ -52,10 +49,15 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
     private Toolbar toolbar;
     private GramophoneView gramophoneView;
     private int windowWidth,windowHeight;
+    private Bitmap album_icon = null;
+    private int default_lightColor;
+    private int default_darkColor;
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         setContentView(R.layout.activity_song_detail);
+        default_lightColor = getResources().getColor(R.color.shallow_violet_color);
+        default_darkColor = getResources().getColor(R.color.shallow_green_color);
         toolbar = findViewById(R.id.toolbar_detail_activity);//toolbar栏
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {//toolbar回退键
@@ -73,14 +75,15 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         Log.w("SongDetailActivity","current_status ="+current_status);
         current_progress = my_intent.getIntExtra("current_progress",0);
         //准备更新UI
-        songsList = DisplayActivity.getSongsList();
-        current_song = songsList.get(current_number);
+        current_song = SongsCollector.getSong(current_number);
         //更新专辑图片
         gramophoneView = findViewById(R.id.gramophone_view);
         windowWidth = getWindowManager().getDefaultDisplay().getWidth();
         windowHeight = getWindowManager().getDefaultDisplay().getHeight();
         gramophoneView.setPictureRadius(windowWidth/4);
-        gramophoneView.setPictureRes(PictureDealHelper.getAlbumPicture(this,current_song.getDataPath(),windowWidth/4,windowWidth/4));
+        album_icon = PictureDealHelper.getAlbumPicture(this,current_song.getDataPath(),windowWidth/4,windowWidth/4);
+        updateBackground();
+        gramophoneView.setPictureRes(album_icon);
         if(current_status == MusicService.STATUS_PLAYING){
             gramophoneView.setPlaying(true);
         }else {
@@ -111,7 +114,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         current_progress_text = findViewById(R.id.current_progress_text);
         current_progress = my_intent.getIntExtra("current_progress",0);//当前进度值
         current_progress_text.setText(durationToString(current_progress));//当前进度文本
-        duration = my_intent.getIntExtra("duration",0);//总时长值
+        duration = (int)current_song.getDuration();//总时长值
         duration_text.setText(durationToString(duration));//总时长文本
         seekBar.setMax(duration);
         seekBar.setProgress(current_progress);
@@ -176,8 +179,8 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
             unregisterReceiver(progressBarReceiver);
         if (statusChangedReceiver != null)
             unregisterReceiver(statusChangedReceiver);
-        songsList = null;
         myLoveSongs = null;
+        album_icon = null;
     }
 
     @Override
@@ -255,12 +258,20 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         }
     }
     /**
-     * 把毫秒时长转换为类似3:50的String*/
+     * 把毫秒时长转换为类似03:50的String*/
     public String durationToString(int duration){
         int duration_second = duration / 1000;//单位转换为秒
         int minute = duration_second / 60;//求得分钟数
         int second = duration_second % 60;//求得不满一分钟的秒数
-        return minute+":"+second;
+        StringBuilder sb = new StringBuilder();
+        if(minute < 10)
+            sb.append(0);
+        sb.append(minute);
+        sb.append(':');
+        if(second < 10)
+            sb.append(0);
+        sb.append(second);
+        return sb.toString();
     }
 
     /***发送命令，控制音乐播放，参数定义在MusicService中*/
@@ -292,7 +303,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                 //播放器状态更改为正在播放
                 case MusicService.STATUS_PLAYING:
                     current_number = MusicService.getCurrent_number();//更改存储的当前播放歌曲序号
-                    current_song = songsList.get(current_number);
+                    current_song = SongsCollector.getSong(current_number);
                     duration = (int)current_song.getDuration();
                     //更新UI
                     play_pause_action.setImageDrawable(getDrawable(R.drawable.pause_black_64));//改变图标
@@ -303,9 +314,11 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                     //更新状态
                     current_status = MusicService.STATUS_PLAYING;
                     //更新留声机
-                    gramophoneView.setPictureRes(PictureDealHelper.getAlbumPicture(context,
-                            current_song.getDataPath(),windowWidth/4,windowWidth/4));
+                    album_icon = PictureDealHelper.getAlbumPicture(context, current_song.getDataPath(),windowWidth/4,windowWidth/4);
+                    gramophoneView.setPictureRes(album_icon);
                     gramophoneView.setPlaying(true);
+                    //更新activity背景
+                    updateBackground();
                     break;
                 //播放器状态更改为暂停
                 case MusicService.STATUS_PAUSED:
@@ -398,5 +411,51 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                 break;
         }
         return true;
+    }
+
+    /**
+     * 根据专辑图片提取颜色更新activity的背景*/
+    public void updateBackground(){
+        Palette.from(album_icon).generate(new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(@Nullable Palette palette) {
+                //暗、活跃
+                int darkMutedColor = palette.getDarkVibrantColor(default_darkColor);//如果分析不出来，则返回默认颜色
+                //亮、柔和
+                int lightMutedColor = palette.getLightMutedColor(default_lightColor);
+                int[] colors = {lightMutedColor,darkMutedColor};
+                GradientDrawable.Orientation orientation = null;
+                int orientation_flag = (int) (Math.random()*8);
+                switch (orientation_flag){
+                    case 0:
+                        orientation = GradientDrawable.Orientation.TOP_BOTTOM;
+                        break;
+                    case 1:
+                        orientation = GradientDrawable.Orientation.TR_BL;
+                        break;
+                    case 2:
+                        orientation = GradientDrawable.Orientation.RIGHT_LEFT;
+                        break;
+                    case 3:
+                        orientation = GradientDrawable.Orientation.BR_TL;
+                        break;
+                    case 4:
+                        orientation = GradientDrawable.Orientation.BOTTOM_TOP;
+                        break;
+                    case 5:
+                        orientation = GradientDrawable.Orientation.BL_TR;
+                        break;
+                    case 6:
+                        orientation = GradientDrawable.Orientation.LEFT_RIGHT;
+                        break;
+                    default:
+                        orientation = GradientDrawable.Orientation.TL_BR;
+                        break;
+                }
+                GradientDrawable gradientBackground = new GradientDrawable(orientation,colors);
+                RelativeLayout root = findViewById(R.id.rootRv_songDetailActivity);
+                root.setBackground(gradientBackground);
+            }
+        });
     }
 }

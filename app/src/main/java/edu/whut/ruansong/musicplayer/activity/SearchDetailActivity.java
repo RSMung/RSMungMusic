@@ -23,6 +23,7 @@ import java.util.List;
 
 import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.Song;
+import edu.whut.ruansong.musicplayer.model.SongsCollector;
 import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 import edu.whut.ruansong.musicplayer.service.MusicService;
 
@@ -186,7 +187,7 @@ public class SearchDetailActivity extends AppCompatActivity {
         char[] charArray_mes = mes.toCharArray();
         int mes_len = charArray_mes.length;//获得这个字符数组的长度
         //获取本地歌曲列表
-        songsList = DisplayActivity.getSongsList();
+        songsList = SongsCollector.getSongsList();
         num_songs = songsList.size();
         if (songsList.isEmpty() || !(DisplayActivity.getSong_total_number()>0)  ) {
             Toast.makeText(SearchDetailActivity.this, "本机无歌曲,请下载", Toast.LENGTH_SHORT).show();

@@ -50,6 +50,7 @@ import java.util.List;
 import edu.whut.ruansong.musicplayer.model.ActivityCollector;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
 import edu.whut.ruansong.musicplayer.model.DrawerLayoutListViewItem;
+import edu.whut.ruansong.musicplayer.model.SongsCollector;
 import edu.whut.ruansong.musicplayer.service.MusicService;
 import edu.whut.ruansong.musicplayer.model.PlayHistory;
 import edu.whut.ruansong.musicplayer.R;
@@ -87,7 +88,6 @@ public class DisplayActivity extends BaseActivity {
     /*用于存储*/
     private int duration = 0;//当前的歌曲的总时长
     private int current_progress = 0;//当前的歌曲播放进度
-    private static List<Song> songsList = new ArrayList<>();//歌曲数据
     private static int song_total_number = 0;//歌曲总数
     private int current_number = 0;//当前正在播放的歌曲
     private int current_status = MusicService.STATUS_STOPPED;//播放状态默认为停止
@@ -148,10 +148,10 @@ public class DisplayActivity extends BaseActivity {
         current_number = MusicService.getCurrent_number();
         current_status = MusicService.getCurrent_status();
         if (song_total_number != 0) {//避免空引用错误
-            play_bar_song_name.setText(songsList.get(current_number).getTitle());
-            play_bar_song_author.setText(songsList.get(current_number).getArtist());
+            play_bar_song_name.setText(SongsCollector.getSong(current_number).getTitle());
+            play_bar_song_author.setText(SongsCollector.getSong(current_number).getArtist());
             album_icon.setImageBitmap(
-                    PictureDealHelper.getAlbumPicture(this,songsList.get(current_number).getDataPath(), 120, 120));
+                    PictureDealHelper.getAlbumPicture(this,SongsCollector.getSong(current_number).getDataPath(), 120, 120));
             if (current_status == MusicService.STATUS_PLAYING) {
                 //正在播放
                 play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_32));
@@ -301,7 +301,7 @@ public class DisplayActivity extends BaseActivity {
 
     /**************加载歌曲数据************/
     private void load_Songs_data() {
-        if (songsList.size() == 0) {
+        if (SongsCollector.size() == 0) {
             //Log.w("DisplayActivity", "歌曲列表为空，需要加载");
             ContentResolver contentResolver = getContentResolver();
             try (Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -336,7 +336,7 @@ public class DisplayActivity extends BaseActivity {
                                     song_total_number,
                                     false
                             );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
-                            songsList.add(song);
+                            SongsCollector.addSong(song);
                             song_total_number++;
                         }
                     }
@@ -402,7 +402,6 @@ public class DisplayActivity extends BaseActivity {
                     Intent intent = new Intent(DisplayActivity.this, SongDetailActivity.class);
                     intent.putExtra("current_number", current_number);
                     intent.putExtra("current_status", current_status);
-                    intent.putExtra("duration", duration);
                     intent.putExtra("current_progress", current_progress);
                     intent.putExtra("current_PlayMode",default_playMode);
                     startActivity(intent);
@@ -568,7 +567,7 @@ public class DisplayActivity extends BaseActivity {
      * 配置歌曲列表
      */
     public void config_listViewAdapter() {
-        adapter_main_song_list_view = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, songsList);
+        adapter_main_song_list_view = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, SongsCollector.getSongsList());
         adapter_history = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.getSongs());
         main_song_list_view.setAdapter(adapter_main_song_list_view);
     }
@@ -684,12 +683,12 @@ public class DisplayActivity extends BaseActivity {
      * 设置底部的一栏左侧的歌曲名和歌手以及专辑图片
      ***/
     public void initBottomMes(int position) {//
-        Song song = songsList.get(position);//获取点击位置的song对象
+        Song song = SongsCollector.getSong(position);//获取点击位置的song对象
         play_bar_song_name.setText(song.getTitle());
         play_bar_song_author.setText(song.getArtist());
         //设置专辑图片
         //album_icon.setImageDrawable(getImage(songsList.get(current_number).getAlbum_id()));
-        album_icon.setImageBitmap(PictureDealHelper.getAlbumPicture(this,songsList.get(current_number).getDataPath(), 120, 120));
+        album_icon.setImageBitmap(PictureDealHelper.getAlbumPicture(this,SongsCollector.getSong(current_number).getDataPath(), 120, 120));
     }
 
     /*** 定时停止播放*/
@@ -862,14 +861,6 @@ public class DisplayActivity extends BaseActivity {
             //横屏操作
             Log.w("DisplayActivity", "横屏");
         }
-    }
-
-    public static List<Song> getSongsList() {
-        return songsList;
-    }
-
-    public static void setSongsList(List<Song> songsList) {
-        DisplayActivity.songsList = songsList;
     }
 
     public static int getSong_total_number() {

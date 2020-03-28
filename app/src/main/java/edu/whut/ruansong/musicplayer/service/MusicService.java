@@ -17,6 +17,7 @@ import java.util.TimerTask;
 import edu.whut.ruansong.musicplayer.model.PlayHistory;
 import edu.whut.ruansong.musicplayer.model.Song;
 import edu.whut.ruansong.musicplayer.activity.DisplayActivity;
+import edu.whut.ruansong.musicplayer.model.SongsCollector;
 
 
 /**
@@ -286,7 +287,7 @@ public class MusicService extends Service {
      * 应用next_number参数播放歌曲
      */
     public void play() {
-        song = DisplayActivity.getSongsList().get(next_number);//通过序号拿Song对象
+        song = SongsCollector.getSong(next_number);//通过序号拿Song对象
         song_path = song.getDataPath();//获取歌曲文件地址
         player_start();//path装载到player后才可以获取时长
         PlayHistory.addSong(song);//加入历史记录列表

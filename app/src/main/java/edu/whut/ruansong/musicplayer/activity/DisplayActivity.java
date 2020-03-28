@@ -610,8 +610,10 @@ public class DisplayActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             //获取播放器状态
-            current_status = intent.getIntExtra("status", -1);
-            switch (current_status) {
+            int status = intent.getIntExtra("status", -1);
+            if(status != MusicService.PLAY_MODE_UPDATE)
+                current_status = status;
+            switch (status) {
                 //播放器状态更改为正在播放
                 case MusicService.STATUS_PLAYING:
                     //把底部播放按钮的图标改变,列表中正在播放的歌曲的颜色改变

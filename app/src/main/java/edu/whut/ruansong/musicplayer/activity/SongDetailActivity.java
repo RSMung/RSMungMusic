@@ -51,6 +51,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
     private MyDbFunctions myDbFunctions;
     private Toolbar toolbar;
     private GramophoneView gramophoneView;
+    private int windowWidth,windowHeight;
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
@@ -75,13 +76,15 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         songsList = DisplayActivity.getSongsList();
         current_song = songsList.get(current_number);
         //更新专辑图片
-        Bitmap album_icon = PictureDealHelper.getAlbumPicture(this,current_song.getDataPath(),450,450);
-//        album_view = findViewById(R.id.album_icon_detail_activity);
-//        album_view.setImageBitmap(album_icon);
         gramophoneView = findViewById(R.id.gramophone_view);
-        gramophoneView.setPictureRes(album_icon);
+        windowWidth = getWindowManager().getDefaultDisplay().getWidth();
+        windowHeight = getWindowManager().getDefaultDisplay().getHeight();
+        gramophoneView.setPictureRadius(windowWidth/4);
+        gramophoneView.setPictureRes(PictureDealHelper.getAlbumPicture(this,current_song.getDataPath(),windowWidth/4,windowWidth/4));
         if(current_status == MusicService.STATUS_PLAYING){
             gramophoneView.setPlaying(true);
+        }else {
+            gramophoneView.setPlaying(false);
         }
         //更改歌曲名字,歌手
         String title = current_song.getTitle();
@@ -199,15 +202,19 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
             case R.id.play_pause_action:
                 switch (current_status) {
                     case MusicService.STATUS_PLAYING:
+                        Log.w("SearchDetailActivity","发送暂停命令");
                         sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
                         break;
                     case MusicService.STATUS_PAUSED:
+                        Log.w("SearchDetailActivity","发送恢复命令");
                         sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
                         break;
                     case MusicService.STATUS_STOPPED:
+                        Log.w("SearchDetailActivity","发送停止命令");
                         sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
                         break;
                     default:
+                        Log.w("SearchDetailActivity","什么命令也不发送");
                         break;
                 }
                 break;
@@ -291,12 +298,13 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                     play_pause_action.setImageDrawable(getDrawable(R.drawable.pause_black_64));//改变图标
                     seekBar.setMax(duration);
                     duration_text.setText(durationToString(duration));
-//                    album_view.setImageBitmap();
-                    gramophoneView.setPictureRes(PictureDealHelper.getAlbumPicture(context,current_song.getDataPath(),450,450));
                     toolbar.setTitle(current_song.getTitle());
                     toolbar.setSubtitle(current_song.getArtist());
                     //更新状态
                     current_status = MusicService.STATUS_PLAYING;
+                    //更新留声机
+                    gramophoneView.setPictureRes(PictureDealHelper.getAlbumPicture(context,
+                            current_song.getDataPath(),windowWidth/4,windowWidth/4));
                     gramophoneView.setPlaying(true);
                     break;
                 //播放器状态更改为暂停

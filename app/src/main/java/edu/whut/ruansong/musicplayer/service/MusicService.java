@@ -382,7 +382,7 @@ public class MusicService extends Service {
                         //Log.w("MusicService","Timer运行中");
                     }
                 };
-                timer.schedule(task, 500, 1000);
+                timer.schedule(task, 50, 1000);
             }
         });
         update_progress_thread.start();

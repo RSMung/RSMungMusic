@@ -18,6 +18,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -28,12 +30,14 @@ import java.util.List;
 import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.ActivityCollector;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
+import edu.whut.ruansong.musicplayer.model.PlayHistory;
 import edu.whut.ruansong.musicplayer.model.Song;
 import edu.whut.ruansong.musicplayer.model.SongsCollector;
 import edu.whut.ruansong.musicplayer.myView.GramophoneView;
 import edu.whut.ruansong.musicplayer.service.MusicService;
 import edu.whut.ruansong.musicplayer.tool.MyDbFunctions;
 import edu.whut.ruansong.musicplayer.tool.PictureDealHelper;
+import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
 public class SongDetailActivity extends BaseActivity implements View.OnClickListener {
     //当前播放的歌曲,播放状态,播放进度,当前的歌曲的总时长,当前播放模式
@@ -52,6 +56,10 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
     private Bitmap album_icon = null;
     private int default_lightColor;
     private int default_darkColor;
+    private ImageView btn_history_view ;
+    private LinearLayout lv_history ;
+    private ListView list_history ;
+    private SongAdapter adapter_history ;
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
@@ -167,6 +175,8 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                 playMode.setImageDrawable(getDrawable(R.drawable.random_32));
                 break;
         }
+        //历史播放记录控件相关初始化
+        loadHistoryView();
     }
     /**
      * Activity即将销毁,做一些最终的资源回收
@@ -229,6 +239,13 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                 break;
             case R.id.playMode_detail_activity:
                 showPopupMenu(playMode);
+                break;
+            case R.id.btn_history_view_song_detail_activity:
+                if(lv_history.getVisibility() == View.GONE){
+                    lv_history.setVisibility(View.VISIBLE);
+                }else {
+                    lv_history.setVisibility(View.GONE);
+                }
                 break;
             default:
                 break;
@@ -319,6 +336,8 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                     gramophoneView.setPlaying(true);
                     //更新activity背景
                     updateBackground();
+                    //历史播放记录adapter通知数据变化
+                    adapter_history.notifyDataSetChanged();
                     break;
                 //播放器状态更改为暂停
                 case MusicService.STATUS_PAUSED:
@@ -457,5 +476,17 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                 root.setBackground(gradientBackground);
             }
         });
+    }
+
+    /**
+     * 加载历史播放记录控件*/
+    public void loadHistoryView(){
+        btn_history_view = findViewById(R.id.btn_history_view_song_detail_activity);
+        lv_history = findViewById(R.id.history_view);
+        lv_history.setVisibility(View.GONE);
+        list_history = findViewById(R.id.history_list_view);
+        adapter_history = new SongAdapter(SongDetailActivity.this, R.layout.song_list_item, PlayHistory.getSongs());
+        list_history.setAdapter(adapter_history);
+        btn_history_view.setOnClickListener(this);
     }
 }

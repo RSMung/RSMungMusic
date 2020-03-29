@@ -91,7 +91,6 @@ public class DisplayActivity extends BaseActivity {
     private static int song_total_number = 0;//歌曲总数
     private int current_number = 0;//当前正在播放的歌曲
     private int current_status = MusicService.STATUS_STOPPED;//播放状态默认为停止
-    private int view_history_Flag = 0;//用来控制历史播放记录控件是否可见
     private int input_time = 0;//用于存储定时停止播放输入的时间
     private boolean pause_task_flag = false;//是否有定时停止任务的标志
     private double rest_of_time = 0;//用于存储定时停止播放任务的剩余时间
@@ -230,6 +229,7 @@ public class DisplayActivity extends BaseActivity {
         play_bar_btn_next = findViewById(R.id.play_bar_btn_next);
         btn_history_menu = findViewById(R.id.btn_history_menu);
         history_view = findViewById(R.id.history_view);
+        history_view.setVisibility(View.GONE);
         history_list_view = findViewById(R.id.history_list_view);
         drawer_layout_list_view = findViewById(R.id.drawer_layout_list);
     }
@@ -440,13 +440,10 @@ public class DisplayActivity extends BaseActivity {
         btn_history_menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (view_history_Flag == 0) {
-                    history_list_view.setAdapter(adapter_history);
+                if(history_view.getVisibility() == View.GONE){
                     history_view.setVisibility(View.VISIBLE);
-                    view_history_Flag = 1;
-                } else {
+                }else {
                     history_view.setVisibility(View.GONE);
-                    view_history_Flag = 0;
                 }
 
             }
@@ -568,8 +565,9 @@ public class DisplayActivity extends BaseActivity {
      */
     public void config_listViewAdapter() {
         adapter_main_song_list_view = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, SongsCollector.getSongsList());
-        adapter_history = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.getSongs());
         main_song_list_view.setAdapter(adapter_main_song_list_view);
+        adapter_history = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.getSongs());
+        history_list_view.setAdapter(adapter_history);
     }
 
     /*******绑定广播接收器,接收来自服务的广播*/
@@ -863,7 +861,4 @@ public class DisplayActivity extends BaseActivity {
         }
     }
 
-    public static int getSong_total_number() {
-        return song_total_number;
-    }
 }

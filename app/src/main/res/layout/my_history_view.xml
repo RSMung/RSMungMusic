@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/history_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_view_rounded_corner"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/history"/>
+
+    <ListView
+        android:id="@+id/history_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
+
+</LinearLayout>

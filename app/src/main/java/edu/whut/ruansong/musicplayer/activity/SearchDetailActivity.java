@@ -189,7 +189,7 @@ public class SearchDetailActivity extends AppCompatActivity {
         //获取本地歌曲列表
         songsList = SongsCollector.getSongsList();
         num_songs = songsList.size();
-        if (songsList.isEmpty() || !(DisplayActivity.getSong_total_number()>0)  ) {
+        if (songsList.isEmpty() || !(SongsCollector.size()>0)  ) {
             Toast.makeText(SearchDetailActivity.this, "本机无歌曲,请下载", Toast.LENGTH_SHORT).show();
             return;
         }

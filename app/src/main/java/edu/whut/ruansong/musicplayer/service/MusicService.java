@@ -262,14 +262,14 @@ public class MusicService extends Service {
                 //用当前歌曲序号做随机数种子
                 Random random = new Random(System.currentTimeMillis());
                 //产生0-Song_total_number的随机数
-                next_number = random.nextInt(DisplayActivity.getSong_total_number());
+                next_number = random.nextInt(SongsCollector.size());
                 break;
             default:
                 break;
         }
         Log.w("MusicService", "nextMusic_update_number : " + next_number);
         //顺序播放时可能序号越界
-        if (next_number >= (DisplayActivity.getSong_total_number())) {
+        if (next_number >= (SongsCollector.size())) {
             //Toast.makeText(MusicService.this, "已经达到了列表底部!", Toast.LENGTH_SHORT).show();
             next_number = 0;//恢复到初始位置
             play();

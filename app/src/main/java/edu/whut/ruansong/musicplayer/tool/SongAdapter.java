@@ -35,11 +35,13 @@ public class SongAdapter extends ArrayAdapter<Song> {
 
         TextView songAuthor;
 
+        ImageView more_options;
+
     }
 
     //这个方法在每个子项被滚动到屏幕内的时候会被调用
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         Song song = getItem(position); // 获取当前项的Song实例
         View view;//子项布局对象
         ViewHolder viewHolder;//内部类对象
@@ -51,6 +53,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
             viewHolder.songImage = view.findViewById(R.id.song_image);
             viewHolder.songName = view.findViewById (R.id.title);
             viewHolder.songAuthor=view.findViewById(R.id.artist);
+            viewHolder.more_options = view.findViewById(R.id.song_item_more_options);
             view.setTag(viewHolder); // 将ViewHolder存储在View中
         } else {//不是第一次加载，即布局文件已经加载，可以利用
             view = convertView;
@@ -65,7 +68,26 @@ public class SongAdapter extends ArrayAdapter<Song> {
             //设置两个文本的字体style
             viewHolder.songName.setTypeface(Typeface.DEFAULT_BOLD);
             viewHolder.songAuthor.setTypeface(Typeface.DEFAULT_BOLD);
+
+            viewHolder.more_options.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mOnMoreOptionsListener.onMoreOptionsClick(position);
+                }
+            });
         }
         return view;
+    }
+    /**
+     * 更多选项按钮的监听接口
+     */
+    public interface onMoreOptionsListener {
+        void onMoreOptionsClick(int position);
+    }
+
+    private onMoreOptionsListener mOnMoreOptionsListener;
+
+    public void setonMoreOptionsListener(onMoreOptionsListener mOnMoreOptionsListener) {
+        this.mOnMoreOptionsListener = mOnMoreOptionsListener;
     }
 }

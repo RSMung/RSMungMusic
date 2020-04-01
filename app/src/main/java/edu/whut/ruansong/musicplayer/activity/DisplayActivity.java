@@ -21,12 +21,15 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.view.menu.MenuPopupHelper;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -37,6 +40,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -561,14 +565,73 @@ public class DisplayActivity extends BaseActivity {
         adapter_main_song_list_view = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, SongsCollector.getSongsList());
         adapter_main_song_list_view.setonMoreOptionsListener(new SongAdapter.onMoreOptionsListener() {
             @Override
-            public void onMoreOptionsClick(int position) {
+            public void onMoreOptionsClick(View view,int position) {
                 //item里面更多选项按钮的点击事件
+                showMoreOptionsPopMenu(view,position);
                 Toast.makeText(DisplayActivity.this,"position: "+position,Toast.LENGTH_SHORT).show();
             }
         });
         main_song_list_view.setAdapter(adapter_main_song_list_view);
         adapter_history = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.getSongs());
         history_list_view.setAdapter(adapter_history);
+    }
+    /**
+     * 歌曲item的更多选项按钮*/
+    private void showMoreOptionsPopMenu(View view, final int position){
+        // view代表popupMenu需要依附的view
+        PopupMenu popupMenu = new PopupMenu(DisplayActivity.this, view);
+        // 获取布局文件
+        popupMenu.getMenuInflater().inflate(R.menu.menu_more_options, popupMenu.getMenu());
+        popupMenu.show();
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // 控件每一个item的点击事件
+                Intent intent_mode = new Intent(MusicService.BROADCAST_MUSICSERVICE_CONTROL);
+                switch (item.getItemId()){
+                    case R.id.delete:
+                        showTipsDialog(position);
+                        break;
+                }
+                sendBroadcast(intent_mode);
+                return true;
+            }
+        });
+    }
+    private void showTipsDialog(final int position){
+        final List<Integer> choice = new ArrayList<>();
+        final String[] items = {"同时删除本地文件?"};
+        boolean[] isSelect = {false};//默认都未选中
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setIcon(R.drawable.about)
+                .setTitle("确定删除?")
+                .setMultiChoiceItems(items, isSelect, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int position, boolean flag) {
+                        if (flag) {
+                            choice.add(position);
+                        } else {
+                            choice.remove(choice.indexOf(position));
+                        }
+                    }
+                })
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        SongsCollector.removeSong(position);//移除歌曲
+                        if(choice.size() != 0){
+                            Toast.makeText(getBaseContext(), "你选择了同时删除本地文件" , Toast.LENGTH_SHORT).show();
+                        }
+                        adapter_main_song_list_view.notifyDataSetChanged();
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.create().show();
     }
 
     /*******绑定广播接收器,接收来自服务的广播*/

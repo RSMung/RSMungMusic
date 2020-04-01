@@ -238,7 +238,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                 sendBroadcastOnCommand(MusicService.COMMAND_PREVIOUS);
                 break;
             case R.id.playMode_detail_activity:
-                showPopupMenu(playMode);
+                showPlayModePopupMenu(playMode);
                 break;
             case R.id.btn_history_view_song_detail_activity:
                 if(lv_history.getVisibility() == View.GONE){
@@ -369,7 +369,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
     /**
      * 播放模式弹出窗口*/
     @SuppressLint("RestrictedApi")
-    private void showPopupMenu(View view) {
+    private void showPlayModePopupMenu(View view) {
         // 这里的view代表popupMenu需要依附的view
         PopupMenu popupMenu = new PopupMenu(SongDetailActivity.this, view);
         // 获取布局文件

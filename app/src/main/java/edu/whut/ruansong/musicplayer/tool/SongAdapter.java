@@ -72,7 +72,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
             viewHolder.more_options.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mOnMoreOptionsListener.onMoreOptionsClick(position);
+                    mOnMoreOptionsListener.onMoreOptionsClick(v,position);
                 }
             });
         }
@@ -82,7 +82,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
      * 更多选项按钮的监听接口
      */
     public interface onMoreOptionsListener {
-        void onMoreOptionsClick(int position);
+        void onMoreOptionsClick(View view,int position);
     }
 
     private onMoreOptionsListener mOnMoreOptionsListener;

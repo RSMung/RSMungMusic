@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/song_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,32 +14,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/dp_10"
-            android:layout_centerVertical="true"
-            android:src="@drawable/album_svg_32"/>
+            android:layout_centerVertical="true"/>
     </RelativeLayout>
 
+
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="@dimen/dp_10"
-        android:gravity="center_vertical">
+        android:layout_marginStart="@dimen/dp_10">
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:padding="@dimen/dp_10"
             android:textSize="@dimen/sp_15"
-            android:textColor="@color/black_color"
-            android:text="我是歌曲名字"
-            android:singleLine="true"
-            android:ellipsize="marquee"
-            android:clickable="true"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:marqueeRepeatLimit="marquee_forever"/>
+            android:padding="@dimen/dp_10"
+            android:textColor="@color/black_color"/>
 
         <TextView
             android:id="@+id/artist"
@@ -48,28 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:padding="@dimen/dp_10"
-            android:textColor="@color/black_color"
-            android:text="我是歌手名字"
-            android:singleLine="true"
-            android:ellipsize="marquee"
-            android:clickable="true"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:marqueeRepeatLimit="marquee_forever"/>
+            android:textColor="@color/black_color"/>
     </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:layout_marginEnd="@dimen/dp_10">
-        <ImageView
-            android:id="@+id/song_item_more_options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/more_options"/>
-    </RelativeLayout>
 
 </LinearLayout>

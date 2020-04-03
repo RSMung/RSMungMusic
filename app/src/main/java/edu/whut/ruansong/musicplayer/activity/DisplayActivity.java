@@ -12,6 +12,12 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.drawable.VectorDrawable;
+import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -471,7 +477,7 @@ public class DisplayActivity extends BaseActivity {
                         }
                         break;
                     case 3://反馈与建议
-                        feedbackAndSuggestions();
+                        feedbackAndSuggesttions();
                         drawerlayout.closeDrawer(GravityCompat.START);
                         break;
                     case 4://退出
@@ -559,13 +565,6 @@ public class DisplayActivity extends BaseActivity {
      */
     public void config_listViewAdapter() {
         adapter_main_song_list_view = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, SongsCollector.getSongsList());
-        adapter_main_song_list_view.setonMoreOptionsListener(new SongAdapter.onMoreOptionsListener() {
-            @Override
-            public void onMoreOptionsClick(int position) {
-                //item里面更多选项按钮的点击事件
-                Toast.makeText(DisplayActivity.this,"position: "+position,Toast.LENGTH_SHORT).show();
-            }
-        });
         main_song_list_view.setAdapter(adapter_main_song_list_view);
         adapter_history = new SongAdapter(DisplayActivity.this, R.layout.song_list_item, PlayHistory.getSongs());
         history_list_view.setAdapter(adapter_history);
@@ -732,7 +731,6 @@ public class DisplayActivity extends BaseActivity {
 
                     @Override
                     public void onFinish() {
-                        pause_task_flag = false;//任务已完成
                         sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
                     }
                 };
@@ -801,7 +799,7 @@ public class DisplayActivity extends BaseActivity {
     /**
      * 反馈与建议
      */
-    public void feedbackAndSuggestions() {
+    public void feedbackAndSuggesttions() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle(getResources().getString(R.string.about))
                 .setIcon(R.drawable.about)

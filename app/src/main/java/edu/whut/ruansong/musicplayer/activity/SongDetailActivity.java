@@ -25,7 +25,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
-import java.util.List;
+import java.util.ArrayList;
 
 import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.ActivityCollector;
@@ -35,7 +35,7 @@ import edu.whut.ruansong.musicplayer.model.Song;
 import edu.whut.ruansong.musicplayer.model.SongsCollector;
 import edu.whut.ruansong.musicplayer.myView.GramophoneView;
 import edu.whut.ruansong.musicplayer.service.MusicService;
-import edu.whut.ruansong.musicplayer.tool.MyDbFunctions;
+import edu.whut.ruansong.musicplayer.db.MyDbFunctions;
 import edu.whut.ruansong.musicplayer.tool.PictureDealHelper;
 import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
@@ -43,7 +43,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
     //当前播放的歌曲,播放状态,播放进度,当前的歌曲的总时长,当前播放模式
     private int current_number,current_status,current_progress,duration,current_PlayMode;
     private Song current_song;
-    private List<Song> myLoveSongs;//歌曲列表
+    private ArrayList<Song> myLoveSongs;//歌曲列表
     private TextView song_name,song_artist,duration_text,current_progress_text;
     private ImageView play_pause_action,pre_action,next_action,playMode;
     private SeekBar seekBar;
@@ -153,7 +153,8 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         ImageView love_song_icon = findViewById(R.id.love_song_icon);
         love_song_icon.setOnClickListener(this);//监听事件
         myDbFunctions = MyDbFunctions.getInstance(this);
-        myLoveSongs = myDbFunctions.loadMyLoveSongs();//从数据库加载我喜爱的歌曲
+        if(myLoveSongs == null)
+            myLoveSongs = myDbFunctions.loadMyLoveSongs();//从数据库加载我喜爱的歌曲
         for(Song s:myLoveSongs){
             if(s.getTitle().equals(current_song.getTitle())){
                 love_song_icon.setImageDrawable(getResources().getDrawable(R.drawable.full_love_32));
@@ -202,13 +203,13 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                 if(current_song.isLove()){
                     //已经是喜爱的歌曲了
                     love_song_icon.setImageDrawable(getResources().getDrawable(R.drawable.love));
-                    current_song.setLove(false);
-                    myDbFunctions.removeSong(current_song);
-                    myLoveSongs.remove(current_song);
+                    current_song.setLove(false);//修改本地标志
+                    myDbFunctions.setLove(current_song,"false");//更新数据库
+                    myLoveSongs.remove(current_song);//更新我喜爱的歌曲list
                 }else{//添加并更改图标
                     love_song_icon.setImageDrawable(getResources().getDrawable(R.drawable.full_love_32));
                     current_song.setLove(true);
-                    myDbFunctions.saveSong(current_song);
+                    myDbFunctions.setLove(current_song,"true");
                     myLoveSongs.add(current_song);
                 }
                 break;

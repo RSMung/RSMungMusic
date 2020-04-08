@@ -12,6 +12,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import edu.whut.ruansong.musicplayer.R;
+import edu.whut.ruansong.musicplayer.activity.DisplayActivity;
 import edu.whut.ruansong.musicplayer.model.Song;
 
 /**
@@ -20,10 +21,12 @@ import edu.whut.ruansong.musicplayer.model.Song;
 
 public class SongAdapter extends ArrayAdapter<Song> {
     private int resourceId;//用来放置布局文件的id
+    private Context context;
 
     //适配器的构造函数
     public SongAdapter(Context context, int textViewResourceId, List<Song> objects) {
         super(context, textViewResourceId, objects);
+        this.context = context;
         resourceId = textViewResourceId;
     }
 
@@ -58,7 +61,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
         }
         if(song!=null && viewHolder!=null){
             //传入具体信息
-            viewHolder.songImage.setImageBitmap(song.getAlbum_picture());//列表每一项的图标
+            viewHolder.songImage.setImageBitmap(song.getAlbum_icon());//列表每一项的图标
             viewHolder.songName.setText(song.getTitle());//歌名
             viewHolder.songAuthor.setText(song.getArtist());//歌手
 

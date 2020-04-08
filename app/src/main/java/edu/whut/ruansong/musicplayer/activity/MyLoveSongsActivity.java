@@ -1,10 +1,6 @@
 package edu.whut.ruansong.musicplayer.activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -12,7 +8,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 
 import java.util.List;
 
@@ -20,8 +15,7 @@ import edu.whut.ruansong.musicplayer.R;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
 import edu.whut.ruansong.musicplayer.model.Song;
 import edu.whut.ruansong.musicplayer.service.MusicService;
-import edu.whut.ruansong.musicplayer.tool.MyDbFunctions;
-import edu.whut.ruansong.musicplayer.tool.MyDbHelper;
+import edu.whut.ruansong.musicplayer.db.MyDbFunctions;
 import edu.whut.ruansong.musicplayer.tool.PictureDealHelper;
 import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
@@ -48,9 +42,6 @@ public class MyLoveSongsActivity extends BaseActivity {
         myDbFunctions = MyDbFunctions.getInstance(this);
         //list相关
         myLoveSongs = myDbFunctions.loadMyLoveSongs();//从数据库加载,注意加载出来的这些Song对象没有设置专辑图片
-        for(Song s:myLoveSongs){//设置专辑图片
-            s.setAlbum_picture(PictureDealHelper.getAlbumPicture(this,s.getDataPath(),120,120));
-        }
         SongAdapter adapter = new SongAdapter(this,R.layout.song_list_item,myLoveSongs);
         ListView listView = findViewById(R.id.listView_activity_myLoveSongs);
         listView.setAdapter(adapter);

@@ -1,7 +1,7 @@
 package edu.whut.ruansong.musicplayer.model;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
 public class SongsCollector {
     private static ArrayList<Song> mySongs = new ArrayList<>();//歌曲数据
@@ -32,7 +32,18 @@ public class SongsCollector {
     }
     /**
      * 设置songs_list对象*/
-    public static void getSongsList(ArrayList<Song> songs){
+    public static void setSongsList(ArrayList<Song> songs){
         mySongs = songs;
+    }
+
+    /**
+     * 判断是否已经有这首歌曲*/
+    public static boolean isContainSong(String dataPath){
+        for (Song mySong : mySongs) {
+            if (mySong.getDataPath().equals(dataPath)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -47,6 +47,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.whut.ruansong.musicplayer.db.MyDbFunctions;
 import edu.whut.ruansong.musicplayer.model.ActivityCollector;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
 import edu.whut.ruansong.musicplayer.model.DrawerLayoutListViewItem;
@@ -85,6 +86,7 @@ public class DisplayActivity extends BaseActivity {
     private DrawerLayout drawerlayout = null;//侧滑栏
     private ActionBarDrawerToggle drawerToggle = null;
     private TextView tv_intput = null;//定时停止播放的输入框
+    private MyDbFunctions myDbFunctions;
     /*用于存储*/
     private int duration = 0;//当前的歌曲的总时长
     private int current_progress = 0;//当前的歌曲播放进度
@@ -107,6 +109,7 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        myDbFunctions = MyDbFunctions.getInstance(this);//获取数据库操作类实例
         /*解决软键盘弹起时，底部控件被顶上去的问题*/
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         /*设定布局*/
@@ -138,7 +141,6 @@ public class DisplayActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-//        adapter_main_song_list_view.notifyDataSetChanged();
         //广播接收器重新注册
         if (headsetReceiver == null && progressBarReceiver == null) {
             bindBroadcastReceiver();
@@ -302,41 +304,46 @@ public class DisplayActivity extends BaseActivity {
     /**************加载歌曲数据************/
     private void load_Songs_data() {
         if (SongsCollector.size() == 0) {
-            //Log.w("DisplayActivity", "歌曲列表为空，需要加载");
+            if(!myDbFunctions.isSONGS_Null()){
+                //数据库里面有数据,直接加载数据库里面的
+                SongsCollector.setSongsList(myDbFunctions.loadAllSongs());
+                song_total_number = SongsCollector.size();
+            }
+            //Log.w("DisplayActivity", "数据库为空，需要加载");
             ContentResolver contentResolver = getContentResolver();
             try (Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     null, null, null, null)) {
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
                         //是否是音频
-                        int isMusic = cursor.getInt(cursor.getColumnIndex(
-                                MediaStore.Audio.Media.IS_MUSIC));
+                        int isMusic = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
                         //时长
-                        long duration = cursor.getLong(
-                                cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
+                        long duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
                         //是音乐并且时长大于3分钟
                         if (isMusic != 0 && duration >= 2 * 60 * 1000) {
+                            //文件路径
+                            String dataPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                            if(SongsCollector.isContainSong(dataPath)){//数据库中已经有这首歌曲了,所以跳过
+                                continue;
+                            }
                             //歌名
                             String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
                             //歌手
                             String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
                             //专辑id
                             long albumId = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                            //文件路径
-                            String dataPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-
                             //歌名，歌手，时长，专辑,图标,文件路径,sequence number of list in display activity
                             Song song = new Song(
                                     title,
                                     artist,
                                     duration,
-                                    albumId,
-                                    PictureDealHelper.getAlbumPicture(this,dataPath, 96, 96),
                                     dataPath,
                                     song_total_number,
-                                    false
+                                    false,
+                                    PictureDealHelper.getAlbumPicture(this,dataPath,96,96)
                             );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
                             SongsCollector.addSong(song);
+                            myDbFunctions.saveSong(song);
                             song_total_number++;
                         }
                     }
@@ -822,8 +829,8 @@ public class DisplayActivity extends BaseActivity {
                         DisplayActivity.this, new String[]{
                                 Manifest.permission.READ_EXTERNAL_STORAGE
                         }, REQ_READ_EXTERNAL_STORAGE);
-            }else{//已有权限,加载歌曲
-                load_Songs_data();
+            }else{
+                load_Songs_data();//已有权限,加载歌曲
             }
         }
     }
@@ -860,5 +867,4 @@ public class DisplayActivity extends BaseActivity {
             Log.w("DisplayActivity", "横屏");
         }
     }
-
 }

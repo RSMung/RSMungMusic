@@ -18,32 +18,68 @@
 9.显示歌曲详情页并且可以添加歌曲到我喜爱的歌曲歌单中  
 10.制作歌曲海报用于分享  
 #### 截图展示:
-1.`显示本地歌曲`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/main.png" height = 533 width = 300>  
-
-2.`歌曲详情页`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/detail.png" height = 533 width = 300>  
-
-3.`搜索本地歌曲`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/search.png" height = 533 width = 300>  
-
-4.`侧边栏菜单`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/menu.png" height = 533 width = 300>  
-
-5.`定时停止播放`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/stop_with_time.png" height = 533 width = 300>  
-
-6.`模式选择`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/playMode.png" height = 533 width = 300>  
-
-7.`通知栏`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/notification.png" height = 533 width = 300>  
-
-8.`制作海报分享歌曲`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/share.png" height = 533 width = 300>  
-
-9.`我喜爱的歌曲`  
-<img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/love_songs.png" height = 533 width = 300>  
+<table>
+    <tr>
+        <td >
+          <center>
+            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/main.png" height = 533/>
+            图1 显示本地歌曲
+          </center>
+        </td>
+        <td >
+          <center>
+            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/detail.png" height = 533/>
+            图2 歌曲详情页
+          </center>
+        </td>
+        <td >
+          <center>
+            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/search.png" height = 533> 
+            图3 搜索本地歌曲
+          </center>
+        </td>
+    </tr>
+    <tr>
+        <td >
+          <center>
+            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/menu.png" height = 533>  
+            图4 侧边栏菜单
+          </center>
+        </td>
+        <td >
+          <center>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/stop_with_time.png" height = 533> 
+             图5 定时停止播放 
+          </center>
+        </td>
+        <td >
+          <center>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/playMode.png" height = 533>
+             图6 播放模式选择
+          </center>
+        </td>
+    </tr>
+    <tr>
+        <td >
+          <center>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/notification.png" height = 533> 
+             图7 通知栏
+          </center>
+        </td>
+        <td >
+          <center>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/share.png" height = 533>   
+             图8 制作海报分享歌曲
+          </center>
+        </td>
+        <td >
+          <center>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/love_songs.png" height = 533>  
+             图9 我喜爱的歌曲
+          </center>
+        </td>
+    </tr>
+</table>
 
 #### Copyright [2020] [RSMung]
 

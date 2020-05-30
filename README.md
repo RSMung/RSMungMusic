@@ -1,8 +1,13 @@
 ## MungMusicPlayer
-Android端音乐播放器，目前有两个页面。  
-版本1.3中删除了登录功能,因为我觉得好像没什么用  
+*********---求赞---⭐---⭐---⭐---求赞---*********  
+### Android端本地音乐播放器  
+(1). 目前有登录界面,主界面,歌曲详情界面,喜欢的音乐界面,分享歌曲界面共五个activity;  
+(2). 一个service用于实现后台播放功能  
+(3). 版本1.3中删除了与服务器socket通信登录验证功能,目前计划通过https协议重写此功能  
+(4).csdn博客https://blog.csdn.net/lvdoujack/article/details/84545289  
+(5). 点个赞鼓励鼓励，谢谢。  
 #### 基本功能:  
-1.与服务器使用原生socket通信验证账号密码(服务器可放在公网),默认账号密码 `rs`  `123456789`//此功能已废弃  
+~~1.与服务器使用socket通信验证账号密码//此功能已废弃~~  
 2.显示本地歌曲  
 3.播放本地歌曲(可后台播放)  
 4.记录播放历史  
@@ -34,10 +39,10 @@ Android端音乐播放器，目前有两个页面。
 7.`通知栏`  
 <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/notification.png" height = 533 width = 300>  
 
-7.`制作海报分享歌曲`  
+8.`制作海报分享歌曲`  
 <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/share.png" height = 533 width = 300>  
 
-7.`我喜爱的歌曲`  
+9.`我喜爱的歌曲`  
 <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/love_songs.png" height = 533 width = 300>  
 
 #### Copyright [2020] [RSMung]

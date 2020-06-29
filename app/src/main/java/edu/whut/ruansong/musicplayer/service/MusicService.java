@@ -167,8 +167,6 @@ public class MusicService extends Service {
                     break;
                 case COMMAND_RESUME:
                     Log.w("MusicService", "COMMAND_RESUME");
-                    next_number = intent.getIntExtra("number", 0);//获取点击位置
-                    Log.w("MusicService", "number: "+next_number);
                     resume();
                     break;
                 case COMMAND_PREVIOUS:

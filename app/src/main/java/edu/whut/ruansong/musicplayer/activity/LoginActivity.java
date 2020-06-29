@@ -61,7 +61,7 @@ public class LoginActivity extends BaseActivity {
                 if (!userStr.equals("") && !passwordStr.equals("")) {//如果都不为空
                     /******保存用户名和密码*****/
                     //检测是否想要记住用户名
-                    sPreEditor_usr = getSharedPreferences("username_data",
+                    sPreEditor_usr = getSharedPreferences("username",
                             MODE_PRIVATE).edit();
                     if (remember_user.isChecked()) {
                         sPreEditor_usr.putString("name",userStr);//存入数据
@@ -71,7 +71,7 @@ public class LoginActivity extends BaseActivity {
                     sPreEditor_usr.apply();//生效
 
                     //检测是否想要记住密码
-                    sPreEditor_password = getSharedPreferences("password_data",
+                    sPreEditor_password = getSharedPreferences("password",
                             MODE_PRIVATE).edit();
                     if (remember_password.isChecked()) {
                         sPreEditor_password.putString("password",passwordStr);//保存

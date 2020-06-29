@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +18,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.drawable.VectorDrawable;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +31,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,7 +72,7 @@ public class DisplayActivity extends BaseActivity {
     /*控件*/
     private Toolbar toolbar = null;//toolbar
     private ListView main_song_list_view = null;//歌曲列表
-    private SongAdapter adapter_main_song_list_view ;
+    private SongAdapter adapter_main_song_list_view;
     private SongAdapter adapter_history;//歌曲列表的适配器
     private ProgressBar progressBar_activity_display = null;//播放进度条
     private View play_bar_bottom = null;//底部播放控制栏
@@ -152,7 +155,7 @@ public class DisplayActivity extends BaseActivity {
             play_bar_song_name.setText(SongsCollector.getSong(current_number).getTitle());
             play_bar_song_author.setText(SongsCollector.getSong(current_number).getArtist());
             album_icon.setImageBitmap(
-                    PictureDealHelper.getAlbumPicture(this,SongsCollector.getSong(current_number).getDataPath(), 120, 120));
+                    PictureDealHelper.getAlbumPicture(this, SongsCollector.getSong(current_number).getDataPath(), 120, 120));
             if (current_status == MusicService.STATUS_PLAYING) {
                 //正在播放
                 play_bar_btn_play.setBackground(getDrawable(R.drawable.pause_32));
@@ -215,7 +218,6 @@ public class DisplayActivity extends BaseActivity {
         super.onBackPressed();
         ActivityCollector.finishAll();
     }
-
     /**
      * 加载控件
      */
@@ -256,18 +258,75 @@ public class DisplayActivity extends BaseActivity {
                         new Intent(DisplayActivity.this, SearchDetailActivity.class);
                 startActivity(intent_jump_toolbar_search);
                 break;
+            case R.id.refresh:
+                scanMusic();//扫描歌曲
+                if(adapter_main_song_list_view != null){//通知数据变化
+                    adapter_main_song_list_view.notifyDataSetChanged();
+                }
+                if(main_song_list_view != null){
+                    main_song_list_view.invalidate();
+                }
+                break;
             default:
                 break;
         }
         return true;
     }
 
+    private void scanMusic(){
+        Toast.makeText(DisplayActivity.this,"开始扫描歌曲",Toast.LENGTH_SHORT).show();
+        ContentResolver contentResolver = getContentResolver();
+        try (Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                null, null, null, null)) {
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    //是否是音频
+                    int isMusic = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
+                    //时长
+                    long duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
+                    //是音乐并且时长大于2分钟
+                    if (isMusic != 0 && duration >= 2 * 60 * 1000) {
+                        //文件路径
+                        String dataPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                        if (SongsCollector.isContainSong(dataPath)) {//数据库中已经有这首歌曲了,所以跳过
+                            continue;
+                        }
+                        //歌名
+                        String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                        //歌手
+                        String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                        //专辑id
+                        long albumId = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+                        //歌名，歌手，时长，专辑,图标,文件路径,sequence number of list in display activity
+                        Song song = new Song(
+                                title,
+                                artist,
+                                duration,
+                                dataPath,
+                                song_total_number,
+                                false,
+                                PictureDealHelper.getAlbumPicture(this, dataPath, 96, 96)
+                        );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
+                        if(!SongsCollector.isContainSong(song.getDataPath())){//只添加当前列表中没有
+                            SongsCollector.addSong(song);
+                            myDbFunctions.saveSong(song);
+                            song_total_number++;
+                        }//只添加当前列表中没有
+                    }//是音乐并且时长大于2分钟
+                }//游标的移动
+            }//游标不为空
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Toast.makeText(this,"歌曲扫描完毕",Toast.LENGTH_SHORT).show();
+    }
     /**
      * 耳机监听广播注册
      ************/
     public void initHeadset() {//初始化耳机监听
         IntentFilter intentFilter = new IntentFilter();//给广播绑定响应的过滤器
         intentFilter.addAction("android.intent.action.HEADSET_PLUG");
+        intentFilter.addAction("android.intent.action.MEDIA_BUTTON");
         headsetReceiver = new HeadsetPlugReceiver();
         registerReceiver(headsetReceiver, intentFilter);
     }
@@ -277,23 +336,15 @@ public class DisplayActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             try {
-                //耳机相关广播
-                if ("android.intent.action.HEADSET_PLUG".equalsIgnoreCase(intent.getAction())) {
-                    //Log.w("DisplayActivity", "耳机相关广播");
-                    //有状态信息
-                    if (intent.hasExtra("state")) {
-                        //Log.w("DisplayActivity", "有状态信息");
-                        //耳机断开
-                        if (intent.getIntExtra("state", 0) != 1) {
-                            //Log.w("DisplayActivity", "耳机断开");
-                            //音乐正在播放
-                            if (current_status == MusicService.STATUS_PLAYING) {
-                                //Log.w("DisplayActivity", "音乐正在播放");
-                                //音乐暂停
-                                sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
-                            }
-                        }
-                    }
+                String action = intent.getAction();
+                // 耳机插拔相关广播,有状态信息,并且是耳机断开,并且音乐正在播放
+                // equalsIgnoreCase比较时忽略大小写
+                if ("android.intent.action.HEADSET_PLUG".equalsIgnoreCase(action) &&
+                        intent.hasExtra("state") &&
+                        (intent.getIntExtra("state", 0) != 1) &&
+                        current_status == MusicService.STATUS_PLAYING) {
+                    //音乐暂停
+                    sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -303,60 +354,19 @@ public class DisplayActivity extends BaseActivity {
 
     /**************加载歌曲数据************/
     private void load_Songs_data() {
+        //更新toolbar的标题
+        toolbar.setTitle(getResources().getString(R.string.title_toolbar));
         if (SongsCollector.size() == 0) {
-            if(!myDbFunctions.isSONGS_Null()){
+            if (!myDbFunctions.isSONGS_Null()) {
                 //数据库里面有数据,直接加载数据库里面的
                 SongsCollector.setSongsList(myDbFunctions.loadAllSongs());
                 song_total_number = SongsCollector.size();
+                return;
             }
-            //Log.w("DisplayActivity", "数据库为空，需要加载");
-            ContentResolver contentResolver = getContentResolver();
-            try (Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    null, null, null, null)) {
-                if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        //是否是音频
-                        int isMusic = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
-                        //时长
-                        long duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                        //是音乐并且时长大于3分钟
-                        if (isMusic != 0 && duration >= 2 * 60 * 1000) {
-                            //文件路径
-                            String dataPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                            if(SongsCollector.isContainSong(dataPath)){//数据库中已经有这首歌曲了,所以跳过
-                                continue;
-                            }
-                            //歌名
-                            String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
-                            //歌手
-                            String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-                            //专辑id
-                            long albumId = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                            //歌名，歌手，时长，专辑,图标,文件路径,sequence number of list in display activity
-                            Song song = new Song(
-                                    title,
-                                    artist,
-                                    duration,
-                                    dataPath,
-                                    song_total_number,
-                                    false,
-                                    PictureDealHelper.getAlbumPicture(this,dataPath,96,96)
-                            );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
-                            SongsCollector.addSong(song);
-                            myDbFunctions.saveSong(song);
-                            song_total_number++;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            scanMusic();
             if (song_total_number == 0) {
                 Toast.makeText(DisplayActivity.this, "本机无歌曲,请下载！", Toast.LENGTH_SHORT).show();
-                //不做下面的事情了(即不用把歌曲信息载入列表,因为根本没有)
             }
-            //更新toolbar的标题
-            toolbar.setTitle(getResources().getString(R.string.title_toolbar));
         }
     }
 
@@ -410,7 +420,7 @@ public class DisplayActivity extends BaseActivity {
                     intent.putExtra("current_number", current_number);
                     intent.putExtra("current_status", current_status);
                     intent.putExtra("current_progress", current_progress);
-                    intent.putExtra("current_PlayMode",default_playMode);
+                    intent.putExtra("current_PlayMode", default_playMode);
                     startActivity(intent);
                 } else
                     Toast.makeText(DisplayActivity.this, "别点啦,我们不会有结果的", Toast.LENGTH_SHORT).show();
@@ -447,9 +457,9 @@ public class DisplayActivity extends BaseActivity {
         btn_history_menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(history_view.getVisibility() == View.GONE){
+                if (history_view.getVisibility() == View.GONE) {
                     history_view.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     history_view.setVisibility(View.GONE);
                 }
 
@@ -504,6 +514,7 @@ public class DisplayActivity extends BaseActivity {
      * 侧滑菜单界面
      */
     public void config_DrawerLayout() {
+        //drawer_layout是主界面的最外层布局的id
         drawerlayout = findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerlayout, toolbar, R.string.app_name, R.string.app_name) {
             @Override
@@ -615,7 +626,7 @@ public class DisplayActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             //获取播放器状态
             int status = intent.getIntExtra("status", -1);
-            if(status != MusicService.PLAY_MODE_UPDATE)
+            if (status != MusicService.PLAY_MODE_UPDATE)
                 current_status = status;
             switch (status) {
                 //播放器状态更改为正在播放
@@ -652,7 +663,7 @@ public class DisplayActivity extends BaseActivity {
                 case MusicService.PLAY_MODE_UPDATE:
                     //顺序,单曲,随机 --->  8,9,10
                     //在弹窗中位置分别是0,1,2
-                    default_playMode = intent.getIntExtra("playMode",MusicService.PLAY_MODE_ORDER) - 8;
+                    default_playMode = intent.getIntExtra("playMode", MusicService.PLAY_MODE_ORDER) - 8;
                     break;
                 default:
                     break;
@@ -693,13 +704,14 @@ public class DisplayActivity extends BaseActivity {
         play_bar_song_author.setText(song.getArtist());
         //设置专辑图片
         //album_icon.setImageDrawable(getImage(songsList.get(current_number).getAlbum_id()));
-        album_icon.setImageBitmap(PictureDealHelper.getAlbumPicture(this,SongsCollector.getSong(current_number).getDataPath(), 120, 120));
+        album_icon.setImageBitmap(PictureDealHelper.getAlbumPicture(this, SongsCollector.getSong(current_number).getDataPath(), 120, 120));
     }
 
     /*** 定时停止播放*/
     public void timePausePlay() {
         final AlertDialog.Builder customizeDialog = new AlertDialog.Builder(DisplayActivity.this);
-        @SuppressLint("InflateParams") final View dialogView = LayoutInflater.from(DisplayActivity.this).inflate(R.layout.dialog_stop_with_time, null);
+        @SuppressLint("InflateParams")
+        final View dialogView = LayoutInflater.from(DisplayActivity.this).inflate(R.layout.dialog_stop_with_time, null);
         customizeDialog.setView(dialogView);
         customizeDialog.setIcon(R.drawable.stop_with_time);
         customizeDialog.setTitle("定时停止播放");
@@ -829,9 +841,12 @@ public class DisplayActivity extends BaseActivity {
                         DisplayActivity.this, new String[]{
                                 Manifest.permission.READ_EXTERNAL_STORAGE
                         }, REQ_READ_EXTERNAL_STORAGE);
-            }else{
+            } else {
                 load_Songs_data();//已有权限,加载歌曲
             }
+        }
+        else{
+            load_Songs_data();
         }
     }
 
@@ -844,7 +859,7 @@ public class DisplayActivity extends BaseActivity {
             // 如果请求被取消了，那么结果数组就是空的
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // 权限被授予了
-                if (song_total_number == 0){
+                if (song_total_number == 0) {
                     load_Songs_data();//加载歌曲数据
                     initBottomMes(current_number);
                 }
@@ -866,5 +881,33 @@ public class DisplayActivity extends BaseActivity {
             //横屏操作
             Log.w("DisplayActivity", "横屏");
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (KeyEvent.KEYCODE_HEADSETHOOK == keyCode) { //按下了耳机键
+            switch (current_status) {
+                case MusicService.STATUS_PLAYING:
+                    //Log.w("DisplayActivity", "STATUS_PLAYING");
+                    sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);
+                    break;
+                case MusicService.STATUS_PAUSED:
+                    //Log.w("DisplayActivity", "STATUS_PAUSED");
+                    sendBroadcastOnCommand(MusicService.COMMAND_RESUME);
+                    break;
+                case MusicService.STATUS_STOPPED:
+                    //Log.w("DisplayActivity", "STATUS_STOPPED");
+                    sendBroadcastOnCommand(MusicService.COMMAND_PLAY);
+                    break;
+                default:
+                    break;
+            }
+        }
+//        if (event.getRepeatCount() == 0) {  //如果长按的话，getRepeatCount值会一直变大
+//            //短按
+//        } else {
+//            //长按
+//        }
+        return super.onKeyDown(keyCode, event);
     }
 }

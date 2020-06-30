@@ -31,6 +31,21 @@ public class PictureDealHelper {
         }
         return albumPicture;
     }
+    //重载
+    public static Bitmap getAlbumPicture(String dataPath, int scale_height, int scale_width) {
+        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(dataPath);
+        byte[] data = mmr.getEmbeddedPicture();
+        Bitmap albumPicture = null;
+        if (data != null) {
+            //获取bitmap对象
+            albumPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
+            albumPicture = scale(albumPicture,scale_width,scale_height);
+        } else {
+            albumPicture = null;
+        }
+        return albumPicture;
+    }
     /**
      * 对bitmap进行缩放*/
     public static Bitmap scale(Bitmap bitmap,int scale_width,int scale_height){

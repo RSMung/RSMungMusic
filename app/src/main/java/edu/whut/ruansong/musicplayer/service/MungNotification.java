@@ -77,7 +77,7 @@ public class MungNotification {
         //跳转到display_activity事件
         PendingIntent contentIntent = PendingIntent.getActivity(context,
                 0, new Intent(context, DisplayActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-        boolean isPlaying = MusicService.getCurrent_status() == MusicService.STATUS_PLAYING;
+//        boolean isPlaying = MusicService.getCurrent_status() == MusicService.STATUS_PLAYING;
         Song current_song = context.getSong();
         Bitmap album_icon = getAlbumPicture(current_song.getDataPath(),context);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){//适配Android8及以上
@@ -95,7 +95,7 @@ public class MungNotification {
                 .setContentTitle(current_song.getTitle())
                 .setContentText(current_song.getArtist())
                 .setShowWhen(false)//不显示时间
-                .setOngoing(isPlaying)
+                .setOngoing(false)
                 .setContentIntent(contentIntent)
                 .setPriority(Notification.PRIORITY_MAX)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

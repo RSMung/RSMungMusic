@@ -22,6 +22,16 @@
             android:background="@color/black_color"
             app:title="@string/title_toolbar"
             app:titleTextColor="@color/white_color" />
+        <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/loading_animation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            style="@style/AVLoadingIndicatorView"
+            android:visibility="gone"
+            app:indicatorName="BallPulseIndicator"
+            app:indicatorColor="@color/virid_color" />
 
         <RelativeLayout
             android:layout_width="match_parent"

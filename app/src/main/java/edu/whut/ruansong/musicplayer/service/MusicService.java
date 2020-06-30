@@ -73,6 +73,8 @@ public class MusicService extends Service {
     //通知栏
     private MungNotification myNotification;
     private Thread update_progress_thread;
+    //耳机监听
+    private HeadsetPlugReceiver headsetReceiver = null;
 
     /*方便其他类获取,用于逻辑控制*/
     public static int getCurrent_number() {
@@ -111,6 +113,8 @@ public class MusicService extends Service {
         registerReceiver(commandReceiver, intentFilter);
         //通知栏
         myNotification = new MungNotification(this);
+        //初始化耳机监听
+        initHeadset();
     }
 
     /**
@@ -145,6 +149,9 @@ public class MusicService extends Service {
         myNotification.stopNotify(this);
         //发送广播,音乐服务已停止
         sendServiceBroadcast(MusicService.STATUS_STOPPED);
+        //取消广播接收器的注册
+        if (headsetReceiver != null)
+            unregisterReceiver(headsetReceiver);
     }
 
     /**
@@ -429,5 +436,33 @@ public class MusicService extends Service {
         if(current_number - 1 >= 0)
             next_number = current_number - 1;
         play();
+    }
+    /******内部类，接收耳机状态变化*/
+    class HeadsetPlugReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                String action = intent.getAction();
+                // 耳机插拔相关广播,有状态信息,并且耳机是断开的,并且音乐正在播放
+                // equalsIgnoreCase比较时忽略大小写
+                if ("android.intent.action.HEADSET_PLUG".equalsIgnoreCase(action) &&
+                        intent.hasExtra("state") &&
+                        (intent.getIntExtra("state", 0) != 1) &&
+                        current_status == MusicService.STATUS_PLAYING) {
+                    //音乐暂停
+                    Log.w("DisplayActivity","未插耳机");
+                    pause();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    /*耳机监听广播注册*/
+    public void initHeadset() {//初始化耳机监听
+        IntentFilter intentFilter = new IntentFilter();//给广播绑定响应的过滤器
+        intentFilter.addAction("android.intent.action.HEADSET_PLUG");
+        headsetReceiver = new HeadsetPlugReceiver();
+        registerReceiver(headsetReceiver, intentFilter);
     }
 }

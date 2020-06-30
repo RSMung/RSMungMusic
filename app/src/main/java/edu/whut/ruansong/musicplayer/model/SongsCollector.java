@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class SongsCollector {
+    public static int song_total_number = 0;
     private static ArrayList<Song> mySongs = new ArrayList<>();//歌曲数据
     /**
      * 获取给定index的song*/
@@ -14,16 +15,18 @@ public class SongsCollector {
      * 向songs中添加Song对象*/
     public static void addSong(Song song){
         mySongs.add(song);
+        song_total_number++;
     }
     /**
      * 从songs中移除Song对象*/
     public static void removeSong(int index){
         mySongs.remove(index);
+        song_total_number--;
     }
     /**
      * 获取song数量*/
     public static int size(){
-        return mySongs.size();
+        return song_total_number;
     }
     /**
      * 返回songs_list对象*/
@@ -34,6 +37,7 @@ public class SongsCollector {
      * 设置songs_list对象*/
     public static void setSongsList(ArrayList<Song> songs){
         mySongs = songs;
+        song_total_number = songs.size();
     }
 
     /**

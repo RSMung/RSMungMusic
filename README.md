@@ -22,7 +22,7 @@
     <tr>
         <td >
           <div align="center">
-            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/main.png" width = 250/>
+            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.4/main.png" width = 250/>
           </div>
           <div align="center">
           图1 显示本地歌曲
@@ -30,7 +30,7 @@
         </td>
         <td >
           <div align="center">
-            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/detail.png" width = 250/>
+            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.4/detail.png" width = 250/>
           </div>
           <div align="center">
           图2 歌曲详情页
@@ -38,7 +38,7 @@
         </td>
         <td >
           <div align="center">
-            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/search.png" width = 250>
+            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.4/search.png" width = 250>
           </div>
           <div align="center">
             图3 搜索本地歌曲
@@ -48,7 +48,7 @@
     <tr>
         <td >
           <div align="center">
-            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/menu.png" width = 250>  
+            <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.4/menu.png" width = 250>  
           </div>
           <div align="center">
             图4 侧边栏菜单
@@ -56,7 +56,7 @@
         </td>
         <td >
           <div align="center">
-             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/stop_with_time.png" width = 250>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.4/stop_with_time.png" width = 250>
           </div>
           <div align="center">
             图5 定时停止播放 
@@ -64,7 +64,7 @@
         </td>
         <td >
           <div align="center">
-             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/playMode.png" width = 250>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.4/playMode.png" width = 250>
           </div>
           <div align="center">
             图6 播放模式选择
@@ -74,7 +74,7 @@
     <tr>
         <td >
           <div align="center">
-             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.3/notification.png" width = 250>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.3/notification.png" width = 250>
           </div>
           <div align="center">
             图7 通知栏
@@ -82,7 +82,7 @@
         </td>
         <td >
           <div align="center">
-             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/share.png" width = 250>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.4/share.png" width = 250>
           </div>
           <div align="center">
             图8 制作海报分享歌曲
@@ -90,7 +90,7 @@
         </td>
         <td >
           <div align="center">
-             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/截图/Version1.4/love_songs.png" width = 250>
+             <img src="https://github.com/Lvdou-Jack/AndroidMusicPlayer/raw/master/MyFiles/picture/screenshot/Version1.4/love_songs.png" width = 250>
           </div>
           <div align="center">
             图9 我喜爱的歌曲

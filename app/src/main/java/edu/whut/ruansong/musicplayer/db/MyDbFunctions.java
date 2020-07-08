@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +19,11 @@ public class MyDbFunctions {
     public static final int VERSION = 1;
     private volatile static MyDbFunctions myDbFunctions;
     private SQLiteDatabase db;
-    private Context context;
+    private WeakReference<Context> weakReference;//弱引用方式引入context
     //私有化构造方法,单例模式
     private MyDbFunctions(Context context){
-        db = new MyDbHelper(context,DB_NAME,null,VERSION).getWritableDatabase();
-        this.context = context;
+        weakReference = new WeakReference<>(context);
+        db = new MyDbHelper(weakReference.get(),DB_NAME,null,VERSION).getWritableDatabase();
     }
     /*双重锁模式*/
     public static MyDbFunctions getInstance(Context context){
@@ -44,7 +45,6 @@ public class MyDbFunctions {
             values.put("artist",song.getArtist());
             values.put("duration",song.getDuration());
             values.put("dataPath",song.getDataPath());
-            values.put("listId",song.getList_id_display());
             if(song.isLove())
                 values.put("isLove","true");
             else
@@ -54,18 +54,18 @@ public class MyDbFunctions {
     }
     /**
      * 将Song实例从数据库的MyLoveSongs表中删除*/
-    public void removeSong(Song song){
-        if(song != null && db != null){
+    public void removeSong(String dataPath){
+        if(dataPath != null && db != null){
             //db.execSQL("delete from lxrData where name=?", new String[] { name });
-            db.delete("SONGS","dataPath=?",new String[]{song.getDataPath()});
+            db.delete("SONGS","dataPath=?",new String[]{dataPath});
         }
     }
     /**
      * 给SONGS表中的某个歌曲修改isLove标志*/
-    public void setLove(Song song,String flag){
+    public void setLove(String dataPath,String flag){
         ContentValues values = new ContentValues();
         values.put("isLove",flag);
-        db.update("SONGS",values,"dataPath=?",new String[]{song.getDataPath()});
+        db.update("SONGS",values,"dataPath=?",new String[]{dataPath});
     }
     /**
      * 从数据库读取SONGS表中所有的我喜爱的歌曲*/
@@ -80,9 +80,8 @@ public class MyDbFunctions {
                     song.setArtist(cursor.getString(cursor.getColumnIndex("artist")));
                     song.setDuration(cursor.getLong(cursor.getColumnIndex("duration")));
                     song.setDataPath(cursor.getString(cursor.getColumnIndex("dataPath")));
-                    song.setList_id_display(cursor.getInt(cursor.getColumnIndex("listId")));
                     song.setLove(true);
-                    song.setAlbum_icon(PictureDealHelper.getAlbumPicture(context,song.getDataPath(),96,96));
+                    song.setAlbum_icon(PictureDealHelper.getAlbumPicture(weakReference.get(),song.getDataPath(),96,96));
                     list.add(song);
                 }while(cursor.moveToNext());
             }
@@ -103,13 +102,12 @@ public class MyDbFunctions {
                     song.setArtist(cursor.getString(cursor.getColumnIndex("artist")));
                     song.setDuration(cursor.getLong(cursor.getColumnIndex("duration")));
                     song.setDataPath(cursor.getString(cursor.getColumnIndex("dataPath")));
-                    song.setList_id_display(cursor.getInt(cursor.getColumnIndex("listId")));
                     String flag = cursor.getString(cursor.getColumnIndex("isLove"));
                     if(flag.equals("true"))
                         song.setLove(true);
                     else
                         song.setLove(false);
-                    song.setAlbum_icon(PictureDealHelper.getAlbumPicture(context,song.getDataPath(),96,96));
+                    song.setAlbum_icon(PictureDealHelper.getAlbumPicture(weakReference.get(),song.getDataPath(),96,96));
                     list.add(song);
                 }while(cursor.moveToNext());
             }

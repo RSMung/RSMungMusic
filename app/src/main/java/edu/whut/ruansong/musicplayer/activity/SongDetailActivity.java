@@ -204,12 +204,12 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                     //已经是喜爱的歌曲了
                     love_song_icon.setImageDrawable(getResources().getDrawable(R.drawable.love));
                     current_song.setLove(false);//修改本地标志
-                    myDbFunctions.setLove(current_song,"false");//更新数据库
+                    myDbFunctions.setLove(current_song.getDataPath(),"false");//更新数据库
                     myLoveSongs.remove(current_song);//更新我喜爱的歌曲list
                 }else{//添加并更改图标
                     love_song_icon.setImageDrawable(getResources().getDrawable(R.drawable.full_love_32));
                     current_song.setLove(true);
-                    myDbFunctions.setLove(current_song,"true");
+                    myDbFunctions.setLove(current_song.getDataPath(),"true");
                     myLoveSongs.add(current_song);
                 }
                 break;

@@ -29,9 +29,7 @@ import edu.whut.ruansong.musicplayer.service.MusicService;
 
 public class SearchDetailActivity extends AppCompatActivity {
 
-    private Toolbar toolbar = null;
     private List<Song> songsList = null;
-    private int num_songs = 0;
     private List<Song> search_list = new ArrayList<>();//用来装查询结果
     private int current_number = 0;//当前正在播放的歌曲
     private int current_status;//播放状态默认为停止
@@ -45,7 +43,7 @@ public class SearchDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_detail);
         Log.w("SearchDetailActivity", "进入onCreate");
-        toolbar = findViewById(R.id.toolbar_activity_display);
+        Toolbar toolbar = findViewById(R.id.toolbar_activity_display);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +63,7 @@ public class SearchDetailActivity extends AppCompatActivity {
                 //把更新过的list传回display_activity,然后在onStart方法中通知了适配器数据变化
 //                    DisplayActivity.setSongsList(songsList);
                 //播放控制逻辑
-                actual_number = search_list.get(position).getList_id_display();
+                actual_number = SongsCollector.getSongIndex(search_list.get(position));
                 if(current_status == MusicService.STATUS_PLAYING){//播放状态
                     if(current_number == actual_number){//点击的正在播放的歌曲
                         sendBroadcastOnCommand(MusicService.COMMAND_PAUSE);//暂停
@@ -188,7 +186,7 @@ public class SearchDetailActivity extends AppCompatActivity {
         int mes_len = charArray_mes.length;//获得这个字符数组的长度
         //获取本地歌曲列表
         songsList = SongsCollector.getSongsList();
-        num_songs = songsList.size();
+        int num_songs = songsList.size();
         if (songsList.isEmpty() || !(SongsCollector.size()>0)  ) {
             Toast.makeText(SearchDetailActivity.this, "本机无歌曲,请下载", Toast.LENGTH_SHORT).show();
             return;

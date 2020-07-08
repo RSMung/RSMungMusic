@@ -387,7 +387,7 @@ public class DisplayActivity extends BaseActivity {
 //        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");//设置日期格式
 //        Log.w("初始化歌曲列表控件",df.format(new Date()));
         //歌曲列表
-        ListView main_song_list_view = findViewById(R.id.main_song_list_view);
+        final ListView main_song_list_view = findViewById(R.id.main_song_list_view);
         adapter_main_song_list_view = new SongAdapter(DisplayActivity.this,
                 R.layout.song_list_item, SongsCollector.getSongsList());
         main_song_list_view.setAdapter(adapter_main_song_list_view);
@@ -419,6 +419,50 @@ public class DisplayActivity extends BaseActivity {
                 }
             }
         });
+        //item内部的more_options按钮点击
+        adapter_main_song_list_view.setOnItemMoreOptionsClickListener(new SongAdapter.onItemMoreOptionsListener() {
+            @Override
+            public void onMoreOptionsClick(final int position) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this)
+                        .setTitle("请确认!")
+                        .setIcon(R.drawable.danger)
+                        .setMessage("确认要从本地列表中删除此歌曲吗?")
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                /*which
+                                *int BUTTON_POSITIVE = -1; int BUTTON_NEGATIVE = -2;   int BUTTON_NEUTRAL = -3;*/
+//                                Toast.makeText(DisplayActivity.this,"你点击了确定"+position,Toast.LENGTH_SHORT).show();
+                                //判断是否该歌曲正在播放
+                                if(position == current_number){
+                                    sendBroadcastOnCommand(MusicService.COMMAND_NEXT);//播放下一首歌曲
+                                }
+                                //从数据库中删除该歌曲
+                                if(myDbFunctions != null){
+                                    myDbFunctions.removeSong(SongsCollector.getSong(position).getDataPath());
+                                }
+                                //从内存列表中删除该歌曲
+                                SongsCollector.removeSong(position);
+                                //通知列表数据变化了
+                                if(adapter_main_song_list_view != null){
+                                    adapter_main_song_list_view.notifyDataSetChanged();
+                                }
+                                if(main_song_list_view != null){
+                                    main_song_list_view.invalidate();
+                                }
+                                Toast.makeText(DisplayActivity.this,"已删除,点击刷新按钮可找回",Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(DisplayActivity.this,"下次不要点错了哦",Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        ;
+                builder.create().show();
+            }
+        });
     }
     /*---------------------歌曲列表控件初始化结束---------------------*/
 
@@ -439,7 +483,7 @@ public class DisplayActivity extends BaseActivity {
                     intent.putExtra("current_PlayMode", default_playMode);
                     startActivity(intent);
                 } else
-                    Toast.makeText(DisplayActivity.this, "别点啦,我们不会有结果的", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DisplayActivity.this, "别点啦,不会有结果的", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -687,7 +731,6 @@ public class DisplayActivity extends BaseActivity {
                                     artist,
                                     duration,
                                     dataPath,
-                                    SongsCollector.size(),
                                     false,
                                     PictureDealHelper.getAlbumPicture(dataPath,96,96)
                             );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标

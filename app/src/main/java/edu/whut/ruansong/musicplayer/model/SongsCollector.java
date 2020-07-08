@@ -23,6 +23,17 @@ public class SongsCollector {
         mySongs.remove(index);
         song_total_number--;
     }
+    //重载
+    public static void removeSong(String dataPath){
+        for (int i=0; i < mySongs.size(); i++) {
+            Song s = mySongs.get(i);
+            if (s.getDataPath().equals(dataPath)) {
+                mySongs.remove(i);
+                song_total_number--;
+                break;
+            }
+        }
+    }
     /**
      * 获取song数量*/
     public static int size(){
@@ -49,5 +60,16 @@ public class SongsCollector {
             }
         }
         return false;
+    }
+
+    public static int getSongIndex(Song song){
+       int result = 0;
+       for(int i=0; i < mySongs.size(); i++){
+           if(mySongs.get(i).getDataPath().equals(song.getDataPath())){
+               result = i;
+               break;
+           }
+       }
+       return  result;
     }
 }

@@ -11,7 +11,6 @@ public class Song {
     private String artist;//  歌手
     private long duration;//时长
     private String dataPath;//歌曲文件路径
-    private int list_id_display;
     private boolean isLove;//是否是喜爱的歌曲
     private Bitmap album_icon;
 
@@ -22,7 +21,6 @@ public class Song {
             String artist,
             long duration,
             String dataPath,
-            int list_id_display,
             boolean isLove,
             Bitmap album_icon
             )
@@ -31,7 +29,6 @@ public class Song {
         this.artist = artist;
         this.duration = duration;
         this.dataPath = dataPath;
-        this.list_id_display = list_id_display;
         this.isLove = isLove;
         this.album_icon = album_icon;
     }
@@ -56,9 +53,6 @@ public class Song {
 
     public void setDataPath(String dataPath) { this.dataPath = dataPath; }
 
-    public void setList_id_display(int list_id_display) { this.list_id_display = list_id_display; }
-
-
     public String getTitle() { return this.title; }
 
     public String getArtist() { return this.artist; }
@@ -66,8 +60,6 @@ public class Song {
     public long getDuration() { return duration; }
 
     public String getDataPath() { return dataPath; }
-
-    public int getList_id_display() { return list_id_display; }
 
     public boolean isLove() {
         return isLove;

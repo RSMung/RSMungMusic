@@ -12,8 +12,8 @@ public class MyDbHelper extends SQLiteOpenHelper {
             + "artist text, "//歌手
             + "duration integer,"//时长
             + "dataPath text, "//文件路径
-            + "listId integer,"//在DisplayActivity 的listView中的位置
-            + "isLove text)";//是否是喜爱的歌曲
+            + "isLove text,"//是否是喜爱的歌曲
+            + "isDefaultAlbumIcon text)";//是否使用的默认专辑图片
     private Context mContext;
     public MyDbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

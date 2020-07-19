@@ -13,6 +13,7 @@ public class Song {
     private String dataPath;//歌曲文件路径
     private boolean isLove;//是否是喜爱的歌曲
     private Bitmap album_icon;
+    private boolean isDefaultAlbumIcon;
 
     public Song(){}
     //歌名，歌手，时长，专辑，图标资源id,歌曲文件路径,在DisplayActivity中的listview的位置
@@ -22,7 +23,8 @@ public class Song {
             long duration,
             String dataPath,
             boolean isLove,
-            Bitmap album_icon
+            Bitmap album_icon,
+            boolean isDefaultAlbumIcon
             )
     {
         this.title = title;
@@ -31,6 +33,7 @@ public class Song {
         this.dataPath = dataPath;
         this.isLove = isLove;
         this.album_icon = album_icon;
+        this.isDefaultAlbumIcon = isDefaultAlbumIcon;
     }
 
     public Bitmap getAlbum_icon() {
@@ -65,4 +68,11 @@ public class Song {
         return isLove;
     }
 
+    public boolean isDefaultAlbumIcon() {
+        return isDefaultAlbumIcon;
+    }
+
+    public void setFlagDefaultAlbumIcon(boolean flagDefaultAlbumIcon) {
+        isDefaultAlbumIcon = flagDefaultAlbumIcon;
+    }
 }

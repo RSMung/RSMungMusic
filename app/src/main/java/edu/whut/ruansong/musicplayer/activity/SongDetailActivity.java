@@ -40,6 +40,7 @@ import edu.whut.ruansong.musicplayer.tool.PictureDealHelper;
 import edu.whut.ruansong.musicplayer.tool.SongAdapter;
 
 public class SongDetailActivity extends BaseActivity implements View.OnClickListener {
+    private String TAG = "SongDetailActivity";
     //当前播放的歌曲,播放状态,播放进度,当前的歌曲的总时长,当前播放模式
     private int current_number,current_status,current_progress,duration,current_PlayMode;
     private Song current_song;
@@ -56,7 +57,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
     private Bitmap album_icon = null;
     private int default_lightColor;
     private int default_darkColor;
-    private ImageView btn_history_view ;
+    private ImageView btn_history_view,love_song_icon;
     private LinearLayout lv_history ;
     private ListView list_history ;
     private SongAdapter adapter_history ;
@@ -150,7 +151,7 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         IntentFilter intentFilter2 = new IntentFilter(MusicService.BROADCAST_MUSICSERVICE_UPDATE_STATUS);
         registerReceiver(statusChangedReceiver,intentFilter2);
         //爱心图标
-        ImageView love_song_icon = findViewById(R.id.love_song_icon);
+        love_song_icon = findViewById(R.id.love_song_icon);
         love_song_icon.setOnClickListener(this);//监听事件
         myDbFunctions = MyDbFunctions.getInstance(this);
         if(myLoveSongs == null)
@@ -199,7 +200,6 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
         Log.w("SongDetailActivity","onClick");
         switch (v.getId()) {
             case R.id.love_song_icon:
-                ImageView love_song_icon = findViewById(R.id.love_song_icon);
                 if(current_song.isLove()){
                     //已经是喜爱的歌曲了
                     love_song_icon.setImageDrawable(getResources().getDrawable(R.drawable.love));
@@ -331,6 +331,12 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
                     toolbar.setSubtitle(current_song.getArtist());
                     //更新状态
                     current_status = MusicService.STATUS_PLAYING;
+                    //更新喜爱标志
+                    if(current_song.isLove()){
+                        love_song_icon.setImageDrawable(getResources().getDrawable(R.drawable.full_love_32));
+                    }else{
+                        love_song_icon.setImageDrawable(getResources().getDrawable(R.drawable.love));
+                    }
                     //更新留声机
                     album_icon = PictureDealHelper.getAlbumPicture(context, current_song.getDataPath(),windowWidth/4,windowWidth/4);
                     gramophoneView.setPictureRes(album_icon);
@@ -436,14 +442,20 @@ public class SongDetailActivity extends BaseActivity implements View.OnClickList
     /**
      * 根据专辑图片提取颜色更新activity的背景*/
     public void updateBackground(){
+        RelativeLayout root = findViewById(R.id.rootRv_songDetailActivity);
+        if(current_song.isDefaultAlbumIcon()){//默认专辑图片提取出来的颜色不好看
+//            Log.w(TAG,"默认专辑图片提取出来的颜色不好看");
+            root.setBackgroundColor(getResources().getColor(R.color.white_color));
+            return;
+        }
         Palette.from(album_icon).generate(new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(@Nullable Palette palette) {
                 //暗、活跃
-                int darkMutedColor = palette.getDarkVibrantColor(default_darkColor);//如果分析不出来，则返回默认颜色
+                int lightVibrantColor = palette.getLightVibrantColor(default_darkColor);//如果分析不出来，则返回默认颜色
                 //亮、柔和
                 int lightMutedColor = palette.getLightMutedColor(default_lightColor);
-                int[] colors = {lightMutedColor,darkMutedColor};
+                int[] colors = {lightMutedColor,lightVibrantColor};
                 GradientDrawable.Orientation orientation = null;
                 int orientation_flag = (int) (Math.random()*8);
                 switch (orientation_flag){

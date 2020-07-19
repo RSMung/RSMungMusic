@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -49,6 +50,10 @@ public class MyDbFunctions {
                 values.put("isLove","true");
             else
                 values.put("isLove","false");
+            if(song.isDefaultAlbumIcon())
+                values.put("isDefaultAlbumIcon","true");
+            else
+                values.put("isDefaultAlbumIcon","false");
             db.insert("SONGS",null,values);
         }
     }
@@ -81,6 +86,11 @@ public class MyDbFunctions {
                     song.setDuration(cursor.getLong(cursor.getColumnIndex("duration")));
                     song.setDataPath(cursor.getString(cursor.getColumnIndex("dataPath")));
                     song.setLove(true);
+                    String flag2 = cursor.getString(cursor.getColumnIndex("isDefaultAlbumIcon"));
+                    if(flag2.equals("true"))
+                        song.setFlagDefaultAlbumIcon(true);
+                    else
+                        song.setFlagDefaultAlbumIcon(false);
                     song.setAlbum_icon(PictureDealHelper.getAlbumPicture(weakReference.get(),song.getDataPath(),96,96));
                     list.add(song);
                 }while(cursor.moveToNext());
@@ -102,11 +112,20 @@ public class MyDbFunctions {
                     song.setArtist(cursor.getString(cursor.getColumnIndex("artist")));
                     song.setDuration(cursor.getLong(cursor.getColumnIndex("duration")));
                     song.setDataPath(cursor.getString(cursor.getColumnIndex("dataPath")));
-                    String flag = cursor.getString(cursor.getColumnIndex("isLove"));
-                    if(flag.equals("true"))
+                    String flag1 = cursor.getString(cursor.getColumnIndex("isLove"));
+                    if(flag1.equals("true"))
                         song.setLove(true);
                     else
                         song.setLove(false);
+                    String flag2 = cursor.getString(cursor.getColumnIndex("isDefaultAlbumIcon"));
+                    if(flag2.equals("true")){
+                        song.setFlagDefaultAlbumIcon(true);
+//                        Log.w("MyDbFunctions","isDefaultAlbumIcon:   "+flag2);
+                    }
+                    else{
+//                        Log.w("MyDbFunctions","isDefaultAlbumIcon:   "+flag2);
+                        song.setFlagDefaultAlbumIcon(false);
+                    }
                     song.setAlbum_icon(PictureDealHelper.getAlbumPicture(weakReference.get(),song.getDataPath(),96,96));
                     list.add(song);
                 }while(cursor.moveToNext());

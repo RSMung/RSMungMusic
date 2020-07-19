@@ -640,7 +640,7 @@ public class DisplayActivity extends BaseActivity {
         @Override
         protected void onPreExecute() {
             DisplayActivity displayActivity = displayActivityWeakReference.get();
-            Toast.makeText(displayActivity,"开始加载歌曲数据",Toast.LENGTH_SHORT).show();
+//            Toast.makeText(displayActivity,"开始加载歌曲数据",Toast.LENGTH_SHORT).show();
             AVLoadingIndicatorView loading_animation = displayActivity.findViewById(R.id.loading_animation);
             loading_animation.setVisibility(View.VISIBLE);//显示加载动画
         }
@@ -725,17 +725,21 @@ public class DisplayActivity extends BaseActivity {
                             String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
                             //专辑id
 //                            long albumId = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                            //歌名，歌手，时长，专辑,图标,文件路径,sequence number of list in display activity
+                            //歌名，歌手，时长,文件路径,是否喜爱,专辑,专辑图片,是否使用默认专辑图片
                             Song song = new Song(
                                     title,
                                     artist,
                                     duration,
                                     dataPath,
                                     false,
-                                    PictureDealHelper.getAlbumPicture(dataPath,96,96)
+                                    PictureDealHelper.getAlbumPicture(dataPath,96,96),
+                                    false
                             );//R.drawable.song_item_picture是歌曲列表每一项前面那个图标
                             if(!SongsCollector.isContainSong(song.getDataPath())){//只添加当前列表中没有
                                 SongsCollector.addSong(song);
+                                if(song.getAlbum_icon() == null){
+                                    song.setFlagDefaultAlbumIcon(true);
+                                }
                                 displayActivityWeakReference.get().myDbFunctions.saveSong(song);
                             }//只添加当前列表中没有
                         }//是音乐并且时长大于2分钟

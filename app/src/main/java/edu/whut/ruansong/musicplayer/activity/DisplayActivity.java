@@ -213,7 +213,7 @@ public class DisplayActivity extends BaseActivity {
         DrawerLayoutListViewItem stopWithTime = new DrawerLayoutListViewItem(R.drawable.stop_with_time, "定时停止播放");
         DrawerLayoutListViewItem play_mode_select = new DrawerLayoutListViewItem(R.drawable.setting, "播放模式");
         DrawerLayoutListViewItem feedback_suggestions = new DrawerLayoutListViewItem(R.drawable.about, "关于");
-        DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit_2, "退出");
+        DrawerLayoutListViewItem exit = new DrawerLayoutListViewItem(R.drawable.exit, "退出");
         drawer_list_view_content.add(myLoveSongs);
         drawer_list_view_content.add(play_mode_select);
         drawer_list_view_content.add(stopWithTime);
@@ -676,7 +676,7 @@ public class DisplayActivity extends BaseActivity {
                 //调试用
 //                SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");//设置日期格式
 //                Log.w("异步加载数据库数据完成",df.format(new Date()));
-                Toast.makeText(displayActivity, "加载歌曲数据成功", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(displayActivity, "加载歌曲数据成功", Toast.LENGTH_SHORT).show();
                 /*初始化歌曲列表控件,必须在获取数据后面*/
                 displayActivity.initMySongListView();
             } else {

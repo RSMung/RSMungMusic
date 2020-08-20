@@ -140,14 +140,14 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/dp_10"
-                    android:background="@drawable/menu_black"
+                    android:background="@drawable/history_32"
                     tools:ignore="ContentDescription" />
             </RelativeLayout>
 
             <include layout="@layout/my_history_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/dp_10"
+                android:layout_marginHorizontal="@dimen/dp_10"
                 android:layout_above="@+id/play_bar_bottom"/>
         </RelativeLayout>
     </LinearLayout>
@@ -166,7 +166,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/dp_10"
-            android:src="@drawable/head_mung"/>
+            android:src="@drawable/logo"/>
         <TextView
             android:id="@+id/user_name"
             android:layout_width="wrap_content"

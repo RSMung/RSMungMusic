@@ -12,7 +12,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
+import android.text.method.Touch;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import edu.whut.ruansong.musicplayer.R;
@@ -28,10 +30,10 @@ public class GramophoneView extends View {
     /**
      * 尺寸计算设计说明：
      * 1、唱片有两个主要尺寸：中间图片的半径、黑色圆环的宽度。
-     *    黑色圆环的宽度 = 图片半径的一半。
+     * 黑色圆环的宽度 = 图片半径的一半。
      * 2、唱针分为“手臂”和“头”，手臂分两段，一段长的一段短的，头也是一段长的一段短的。
-     *    唱针四个部分的尺寸求和 = 唱片中间图片的半径+黑色圆环的宽度
-     *    唱针各部分长度 比例——长的手臂：短的手臂：长的头：短的头 = 8:4:2:1
+     * 唱针四个部分的尺寸求和 = 唱片中间图片的半径+黑色圆环的宽度
+     * 唱针各部分长度 比例——长的手臂：短的手臂：长的头：短的头 = 8:4:2:1
      * 3、唱片黑色圆环顶部到唱针顶端的距离 = 唱针长的手臂的长度。
      */
 
@@ -74,30 +76,32 @@ public class GramophoneView extends View {
         // 读取xml文件属性
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.GramophoneView);
         // 中间图片的半径
-        pictureRadius = (int)typedArray.getDimension(R.styleable.GramophoneView_picture_radius, DEFAULT_PICTURE_RADIUS);
+        pictureRadius = (int) typedArray.getDimension(R.styleable.GramophoneView_picture_radius, DEFAULT_PICTURE_RADIUS);
         // 唱片旋转速度
         diskRotateSpeed = typedArray.getFloat(R.styleable.GramophoneView_disk_rotate_speed, DEFAULT_DISK_ROTATE_SPEED);
         // 专辑图片
         Drawable drawable = typedArray.getDrawable(R.styleable.GramophoneView_src);
-        if(drawable == null){
+        if (drawable == null) {
             bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.album_svg_32);
-        } else{
-            if(drawable instanceof BitmapDrawable)
-                bitmap = ((BitmapDrawable)drawable).getBitmap();
-            if(drawable instanceof VectorDrawable)
+        } else {
+            if (drawable instanceof BitmapDrawable)
+                bitmap = ((BitmapDrawable) drawable).getBitmap();
+            if (drawable instanceof VectorDrawable)
                 bitmap = getBitmap((VectorDrawable) drawable);
         }
         /*根据pictureRadius把bitmap缩放一下*/
-        bitmap = PictureDealHelper.scale(bitmap,pictureRadius,pictureRadius);
+        bitmap = PictureDealHelper.scale(bitmap, pictureRadius, pictureRadius);
         //读取属性的这个变量记得回收
         typedArray.recycle();
         initVariable();//初始化工作变量
     }
+
     /**
-     * 初始化工作变量*/
-    private void initVariable(){
+     * 初始化工作变量
+     */
+    private void initVariable() {
         // 初始化唱片变量
-        ringWidth = pictureRadius>>1;// 黑色圆环宽度等于图片半径的一半
+        ringWidth = pictureRadius >> 1;// 黑色圆环宽度等于图片半径的一半
         discPaint = new Paint();// 唱片画笔
         discPaint.setColor(Color.BLACK);// 唱片画笔颜色
         discPaint.setStyle(Paint.Style.STROKE);// 设置画笔样式,仅描边
@@ -110,17 +114,18 @@ public class GramophoneView extends View {
         diskDegreeCounter = 0;// 唱片旋转角度计数器
 
         // 初始化唱针变量
-        bigCircleRadius = smallCircleRadius<<1;// 唱针顶部大圆半径 = 唱针顶部小圆半径的两倍
-        shortHeadLength = (pictureRadius + ringWidth)/15;// 唱针的头，较短那段的长度
-        longHeadLength = shortHeadLength<<1;// 唱针的头，较长那段的长度 = 较短长度的两倍
-        shortArmLength = longHeadLength<<1;// 唱针手臂，较短那段的长度 = 长头的两倍
-        longArmLength = shortArmLength<<1;// 唱针手臂，较长那段的长度 = 短臂的两倍
+        bigCircleRadius = smallCircleRadius << 1;// 唱针顶部大圆半径 = 唱针顶部小圆半径的两倍
+        shortHeadLength = (pictureRadius + ringWidth) / 15;// 唱针的头，较短那段的长度
+        longHeadLength = shortHeadLength << 1;// 唱针的头，较长那段的长度 = 较短长度的两倍
+        shortArmLength = longHeadLength << 1;// 唱针手臂，较短那段的长度 = 长头的两倍
+        longArmLength = shortArmLength << 1;// 唱针手臂，较长那段的长度 = 短臂的两倍
         needlePaint = new Paint();// 唱针画笔
         needleDegreeCounter = PAUSE_DEGREE;// 唱针旋转角度计数器 = 暂停状态时唱针的旋转角度
     }
 
     /**
-     * 测量控件的宽高*/
+     * 测量控件的宽高
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -129,46 +134,49 @@ public class GramophoneView extends View {
          * 宽度：等于唱片直径，即图片半径+圆环宽度求和再乘以2。
          * 高度：等于唱片直径+唱针较长的手臂
          */
-        int width = (pictureRadius+ringWidth)*2;
-        int height = (pictureRadius+ringWidth )*2+longArmLength ;
+        int width = (pictureRadius + ringWidth) * 2;
+        int height = (pictureRadius + ringWidth) * 2 + longArmLength;
         int measuredWidth = resolveSize(width, widthMeasureSpec);
         int measuredHeight = resolveSize(height, heightMeasureSpec);
         setMeasuredDimension(measuredWidth, measuredHeight);//保存测量的宽高
     }
+
     /**
-     * 确定view的位置*/
+     * 确定view的位置
+     */
     @Override
-    protected void onLayout(boolean changed,int left,int top,int right,int bottom){
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     }
 
     /**
-     * 绘制view*/
+     * 绘制view
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        halfMeasureWidth = getMeasuredWidth()>>1;// 测量宽度的一半
+        halfMeasureWidth = getMeasuredWidth() >> 1;// 测量宽度的一半
         drawDisk(canvas);// 绘制唱片（胶片）
         drawNeedle(canvas);// 绘制唱针
-        if(needleDegreeCounter > PAUSE_DEGREE){
+        if (needleDegreeCounter > PAUSE_DEGREE) {
             invalidate();
         }
     }
 
     // 绘制唱片（胶片）
-    private void drawDisk(Canvas canvas){
-        diskDegreeCounter = diskDegreeCounter%360+diskRotateSpeed;
+    private void drawDisk(Canvas canvas) {
+        diskDegreeCounter = diskDegreeCounter % 360 + diskRotateSpeed;
         drawDisk(canvas, diskDegreeCounter);
     }
 
     // 绘制旋转了指定角度的唱片
-    private void drawDisk(Canvas canvas, float degree){
+    private void drawDisk(Canvas canvas, float degree) {
         // 绘制圆环，注意理解平移的圆心距离和圆环半径是怎么计算的
         canvas.save();
         //移动到圆心
-        canvas.translate(halfMeasureWidth, pictureRadius+ringWidth+longArmLength);
+        canvas.translate(halfMeasureWidth, pictureRadius + ringWidth + longArmLength);
         canvas.rotate(degree);
         //画圆   圆心x,y   半径   Paint画笔
-        canvas.drawCircle(0, 0, pictureRadius+ringWidth/2, discPaint);
+        canvas.drawCircle(0, 0, pictureRadius + ringWidth / 2, discPaint);
         // 绘制图片
         canvas.clipPath(clipPath);//clipPath 在106行左右进行了初始化操作
         canvas.drawBitmap(bitmap, srcRect, dstRect, discPaint);
@@ -176,22 +184,22 @@ public class GramophoneView extends View {
     }
 
     // 绘制唱针
-    private void drawNeedle(Canvas canvas){
+    private void drawNeedle(Canvas canvas) {
         // 由于PLAY_DEGREE和PAUSE_DEGREE之间的差值是30，所以每次增/减值应当是30的约数即可
-        if(isPlaying){
-            if(needleDegreeCounter < PLAY_DEGREE){//-15
-                needleDegreeCounter+=3;
+        if (isPlaying) {
+            if (needleDegreeCounter < PLAY_DEGREE) {//-15
+                needleDegreeCounter += 3;
             }
         } else {
-            if(needleDegreeCounter > PAUSE_DEGREE){//-45
-                needleDegreeCounter-=3;
+            if (needleDegreeCounter > PAUSE_DEGREE) {//-45
+                needleDegreeCounter -= 3;
             }
         }
         drawNeedle(canvas, needleDegreeCounter);
     }
 
     // 绘制旋转了指定角度的唱针
-    private void drawNeedle(Canvas canvas, int degree){
+    private void drawNeedle(Canvas canvas, int degree) {
         canvas.save();
         // 移动坐标到水平中点
         canvas.translate(halfMeasureWidth, 0);
@@ -229,23 +237,26 @@ public class GramophoneView extends View {
 
     /**
      * 设置是否处于播放状态
+     *
      * @param isPlaying true:播放，false:暂停
      */
-    public void setPlaying(boolean isPlaying){
+    public void setPlaying(boolean isPlaying) {
         this.isPlaying = isPlaying;
         invalidate();
     }
 
     /**
      * 获取播放状态
+     *
      * @return true:播放，false:暂停
      */
-    public boolean getPlaying(){
+    public boolean getPlaying() {
         return isPlaying;
     }
 
     /**
      * 获取图片半径
+     *
      * @return 图片半径
      */
     public int getPictureRadius() {
@@ -254,18 +265,20 @@ public class GramophoneView extends View {
 
     /**
      * 设置图片半径
+     *
      * @param pictureRadius 图片半径
      */
     public void setPictureRadius(int pictureRadius) {
         this.pictureRadius = pictureRadius;
         // 缩放
-        bitmap = PictureDealHelper.scale(bitmap,pictureRadius,pictureRadius);
+        bitmap = PictureDealHelper.scale(bitmap, pictureRadius, pictureRadius);
         //重新初始化工作变量
         initVariable();
     }
 
     /**
      * 获取唱片旋转速度
+     *
      * @return 唱片旋转速度
      */
     public float getDiskRotateSpeed() {
@@ -274,6 +287,7 @@ public class GramophoneView extends View {
 
     /**
      * 设置唱片旋转速度
+     *
      * @param diskRotateSpeed 旋转速度
      */
     public void setDiskRotateSpeed(float diskRotateSpeed) {
@@ -282,25 +296,28 @@ public class GramophoneView extends View {
 
     /**
      * 设置图片资源id
+     *
      * @param resId 图片资源id
      */
-    public void setPictureRes(int resId){
+    public void setPictureRes(int resId) {
         bitmap = BitmapFactory.decodeResource(getContext().getResources(), resId);
         /*根据pictureRadius把bitmap缩放一下*/
-        bitmap = PictureDealHelper.scale(bitmap,pictureRadius,pictureRadius);
+        bitmap = PictureDealHelper.scale(bitmap, pictureRadius, pictureRadius);
         setBitmapRect(srcRect, dstRect);
         invalidate();
     }
-    public void setPictureRes(Bitmap myBitmap){
+
+    public void setPictureRes(Bitmap myBitmap) {
         bitmap = myBitmap;
         /*根据pictureRadius把bitmap缩放一下*/
-        bitmap = PictureDealHelper.scale(bitmap,pictureRadius,pictureRadius);
+        bitmap = PictureDealHelper.scale(bitmap, pictureRadius, pictureRadius);
         setBitmapRect(srcRect, dstRect);
         invalidate();
     }
 
     /**
-     * 根据VectorDrawable对象得到Bitmap对象*/
+     * 根据VectorDrawable对象得到Bitmap对象
+     */
     private Bitmap getBitmap(VectorDrawable vectorDrawable) {
         Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
                 vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
@@ -313,12 +330,37 @@ public class GramophoneView extends View {
     /**
      * 根据加载的图片资源尺寸和设置的唱片中间图片直径，
      * 为canvas.drawBitmap()方法设置源Rect和目标Rect
+     *
      * @param src 源矩形
      * @param dst 目标矩形
      */
-    private void setBitmapRect(Rect src, Rect dst){
+    private void setBitmapRect(Rect src, Rect dst) {
         src.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
         dst.set(-pictureRadius, -pictureRadius, pictureRadius, pictureRadius);//以x,y为中心,pictureRadius为边长的一个正方形
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {//Touch event
+        Paint paint = new Paint();
+        float x1, x2, y1, y2;
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            paint.setColor(Color.GREEN);
+            x1 = event.getX();
+            y1 = event.getY();
+            x2 = event.getX();
+            y2 = event.getY();
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) { //Check for finger drag on the screen
+            // update x2 and y2
+            x2 = event.getX();
+            y2 = event.getY();
+        } else if (event.getAction() == MotionEvent.ACTION_UP) { // Check for finger leave the screen
+            paint.setColor(Color.BLUE); // set the paint color to blue
+            // update x2 and y2
+            x2 = event.getX();
+            y2 = event.getY();
+        }
+        invalidate();
+        return true;
     }
 }
 

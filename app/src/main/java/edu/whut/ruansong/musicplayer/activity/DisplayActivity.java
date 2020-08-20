@@ -52,6 +52,7 @@ import edu.whut.ruansong.musicplayer.model.ActivityCollector;
 import edu.whut.ruansong.musicplayer.model.BaseActivity;
 import edu.whut.ruansong.musicplayer.model.DrawerLayoutListViewItem;
 import edu.whut.ruansong.musicplayer.model.SongsCollector;
+import edu.whut.ruansong.musicplayer.myView.GramophoneView;
 import edu.whut.ruansong.musicplayer.service.MusicService;
 import edu.whut.ruansong.musicplayer.model.PlayHistory;
 import edu.whut.ruansong.musicplayer.R;
@@ -456,7 +457,7 @@ public class DisplayActivity extends BaseActivity {
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(DisplayActivity.this,"下次不要点错了哦",Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(DisplayActivity.this,"下次不要点错了哦",Toast.LENGTH_SHORT).show();
                             }
                         })
                         ;

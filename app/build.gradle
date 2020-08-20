@@ -21,7 +21,7 @@ android {
     android.applicationVariants.all { variant ->
         variant.outputs.all {
             //在这里修改apk文件名，引号内的字符串都可以随便定义
-            outputFileName = "MungMusicPlayer-${variant.name}-v${variant.versionName}.apk"
+            outputFileName = "RSMungMusic-${variant.name}-v${variant.versionName}.apk"
         }
     }
 

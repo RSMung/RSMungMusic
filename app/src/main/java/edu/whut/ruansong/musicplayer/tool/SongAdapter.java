@@ -23,10 +23,10 @@ public class SongAdapter extends ArrayAdapter<Song> {
     private Context context;
 
     //适配器的构造函数
-    public SongAdapter(Context context, int textViewResourceId, List<Song> objects) {
-        super(context, textViewResourceId, objects);
+    public SongAdapter(Context context, int resourceId, List<Song> objects) {
+        super(context, resourceId, objects);
         this.context = context;
-        resourceId = textViewResourceId;
+        this.resourceId = resourceId;
     }
 
     static class ViewHolder {

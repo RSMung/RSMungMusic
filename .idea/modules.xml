@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AndroidMusicPlayer.iml" filepath="$PROJECT_DIR$/AndroidMusicPlayer.iml" group="AndroidMusicPlayer" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="AndroidMusicPlayer/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RSMungMusic.iml" filepath="$PROJECT_DIR$/.idea/modules/RSMungMusic.iml" group="RSMungMusic" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="RSMungMusic/app" />
     </modules>
   </component>
 </project>

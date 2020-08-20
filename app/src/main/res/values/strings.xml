@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Mung音乐播放器</string>
+    <string name="app_name">RSMungMusic</string>
 
     <string name="button_exit">退出</string>
     <string name="button_ok">确定</string>

@@ -162,11 +162,13 @@
         android:clickable="true"
         android:focusable="true">
         <ImageView
+            android:id="@+id/user_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/dp_10"
             android:src="@drawable/head_mung"/>
         <TextView
+            android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/dp_10"
